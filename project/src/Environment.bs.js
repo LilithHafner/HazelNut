@@ -8,7 +8,7 @@ function lookup(_env, identifier) {
   while(true) {
     var env = _env;
     if (!env) {
-      return Pervasives.failwith("Unbound variable");
+      return Pervasives.failwith("Unexpected unbound variable");
     }
     var xs = env[1];
     var match = env[0];

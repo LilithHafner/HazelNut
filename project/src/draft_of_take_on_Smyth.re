@@ -2,12 +2,13 @@
 This is a hot take on Smyth. It is intended to do the same stuff, but 
 slightly refactored to more directly follow from standard type-checking
 and evaluation for brevity and clarity. Notably, this is a mild departure
-from the ICFP paper's description, but should be semantically equivalent.
+from the ICFP paper's description, but should be semantically equivalent
+at the highest level (albiet not neccessarrily at intermediary levels).
 */
 type identifier = string
 type hole_identifier = int
 
-/* The reason I use these, that is, include example refined types at every node,
+/* A reason to use these, that is, include example refined types at every node,
 is that it allows more fluid annotation than assert statements. This supports
 example refined typed annotations for all expressions, much like how Reason
 supports plain type annotations for all expressions.  
@@ -54,6 +55,25 @@ and examples = list(example)
 and example_refined_type = (type_, examples)
 type hole_constraints = list((hole_identifier, example_refined_type))
 
+
+/*
+If an expression must satisfy two types, examples, or ERTs 
+(example refined types), then this set of functions is appropriate. 
+They take in two such constraints, and return a stritcter constraint
+that is equivilant to the satisfaction of both input constraints.
+*/
+let type_intersection (t1:type_, t2:type_): type_ = 
+  switch (t1, t2) {
+  | (Any_t, x) | (x, Any_t) => x
+  | (a,b) when a == b => a
+  | _ => Fail_t
+  }
+let merge_examples = List.append
+let example_refined_type_intersection (ert1:example_refined_type, ert2:example_refined_type):example_refined_type =
+  switch (ert1, ert2) {
+  | ((t1, es1), (t2, es2)) => (type_intersection(t1,t2), merge_examples(es1, es2))
+  }
+
 /*
 This is where some magic happens.
 
@@ -66,14 +86,57 @@ as an ordinary type checker would do, or to continue through, as an
 ordinary evaluator would do. This will continue through, albiet at the
 risk of nontermination in the presence of nonterminating programs.
 */
-let bidirectional_typecheck (sketch:example_refined_typed_exp, environment:environment):example_refined_typed_exp =
-  switch(sketch) {
-  | (example_refined_type, exp) => (example_refined_type, switch(exp) {
-    | Variable(identifier) => Environment.lookup(environment, identifier)
-    | x => x
-    })
-  }
+let rec bidirectional_typecheck (toplevel_ERT:example_refined_type, exp:exp, environment:environment):example_refined_typed_exp = {
+  let exp_but_with_ERTs_propigated_one_step:exp = 
+      propigate_ERTs_down_one_level(toplevel_ERT, exp, environment);
 
+  let exp_but_with_ERTs_propigated_all_the_way_down_and_almost_all_the_way_back_up:exp = 
+      recurse(exp_but_with_ERTs_propigated_one_step, environment);
+
+  let toplevel_ERT_implied_by_childrens_ERTs:example_refined_type = 
+      propigate_ERTs_up_one_level(exp_but_with_ERTs_propigated_all_the_way_down_and_almost_all_the_way_back_up);
+
+  let new_ERT:example_refined_type = 
+      example_refined_type_intersection(toplevel_ERT, toplevel_ERT_implied_by_childrens_ERTs);
+  
+  (new_ERT, exp_but_with_ERTs_propigated_all_the_way_down_and_almost_all_the_way_back_up)
+}
+and propigate_ERTs_down_one_level (toplevel_ERT:example_refined_type, exp:exp, environment:environment):exp = 
+  exp
+/* switch(exp) {
+  | Int(x) => Int(x)
+  | Float(x) => Float(x)
+  | Bool(x) => Bool(x)
+  | Variable(identifier) => Environment.lookup(environment, identifier)
+  | Cons(head, tail) => Match Cons(
+    failwith("Unexpected type error. A cons exp was not supposed to be a list.") bidirectional_typecheck(head, environment), bidirectional_typecheck(tail, environment)
+    )
+  | Nil => Nil
+  | Function(identifier, example_refined_typed_exp)
+  | Application(example_refined_typed_exp, example_refined_typed_exp)
+  | Hole(hole_identifier)
+  | Variable(identifier) => Environment.lookup(environment, identifier)
+  | Variable(identifier) => Environment.lookup(environment, identifier)
+  | x => x 
+}*/
+and recurse (exp:exp, environment:environment):exp =
+  exp
+/* switch(exp) {
+  | Int(x) => Int(x)
+  | Float(x) => Float(x)
+  | Bool(x) => Bool(x)
+  | Cons(head, tail) => Cons(bidirectional_typecheck(head, environment), bidirectional_typecheck(tail, environment))
+  | Nil => Nil
+  | Variable(identifier)
+  | Function(identifier, example_refined_typed_exp)
+  | Application(example_refined_typed_exp, example_refined_typed_exp)
+  | Hole(hole_identifier)
+  | Variable(identifier) => Environment.lookup(environment, identifier)
+  | Variable(identifier) => Environment.lookup(environment, identifier)
+  | x => x
+} */
+and propigate_ERTs_up_one_level(exp:exp):example_refined_type =
+  (Any_t, [])
 
 /*
 This should return a sequence, but I don't know the syntax for that in reason.
@@ -103,4 +166,3 @@ let add (x:int, y:int):int = x+y
 
 print_int(add(11, 7));
 print_string("\n");
-
