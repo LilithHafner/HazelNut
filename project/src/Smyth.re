@@ -69,7 +69,7 @@ as an ordinary type checker would do, or to continue through, as an
 ordinary evaluator would do. This will continue through, albiet at the
 risk of nontermination in the presence of nonterminating programs.
 */
-let bidirectional_typecheck (sketch:example_refined_typed_exp):example_refined_typed_exp =
+let bidirectional_typecheck (sketch:example_refined_typed_exp, environment:environment):example_refined_typed_exp =
     sketch
 
 

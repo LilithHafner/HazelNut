@@ -29,7 +29,7 @@ function example_refined_type_intersection(ert1, ert2) {
         ];
 }
 
-function bidirectional_typecheck(sketch) {
+function bidirectional_typecheck(sketch, environment) {
   return sketch;
 }
 
