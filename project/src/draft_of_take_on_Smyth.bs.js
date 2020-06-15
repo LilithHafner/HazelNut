@@ -2,8 +2,10 @@
 'use strict';
 
 var List = require("bs-platform/lib/js/list.js");
+var Block = require("bs-platform/lib/js/block.js");
 var Caml_obj = require("bs-platform/lib/js/caml_obj.js");
 var Pervasives = require("bs-platform/lib/js/pervasives.js");
+var Environment$MyNewProject = require("./Environment.bs.js");
 
 function type_intersection(t1, t2) {
   if (typeof t1 === "number" && t1 === 2) {
@@ -30,7 +32,37 @@ function example_refined_type_intersection(ert1, ert2) {
 }
 
 function bidirectional_typecheck(sketch, environment) {
-  return sketch;
+  var exp = sketch[1];
+  var tmp;
+  tmp = typeof exp === "number" || exp.tag !== /* Variable */4 ? exp : Environment$MyNewProject.lookup(environment, exp[0]);
+  return /* tuple */[
+          sketch[0],
+          tmp
+        ];
+}
+
+function enumerate(specification, environment, budget) {
+  var match = specification[0];
+  if (typeof match !== "number") {
+    return /* [] */0;
+  }
+  if (match !== 0) {
+    return /* [] */0;
+  }
+  var match$1 = specification[1];
+  if (!match$1) {
+    return /* [] */0;
+  }
+  var match$2 = match$1[0];
+  var match$3 = match$2[1];
+  if (typeof match$3 === "number" || match$3.tag || match$3[0] !== 1 || match$1[1] || !(Caml_obj.caml_equal(match$2[0], environment) && budget >= 1)) {
+    return /* [] */0;
+  } else {
+    return /* :: */[
+            /* Int */Block.__(0, [1]),
+            /* [] */0
+          ];
+  }
 }
 
 function add(x, y) {
@@ -47,5 +79,6 @@ exports.type_intersection = type_intersection;
 exports.merge_examples = merge_examples;
 exports.example_refined_type_intersection = example_refined_type_intersection;
 exports.bidirectional_typecheck = bidirectional_typecheck;
+exports.enumerate = enumerate;
 exports.add = add;
 /*  Not a pure module */

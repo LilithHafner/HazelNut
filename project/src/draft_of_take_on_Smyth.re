@@ -71,9 +71,8 @@ let example_refined_type_intersection (ert1:example_refined_type, ert2:example_r
   | ((t1, es1), (t2, es2)) => (type_intersection(t1,t2), merge_examples(es1, es2))
   }
 
-
 /*
-This is where the magic happens.
+This is where some magic happens.
 
 You call this function with an example_refined_typed_exp, it propigates 
 top-level ERTs (example refined types) down one level, recurs, and then 
@@ -85,10 +84,22 @@ ordinary evaluator would do. This will continue through, albiet at the
 risk of nontermination in the presence of nonterminating programs.
 */
 let bidirectional_typecheck (sketch:example_refined_typed_exp, environment:environment):example_refined_typed_exp =
-    sketch
+  switch(sketch) {
+  | (example_refined_type, exp) => (example_refined_type, switch(exp) {
+    | Variable(identifier) => Environment.lookup(environment, identifier)
+    | x => x
+    })
+  }
 
 
+/*
 
+*/
+let enumerate (specification:example_refined_type, environment:environment, budget:int) = 
+  switch(specification) {
+  | (Int_t, [(env, Int(1))]) when env == environment && budget >= 1 => [Int(1)]
+  | _ => []
+  }
 
 
 /*
