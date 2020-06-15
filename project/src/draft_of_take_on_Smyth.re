@@ -86,7 +86,13 @@ as an ordinary type checker would do, or to continue through, as an
 ordinary evaluator would do. This will continue through, albiet at the
 risk of nontermination in the presence of nonterminating programs.
 */
-let rec bidirectional_typecheck (toplevel_ERT:example_refined_type, exp:exp, environment:environment):example_refined_typed_exp = {
+/*
+Low priority: Perhaps the order of arguments should be reversed to 
+allow for refactoring using partial application in recursive calls?
+*/
+let rec bidirectional_typecheck (ert_exp:example_refined_typed_exp, environment:environment):example_refined_typed_exp = {
+  let (toplevel_ERT, exp) = ert_exp;
+
   let exp_but_with_ERTs_propigated_one_step:exp = 
       propigate_ERTs_down_one_level(toplevel_ERT, exp, environment);
 
@@ -119,22 +125,24 @@ and propigate_ERTs_down_one_level (toplevel_ERT:example_refined_type, exp:exp, e
   | Variable(identifier) => Environment.lookup(environment, identifier)
   | x => x 
 }*/
+/* This whole function can probably be replaced with a 
+builtin monadic fold opperation or some such. */
 and recurse (exp:exp, environment:environment):exp =
-  exp
-/* switch(exp) {
+  switch(exp) {
   | Int(x) => Int(x)
   | Float(x) => Float(x)
   | Bool(x) => Bool(x)
   | Cons(head, tail) => Cons(bidirectional_typecheck(head, environment), bidirectional_typecheck(tail, environment))
   | Nil => Nil
-  | Variable(identifier)
-  | Function(identifier, example_refined_typed_exp)
-  | Application(example_refined_typed_exp, example_refined_typed_exp)
-  | Hole(hole_identifier)
-  | Variable(identifier) => Environment.lookup(environment, identifier)
-  | Variable(identifier) => Environment.lookup(environment, identifier)
-  | x => x
-} */
+  | Variable(id) => Variable(id)
+  /* Something special may need to happen here, a merge of sorts. 
+  When a function is called, we should recurse from the body such that
+  the constraints on repeated and recursive calls to functions mesh properly. 
+  Perhaps that happens automatically? This is a point if confusion for me. */
+  | Function(id, body) => Function(id, bidirectional_typecheck(body, environment))
+  | Application(cand, cator) => Application(bidirectional_typecheck(cand, environment), bidirectional_typecheck(cator, environment))
+  | Hole(hole_identifier) => Hole(hole_identifier)
+}
 and propigate_ERTs_up_one_level(exp:exp):example_refined_type =
   (Any_t, [])
 
@@ -164,5 +172,5 @@ This is a sanity check to verify my IDE
 */
 let add (x:int, y:int):int = x+y
 
-print_int(add(11, 7));
+print_int(add(4, 7));
 print_string("\n");

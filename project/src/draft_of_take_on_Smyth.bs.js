@@ -30,29 +30,60 @@ function example_refined_type_intersection(ert1, ert2) {
         ];
 }
 
-function propigate_ERTs_up_one_level(exp) {
+function bidirectional_typecheck(ert_exp, environment) {
+  var exp_but_with_ERTs_propigated_all_the_way_down_and_almost_all_the_way_back_up = recurse(ert_exp[1], environment);
+  var new_ERT = example_refined_type_intersection(ert_exp[0], /* tuple */[
+        /* Any_t */2,
+        /* [] */0
+      ]);
   return /* tuple */[
-          /* Any_t */2,
-          /* [] */0
+          new_ERT,
+          exp_but_with_ERTs_propigated_all_the_way_down_and_almost_all_the_way_back_up
         ];
+}
+
+function recurse(exp, environment) {
+  if (typeof exp === "number") {
+    return /* Nil */0;
+  }
+  switch (exp.tag | 0) {
+    case /* Int */0 :
+        return /* Int */Block.__(0, [exp[0]]);
+    case /* Float */1 :
+        return /* Float */Block.__(1, [exp[0]]);
+    case /* Bool */2 :
+        return /* Bool */Block.__(2, [exp[0]]);
+    case /* Cons */3 :
+        return /* Cons */Block.__(3, [
+                  bidirectional_typecheck(exp[0], environment),
+                  bidirectional_typecheck(exp[1], environment)
+                ]);
+    case /* Variable */4 :
+        return /* Variable */Block.__(4, [exp[0]]);
+    case /* Function */5 :
+        return /* Function */Block.__(5, [
+                  exp[0],
+                  bidirectional_typecheck(exp[1], environment)
+                ]);
+    case /* Application */6 :
+        return /* Application */Block.__(6, [
+                  bidirectional_typecheck(exp[0], environment),
+                  bidirectional_typecheck(exp[1], environment)
+                ]);
+    case /* Hole */7 :
+        return /* Hole */Block.__(7, [exp[0]]);
+    
+  }
 }
 
 function propigate_ERTs_down_one_level(toplevel_ERT, exp, environment) {
   return exp;
 }
 
-function recurse(exp, environment) {
-  return exp;
-}
-
-function bidirectional_typecheck(toplevel_ERT, exp, environment) {
-  var new_ERT = example_refined_type_intersection(toplevel_ERT, /* tuple */[
-        /* Any_t */2,
-        /* [] */0
-      ]);
+function propigate_ERTs_up_one_level(exp) {
   return /* tuple */[
-          new_ERT,
-          exp
+          /* Any_t */2,
+          /* [] */0
         ];
 }
 
@@ -94,7 +125,7 @@ function add(x, y) {
   return x + y | 0;
 }
 
-Pervasives.print_int(18);
+Pervasives.print_int(11);
 
 Pervasives.print_string("\n");
 
