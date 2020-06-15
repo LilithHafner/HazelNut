@@ -1,30 +1,5 @@
-open Smyth;
-// Returns result associated with variable x
-let rec varHelper = (_env, x) => {
-    switch (_env) {
-        | [] => Runit
-        | [(id, r), ...e] => {
-            if (x == id) {
-                r
-            } else {
-                varHelper(e, x)
-            }
-        }
-    }
-};
 
-let rec inEnv = (env, x) => {
-    switch(env) {
-        | [] => false
-        | [(id, _), ...e] => {
-            if (x == id) {
-                true
-            } else {
-                inEnv(e, x)
-            }
-        }
-    }
-};
+open Draft_of_take_on_Smyth;
 
 // Takes an expression and returns a corresponding result
 // e -> r
@@ -32,7 +7,7 @@ let rec inEnv = (env, x) => {
 let rec eval = (_env, (_, e)) => {
     switch (e) {
         | Hole(x) => Rhole(x, _env)
-        | Var(x) => varHelper(_env, x)
+        | Var(x) => Environment.lookup(_env, x)
         | Function(id, exp) => Rfunc(id, exp, _env)
         | Application((t1, e1), e2) => {
             switch (e1) {
@@ -51,19 +26,4 @@ let rec eval = (_env, (_, e)) => {
         | Nil => Rnil 
     }
 };
-
-
-/* // WIP
-let eGuess = (context, goal, exs, k) => {
-    switch context {
-        Conempt => [],
-        Cont(context', x, t) => {
-            if t == goal {
-                let e = Var(x);
-                
-            }
-        }
-    }
-}
-*/
 

@@ -70,6 +70,7 @@ and type_ =
   | Fail_t
 
 and environment = list((identifier, res))
+and context = list((identifier, type_))
 and example = (environment, exp)
 and examples = list(example)
 and example_refined_type = (type_, examples)
@@ -107,7 +108,7 @@ risk of nontermination in the presence of nonterminating programs.
 let bidirectional_typecheck (sketch:example_refined_typed_exp, environment:environment):example_refined_typed_exp =
   switch(sketch) {
   | (example_refined_type, exp) => (example_refined_type, switch(exp) {
-    | Variable(identifier) => Environment.lookup(environment, identifier)
+    // Commented for now, but I think typechecking should use context rather than environment | Variable(identifier) => Environment.lookup(environment, identifier)
     | x => x
     })
   }
