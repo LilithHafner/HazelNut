@@ -103,6 +103,16 @@ let enumerate (specification:example_refined_type, environment:environment, budg
 
 
 /*
+This is the main function, and could be called main just as well as synthesize.
+It takes in a sketch, including any ERT (example refined type) annotations, and
+attempts to synthesize a program without holes. It has three possible outcomes:
+In the vernacular of SAT/SMT: UNSAT, and SAT, UNSAT, and TIMEOUT. UNSAT should
+only happen if there are inconsistant type annotations (implied or explicit).
+*/
+let synthesize (sketch:example_refined_typed_exp):example_refined_typed_exp = 
+  sketch
+
+/*
 This is a sanity check to verify my IDE 
 (and provide a syntax reference for printing).
 */

@@ -65,6 +65,10 @@ function enumerate(specification, environment, budget) {
   }
 }
 
+function synthesize(sketch) {
+  return sketch;
+}
+
 function add(x, y) {
   return x + y | 0;
 }
@@ -80,5 +84,6 @@ exports.merge_examples = merge_examples;
 exports.example_refined_type_intersection = example_refined_type_intersection;
 exports.bidirectional_typecheck = bidirectional_typecheck;
 exports.enumerate = enumerate;
+exports.synthesize = synthesize;
 exports.add = add;
 /*  Not a pure module */
