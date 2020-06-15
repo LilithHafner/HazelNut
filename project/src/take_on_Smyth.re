@@ -21,6 +21,7 @@ and exp =
   | Bool(bool)
   | Cons(example_refined_typed_exp, example_refined_typed_exp)
   | Nil
+  | Variable(identifier)
   | Function(identifier, example_refined_typed_exp)
   | Application(example_refined_typed_exp, example_refined_typed_exp)
   | Hole(hole_identifier)
@@ -71,7 +72,6 @@ risk of nontermination in the presence of nonterminating programs.
 */
 let bidirectional_typecheck (sketch:example_refined_typed_exp, environment:environment):example_refined_typed_exp =
     sketch
-
 
 /*
 This is a sanity check to verify my IDE 
