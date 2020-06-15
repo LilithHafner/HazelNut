@@ -93,11 +93,11 @@ let bidirectional_typecheck (sketch:example_refined_typed_exp, environment:envir
 
 
 /*
-
+This should return a sequence, but I don't know the syntax for that in reason.
 */
-let enumerate (specification:example_refined_type, environment:environment, budget:int) = 
+let refine (specification:example_refined_type, environment:environment):list(example_refined_typed_exp) = 
   switch(specification) {
-  | (Int_t, [(env, Int(1))]) when env == environment && budget >= 1 => [Int(1)]
+  | (Int_t, [(env, Int(1))]) when env == environment => [((Int_t, []), Int(1))]
   | _ => []
   }
 

@@ -41,7 +41,7 @@ function bidirectional_typecheck(sketch, environment) {
         ];
 }
 
-function enumerate(specification, environment, budget) {
+function refine(specification, environment) {
   var match = specification[0];
   if (typeof match !== "number") {
     return /* [] */0;
@@ -55,11 +55,17 @@ function enumerate(specification, environment, budget) {
   }
   var match$2 = match$1[0];
   var match$3 = match$2[1];
-  if (typeof match$3 === "number" || match$3.tag || match$3[0] !== 1 || match$1[1] || !(Caml_obj.caml_equal(match$2[0], environment) && budget >= 1)) {
+  if (typeof match$3 === "number" || match$3.tag || match$3[0] !== 1 || match$1[1] || !Caml_obj.caml_equal(match$2[0], environment)) {
     return /* [] */0;
   } else {
     return /* :: */[
-            /* Int */Block.__(0, [1]),
+            /* tuple */[
+              /* tuple */[
+                /* Int_t */0,
+                /* [] */0
+              ],
+              /* Int */Block.__(0, [1])
+            ],
             /* [] */0
           ];
   }
@@ -83,7 +89,7 @@ exports.type_intersection = type_intersection;
 exports.merge_examples = merge_examples;
 exports.example_refined_type_intersection = example_refined_type_intersection;
 exports.bidirectional_typecheck = bidirectional_typecheck;
-exports.enumerate = enumerate;
+exports.refine = refine;
 exports.synthesize = synthesize;
 exports.add = add;
 /*  Not a pure module */
