@@ -13,7 +13,7 @@ example refined typed annotations for all expressions, much like how Reason
 supports plain type annotations for all expressions.  
 
 Also, now instead of treating holes as special, we can use standard (albiet
-bidirectional) type inference for all expressions.*/
+bidirectional) type inference for all expressions. */
 type example_refined_typed_exp = (example_refined_type, exp)
 and exp = 
   | Int(int)
@@ -25,7 +25,21 @@ and exp =
   | Function(identifier, example_refined_typed_exp)
   | Application(example_refined_typed_exp, example_refined_typed_exp)
   | Hole(hole_identifier)
-
+/* /* result could be called value. It is an exp that cannot be evaluated any more. */
+and result = 
+  | Int(int)
+  | Float(float)
+  | Bool(bool)
+  | Cons(example_refined_typed_exp, example_refined_typed_exp)
+  | Nil
+  | Variable(identifier)
+  | Function(identifier, example_refined_typed_exp)
+  | Application(Hole(hole_identifier), example_refined_typed_exp)
+  /* This could be problematic because it could potentially be evaluated further, 
+  as the disctinction between free and bound variables is not accessable here.
+  These types are not quite sound in what they claim. */
+  | Application(Variable(identifier), example_refined_typed_exp)
+  | Hole(hole_identifier)*/ 
 and type_ =
   | Int_t
   | Bool_t
@@ -72,6 +86,10 @@ risk of nontermination in the presence of nonterminating programs.
 */
 let bidirectional_typecheck (sketch:example_refined_typed_exp, environment:environment):example_refined_typed_exp =
     sketch
+
+
+
+
 
 /*
 This is a sanity check to verify my IDE 
