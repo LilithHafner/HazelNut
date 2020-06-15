@@ -1,4 +1,8 @@
 /*
+This is a draft and a working document, intended as much to build my
+understanding of Smyth, its goals, and the world it opperates in as
+to replicate its functionality. It is an expiremental, not a final draft.
+
 This is a hot take on Smyth. It is intended to do the same stuff, but 
 slightly refactored to more directly follow from standard type-checking
 and evaluation for brevity and clarity. Notably, this is a mild departure
