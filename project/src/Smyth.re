@@ -24,6 +24,26 @@ and exp =
   | Function(identifier, example_refined_typed_exp)
   | Application(example_refined_typed_exp, example_refined_typed_exp)
   | Hole(hole_identifier)
+  | Unit 
+  | Var(identifier)
+  | Pair(example_refined_typed_exp, example_refined_typed_exp)
+  | Fst(example_refined_typed_exp)
+  | Snd(example_refined_typed_exp)
+
+
+and res =
+    | Rint(int)
+    | Rfloat(float)
+    | Rbool(bool)
+    | Rcons(res, res)
+    | Rnil 
+    | Rfunc(identifier, example_refined_typed_exp, environment)
+    | Rapp(res, res)
+    | Rhole(hole_identifier, environment)
+    | Runit 
+    | Rpair(res, res)
+    | Rfst(res)
+    | Rsnd(res)
 
 and type_ =
   | Int_t
@@ -33,7 +53,7 @@ and type_ =
   | Any_t
   | Fail_t
 
-and environment = list((identifier, exp))
+and environment = list((identifier, res))
 and example = (environment, exp)
 and examples = list(example)
 and example_refined_type = (type_, examples)
