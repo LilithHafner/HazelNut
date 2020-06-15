@@ -3,6 +3,6 @@
 
 var Pervasives = require("bs-platform/lib/js/pervasives.js");
 
-Pervasives.print_string("Hello worwwld!\n");
+Pervasives.print_string("Hello World!\n");
 
 /*  Not a pure module */
