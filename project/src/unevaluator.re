@@ -35,3 +35,30 @@ let rec unevaluate = (res, ex) => {
         | _ => [] 
     }
 };
+
+let rec constrainExp = (exp, exs) => {
+    switch (exs) {
+        | [] => []
+        | [ex, ...xs] => {
+            switch (ex) {
+                | Efunc(v, ex') => List.concat([unevaluate(Evaluator.evaluate(App(exp, valToExp(v))), ex), constrainExp(exp, xs)])
+                | _ => List.concat([unevaluate(Evaluator.evaluate(exp, []), ex), constrainExp(exp, xs)])
+                }
+        }
+    }
+};
+
+let rec exToExp = (ex) => {
+    switch (ex) {
+        | Epair(ex1, ex2) => Pair(exToExp(ex1), exToExp(ex2))
+        | Eunit => Unit 
+        | _ => failwith("Cannot convert to expression")
+        }
+};
+
+let rec valToExp = (v) => {
+    switch (v) {
+        | Vunit => Unit 
+        | Vpair(v1, v2) => Pair(valToExp(v1), valToExp(v2))
+        }
+};
