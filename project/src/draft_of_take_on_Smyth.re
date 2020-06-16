@@ -19,17 +19,17 @@ and exp =
   | Int(int)
   | Float(float)
   | Bool(bool)
-  | Cons(example_refined_typed_exp, example_refined_typed_exp)
-  | Nil
+  | Cons(exp, exp)
+  | Nil 
   | Variable(identifier)
-  | Function(identifier, example_refined_typed_exp)
-  | Application(example_refined_typed_exp, example_refined_typed_exp)
+  | Function(identifier, exp)
+  | Application(exp, exp)
   | Hole(hole_identifier)
   | Unit 
   | Var(identifier)
-  | Pair(example_refined_typed_exp, example_refined_typed_exp)
-  | Fst(example_refined_typed_exp)
-  | Snd(example_refined_typed_exp)
+  | Pair(exp, exp)
+  | Fst(exp)
+  | Snd(exp)
 
 
 and res =
@@ -38,7 +38,7 @@ and res =
     | Rbool(bool)
     | Rcons(res, res)
     | Rnil 
-    | Rfunc(identifier, example_refined_typed_exp, environment)
+    | Rfunc(identifier, exp, environment)
     | Rapp(res, res)
     | Rhole(hole_identifier, environment)
     | Runit 
