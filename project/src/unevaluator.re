@@ -13,41 +13,12 @@
     -Sam
 */
 
-open Draft_of_take_on_Smyth;
+open Types;
 
-type ex =
-    | Top 
-    | Eunit 
-    | Epair(ex, ex)
-    | Efunc(value, ex)
-
-and value =
-    | Vunit 
-    | Vpair(value, value);
-
-let rec valToExp = (v) => {
-    switch (v) {
-        | Vunit => Unit 
-        | Vpair(v1, v2) => Pair(valToExp(v1), valToExp(v2))
-        }
-};
-
-// This function is totally incorrect
-// Needs to only contain top-level some / none, right now even if no corresponding
-// value exists it can still return some.
-let rec resToVal = (res) => {
-    switch (res) {
-        | Runit => Some(Vunit)
-        | Rpair(r1, r2) => 
-            switch ((resToVal(r1), resToVal(r2))) {
-                | (Some(x), Some(y)) => Some(Vpair(x, y))
-                | _ => None
-                }
-        | _ => None
-        }
-};
 
 // Generates constraints from a result and example
+// No constructors in language yet, will probably add later
+// But that means there's a bunch less cases
 let rec unevaluate = (res, ex) => {
     switch ((ex, res)) {
         | (Top, _) => []
@@ -57,8 +28,14 @@ let rec unevaluate = (res, ex) => {
         | (_, Rhole(env, id)) => [(id, (env, ex))]
         | (_, Rfst(r)) => unevaluate(r, Epair(ex, Top))
         | (_, Rsnd(r)) => unevaluate(r, Epair(Top, ex))
-        | (_, Rapp(r1, r2)) => []
-        | _ => [] 
+        | (_, Rapp(r1, r2)) =>
+            if (castable(r2)) {
+                let Some(v) = resToVal(r2);
+                unevaluate(r1, Efunc(v, ex))
+            } else {
+                [] // fail
+            }
+        | _ => [] // fail
     }
 };
 
@@ -74,20 +51,4 @@ let rec constrainExp = (exp, exs) => {
     }
 };
 
-let rec exToExp = (ex) => {
-    switch (ex) {
-        | Epair(ex1, ex2) => 
-            switch ((exToExp(ex1), exToExp(ex2))) {
-                | (Some(x), Some(y)) => Some(Pair(x, y))
-                | _ => None
-                }
-        | Eunit => Some(Unit)
-        | _ => None
-        }
-};
 
-let castable = (res) => 
-    switch (resToVal(res)) {
-        | Some(_) => true
-        | None => false
-        }

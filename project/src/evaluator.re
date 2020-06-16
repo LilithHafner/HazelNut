@@ -1,5 +1,5 @@
 
-open Draft_of_take_on_Smyth;
+open Types;
 
 // Takes an expression and returns a corresponding result
 // e -> r
@@ -7,7 +7,7 @@ open Draft_of_take_on_Smyth;
 let rec eval = (_env, e) => {
     switch (e) {
         | Hole(x) => Rhole(x, _env)
-        | Var(x) => Environment.lookup(_env, x)
+        | Var(x) => Tools.lookup(x, _env)
         | Function(id, exp) => Rfunc(id, exp, _env)
         | Application(e1, e2) => {
             switch (e1) {
