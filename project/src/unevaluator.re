@@ -25,6 +25,13 @@ and value =
     | Vunit 
     | Vpair(value, value);
 
+let rec valToExp = (v) => {
+    switch (v) {
+        | Vunit => ((Any_t, []), Unit) 
+        | Vpair(v1, v2) => ((Any_t, []), Pair(valToExp(v1), valToExp(v2)))
+        }
+};
+
 // Generates constraints from a result and example
 let rec unevaluate = (res, ex) => {
     switch ((ex, res)) {
@@ -41,8 +48,8 @@ let rec constrainExp = (exp, exs) => {
         | [] => []
         | [ex, ...xs] => {
             switch (ex) {
-                | Efunc(v, ex') => List.concat([unevaluate(Evaluator.evaluate(App(exp, valToExp(v))), ex), constrainExp(exp, xs)])
-                | _ => List.concat([unevaluate(Evaluator.evaluate(exp, []), ex), constrainExp(exp, xs)])
+                | Efunc(v, ex') => List.concat([unevaluate(Evaluator.eval([], ((Any_t, []), Application(exp, valToExp(v)))), ex), constrainExp(exp, xs)])
+                | _ => List.concat([unevaluate(Evaluator.eval([], exp), ex), constrainExp(exp, xs)])
                 }
         }
     }
@@ -50,15 +57,9 @@ let rec constrainExp = (exp, exs) => {
 
 let rec exToExp = (ex) => {
     switch (ex) {
-        | Epair(ex1, ex2) => Pair(exToExp(ex1), exToExp(ex2))
-        | Eunit => Unit 
+        | Epair(ex1, ex2) => ((Any_t, []), Pair(exToExp(ex1), exToExp(ex2)))
+        | Eunit => ((Any_t, []), Unit)
         | _ => failwith("Cannot convert to expression")
         }
 };
 
-let rec valToExp = (v) => {
-    switch (v) {
-        | Vunit => Unit 
-        | Vpair(v1, v2) => Pair(valToExp(v1), valToExp(v2))
-        }
-};
