@@ -5,7 +5,6 @@ var List = require("bs-platform/lib/js/list.js");
 var Block = require("bs-platform/lib/js/block.js");
 var Caml_obj = require("bs-platform/lib/js/caml_obj.js");
 var Pervasives = require("bs-platform/lib/js/pervasives.js");
-var Environment$MyNewProject = require("./Environment.bs.js");
 
 function type_intersection(t1, t2) {
   if (typeof t1 === "number" && t1 === 2) {
@@ -32,12 +31,9 @@ function example_refined_type_intersection(ert1, ert2) {
 }
 
 function bidirectional_typecheck(sketch, environment) {
-  var exp = sketch[1];
-  var tmp;
-  tmp = typeof exp === "number" || exp.tag !== /* Variable */4 ? exp : Environment$MyNewProject.lookup(environment, exp[0]);
   return /* tuple */[
           sketch[0],
-          tmp
+          sketch[1]
         ];
 }
 
