@@ -33,7 +33,7 @@ and res =
     | Rcons(res, res)
     | Rnil 
     | Rfunc(identifier, exp, environment)
-    | Rapp(res, res)
+    | Rapp(res, res)//Can we limit the type of result in the applicator position?
     | Rhole(hole_identifier, environment)
     | Runit 
     | Rpair(res, res)
