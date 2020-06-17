@@ -14,28 +14,6 @@ function valToExp(v) {
   }
 }
 
-function resToVal(res) {
-  if (typeof res === "number") {
-    if (res === /* Runit */1) {
-      return /* Vunit */0;
-    } else {
-      return ;
-    }
-  }
-  if (res.tag !== /* Rpair */7) {
-    return ;
-  }
-  var match = resToVal(res[0]);
-  var match$1 = resToVal(res[1]);
-  if (match !== undefined && match$1 !== undefined) {
-    return /* Vpair */[
-            match,
-            match$1
-          ];
-  }
-  
-}
-
 function exToExp(ex) {
   if (typeof ex === "number") {
     if (ex === /* Top */0) {
@@ -58,12 +36,34 @@ function exToExp(ex) {
   
 }
 
+function resToVal(res) {
+  if (typeof res === "number") {
+    if (res === /* Runit */1) {
+      return /* Vunit */0;
+    } else {
+      return ;
+    }
+  }
+  if (res.tag !== /* Rpair */7) {
+    return ;
+  }
+  var match = resToVal(res[0]);
+  var match$1 = resToVal(res[1]);
+  if (match !== undefined && match$1 !== undefined) {
+    return /* Vpair */[
+            match,
+            match$1
+          ];
+  }
+  
+}
+
 function castable(res) {
   return resToVal(res) !== undefined;
 }
 
 exports.valToExp = valToExp;
-exports.resToVal = resToVal;
 exports.exToExp = exToExp;
+exports.resToVal = resToVal;
 exports.castable = castable;
 /* No side effect */

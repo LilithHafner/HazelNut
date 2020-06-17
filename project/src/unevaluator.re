@@ -19,7 +19,7 @@ open Types;
 // Generates constraints from a result and example
 // No constructors in language yet, will probably add later
 // But that means there's a bunch less cases
-let rec unevaluate = (res, ex) => {
+let rec unevaluate = (res:res, ex:example) => {
     switch ((ex, res)) {
         | (Top, _) => []
         | (Eunit, Runit) => []

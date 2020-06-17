@@ -56,17 +56,21 @@ and environment = Tools.pairlist(identifier, res)
 and context = Tools.pairlist(identifier, type_)
 
 // Types all of the holes
+// I think we should clarify this and the type which unevaluate returns.
 type hole_constraints = list((hole_identifier, type_))
 
 // Examples
 //   Needs to be filled out more
-type ex =
+type example =
     | Top 
     | Eunit 
-    | Epair(ex, ex)
-    | Efunc(value, ex)
+    | Epair(example, example)
+/* I don't understand this constructor. 
+Is value the formal parameter and example the body? 
+would that be an application expression? */
+    | Efunc(value, example)
 
-// Actual values
+// Simple values
 //   For now a single constant
 //   plus pairs
 and value =
@@ -77,29 +81,14 @@ and value =
 //                     Typecasting Functions
 //----------------------------------------------------------------------
 
-// val -> exp
-let rec valToExp = (v) => {
+let rec valToExp (v:value) : exp = {
     switch (v) {
         | Vunit => Unit 
         | Vpair(v1, v2) => Pair(valToExp(v1), valToExp(v2))
         }
 };
 
-// res -> val
-let rec resToVal = (res) => {
-    switch (res) {
-        | Runit => Some(Vunit)
-        | Rpair(r1, r2) => 
-            switch ((resToVal(r1), resToVal(r2))) {
-                | (Some(x), Some(y)) => Some(Vpair(x, y))
-                | _ => None
-                }
-        | _ => None
-        }
-};
-
-// ex -> exp
-let rec exToExp = (ex) => {
+let rec exToExp (ex:example):option(exp) = {
     switch (ex) {
         | Epair(ex1, ex2) => 
             switch ((exToExp(ex1), exToExp(ex2))) {
@@ -111,8 +100,20 @@ let rec exToExp = (ex) => {
         }
 };
 
-// res -> val possible?
-let castable = (res) => 
+let rec resToVal (res:res):option(value) = {
+    switch (res) {
+        | Runit => Some(Vunit)
+        | Rpair(r1, r2) => 
+            switch ((resToVal(r1), resToVal(r2))) {
+                | (Some(x), Some(y)) => Some(Vpair(x, y))
+                | _ => None
+                }
+        | _ => None
+        }
+};
+
+// is res -> val possible?
+let castable (res:res):bool = 
     switch (resToVal(res)) {
         | Some(_) => true
         | None => false
