@@ -19,12 +19,12 @@ open Types;
 // Generates constraints from a result and example
 // No constructors in language yet, will probably add later
 // But that means there's a bunch less cases
-let rec unevaluate = (res, ex) => {
+// I believe this is all cases without adding in constructors
+let rec unevaluate = (res:res, ex:example) => {
     switch ((ex, res)) {
         | (Top, _) => []
         | (Eunit, Runit) => []
         | (Epair(ex1, ex2), Rpair(r1, r2)) => List.concat([unevaluate(r1, ex1), unevaluate(r2, ex2)])
-        | (Efunc(v, ex'), Rapp(r1, r2)) => [] 
         | (_, Rhole(env, id)) => [(id, (env, ex))]
         | (_, Rfst(r)) => unevaluate(r, Epair(ex, Top))
         | (_, Rsnd(r)) => unevaluate(r, Epair(Top, ex))
@@ -35,19 +35,19 @@ let rec unevaluate = (res, ex) => {
             } else {
                 [] // fail
             }
+        | (Efunc(v, ex'), Rfunc(id, exp, env)) => {
+            let env' = [(id, valToRes(v)), ...env];
+            let exs = [(env', ex')];
+            constrainExp(exp, exs)
+        }
         | _ => [] // fail
     }
-};
+}
 
-let rec constrainExp = (exp, exs) => {
+and constrainExp = (exp, exs) => {
     switch (exs) {
         | [] => []
-        | [ex, ...xs] => {
-            switch (ex) {
-                | Efunc(v, ex') => List.concat([unevaluate(Evaluator.eval([], Application(exp, valToExp(v))), ex), constrainExp(exp, xs)])
-                | _ => List.concat([unevaluate(Evaluator.eval([], exp), ex), constrainExp(exp, xs)])
-                }
-        }
+        | [(env, ex), ...xs] => List.concat([unevaluate(Evaluator.eval(env, exp), ex), constrainExp(exp, xs)])
     }
 };
 

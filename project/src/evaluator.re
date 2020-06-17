@@ -1,10 +1,10 @@
 
 open Types;
 
-// Takes an expression and returns a corresponding result
-// e -> r
+// Takes an expression and returns a corresponding result by
+// Evaluating the expression until a hole is in applciation position
 
-let rec eval = (_env, e) => {
+let rec eval = (_env:environment, e:exp):res => {
     switch (e) {
         | Hole(x) => Rhole(x, _env)
         | Var(x) => Tools.lookup(x, _env)
@@ -12,7 +12,7 @@ let rec eval = (_env, e) => {
         | Application(e1, e2) => {
             switch (e1) {
                 | Function(id, exp) => eval([(id, eval(_env, e2)), ..._env], exp)
-                | _ => Rapp(eval(_env, e1), eval(_env, e2))
+                | _ => Rapp(eval(_env, e1), eval(_env, e2))//This line seems fishy to me.
             }
         }
         | Unit => Runit 
