@@ -4,26 +4,26 @@
 var Caml_obj = require("bs-platform/lib/js/caml_obj.js");
 var Pervasives = require("bs-platform/lib/js/pervasives.js");
 
-function lookup(_env, identifier) {
+function lookup(key, _plst) {
   while(true) {
-    var env = _env;
-    if (!env) {
-      return Pervasives.failwith("Unbound variable");
+    var plst = _plst;
+    if (!plst) {
+      return Pervasives.failwith("Key not in list");
     }
-    var xs = env[1];
-    var match = env[0];
+    var xs = plst[1];
+    var match = plst[0];
     if (xs) {
       if (xs[1]) {
-        _env = xs;
+        _plst = xs;
         continue ;
       }
-      if (Caml_obj.caml_equal(match[0], identifier)) {
+      if (Caml_obj.caml_equal(match[0], key)) {
         return match[1];
       }
-      _env = xs;
+      _plst = xs;
       continue ;
     }
-    _env = xs;
+    _plst = xs;
     continue ;
   };
 }
