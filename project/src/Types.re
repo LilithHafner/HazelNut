@@ -43,12 +43,14 @@ and res =
 // Types in the language
 //   Currently not in much use
 and type_ =
-  | Int_t
-  | Bool_t
+  | Int_t 
+  | Bool_t 
   | Cons_t(type_)
   | Function_t(type_, type_)
-  | Any_t
-  | Fail_t
+  | Unit_t 
+  | Pair_t(type_, type_)
+  | Any_t 
+  | Fail_t 
 
 // Map from variable names to results
 and environment = Tools.pairlist(identifier, res)
@@ -81,6 +83,8 @@ and excons = Tools.pairlist(environment, example)
 and value =
     | Vunit 
     | Vpair(value, value);
+
+type goal = (context, hole_identifier, type_, excons);
 
 //----------------------------------------------------------------------
 //                     Typecasting Functions
