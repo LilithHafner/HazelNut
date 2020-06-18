@@ -3,6 +3,7 @@ open Types;
 
 // Takes an expression and returns a corresponding result by
 // Evaluating the expression until a hole is in applciation position
+// This process is completely deterministic
 
 let rec eval = (_env:environment, e:exp):res => {
     switch (e) {
