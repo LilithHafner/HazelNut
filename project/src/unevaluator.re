@@ -14,15 +14,20 @@ open Types;
 let rec unevaluate = (res:res, ex:example) => {
     switch ((ex, res)) {
         // Top adds no constraints
-        | (Top, _) => []
+        | (Top, _) => Some([])
         // Matching constants adds no constraints
-        | (Eunit, Runit) => []
+        | (Eunit, Runit) => Some([])
         // A pair of examples adds the constraints of both examples
         // on their respective results
-        | (Epair(ex1, ex2), Rpair(r1, r2)) => List.concat([unevaluate(r1, ex1), unevaluate(r2, ex2)])
+        | (Epair(ex1, ex2), Rpair(r1, r2)) => {
+            switch (unevaluate(r1, ex1), unevaluate(r2, ex2)) {
+                | (Some(k1), Some(k2)) => Some(List.concat([k1, k2]))
+                | _ => None
+                }
+        }
         // A hole adds its environment and example to the list of 
         // unfilled holes.
-        | (_, Rhole(env, id)) => [(id, (env, ex))]
+        | (_, Rhole(env, id)) => Some([(id, (env, ex))])
         | (_, Rfst(r)) => unevaluate(r, Epair(ex, Top))
         | (_, Rsnd(r)) => unevaluate(r, Epair(Top, ex))
         // Attempts to cast r2 to a value, and then continues
@@ -32,7 +37,7 @@ let rec unevaluate = (res:res, ex:example) => {
                 let Some(v) = resToVal(r2);
                 unevaluate(r1, Efunc(v, ex))
             } else {
-                [] // fail
+                None // fail
             }
         // Takes and input-output example and a lambda result,
         // and binds the variable of the lambda to the value,
@@ -43,14 +48,20 @@ let rec unevaluate = (res:res, ex:example) => {
             constrainExp(exp, exs)
         }
         // When none of the inference rules apply
-        | _ => failwith("Unevaluation failed") // fail
+        | _ => None // fail
     }
 }
 
 and constrainExp = (exp, exs) => {
     switch (exs) {
-        | [] => []
-        | [(env, ex), ...xs] => List.concat([unevaluate(Evaluator.eval(env, exp), ex), constrainExp(exp, xs)])
+        | [] => Some([])
+        | [(env, ex), ...xs] => {
+            switch (constrainExp(exp, xs), unevaluate(Evaluator.eval(env, exp), ex)) {
+                | (None, _) => None
+                | (_, None) => None
+                | (Some(k1), Some(k2)) => Some(List.concat([k1, k2]))
+                }
+        }
     }
 };
 
