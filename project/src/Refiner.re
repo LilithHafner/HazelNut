@@ -2,6 +2,14 @@
 
 open Types;
 
+let refinable = ((_, _, typ, _)) => 
+    switch (typ) {
+        | Unit_t 
+        | Pair_t(_, _)
+        | Function_t(_, _) => true
+        | _ => false
+        };
+
 let rec allUnit = (exs) => {
     switch (exs) {
         | [] => true
@@ -36,11 +44,11 @@ let rec allFuncs = (exs) => {
 };
 
 let firstExs = (exs) => List.map(
-    ((env, Epair(ex1, ex2))) => (env, ex1),
+    ((env, Epair(ex1, _))) => (env, ex1),
     exs);
 
 let sndExs = (exs) => List.map(
-    ((env, Epair(ex1, ex2))) => (env, ex2),
+    ((env, Epair(_, ex2))) => (env, ex2),
     exs);
 
 let prepFuncExs = (exs, vid) => List.map(
@@ -54,11 +62,14 @@ let prepFuncExs = (exs, vid) => List.map(
 //   - Implement handling hole contexts (unclear in paper how this is handled)
 // (Delta, Gamma, Type, X) -> e, G
 
-let refine = (context, typ, exs) => {
+let refine = ((context, _, typ, exs)) => {
     switch (typ) {
         | Unit_t when allUnit(exs) => (Unit, [])
         | Pair_t(t1, t2) when allPairs(exs) => (Pair(Hole(0), Hole(0)), [(context, 0, t1, firstExs(exs)), (context, 0, t2, sndExs(exs))])
         | Function_t(t1, t2) when allFuncs(exs) => (Function("f", Hole(0)), [([("f", t1), ...context], 0, t2, prepFuncExs(exs, "f"))])
+        | Unit_t 
+        | Pair_t(_, _)
+        | Function_t(_, _) => failwith("Goal type inconsistent with examples")
         | _ => failwith("Not a refinement type")
         }
 };
