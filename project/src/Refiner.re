@@ -13,33 +13,24 @@ let refinable = ((_, _, typ, _)) =>
 let rec allUnit = (exs) => {
     switch (exs) {
         | [] => true
-        | [(_, ex), ...xs] => 
-            switch (ex) {
-                | Eunit => allUnit(xs)
-                | _ => false
-                }
+        | [(_, Eunit), ...xs] => allUnit(xs)
+        | _ => false
     }
 };
 
 let rec allPairs = (exs) => {
     switch (exs) {
         | [] => true
-        | [(_, ex), ...xs] => 
-            switch (ex) {
-                | Epair(_, _) => allPairs(xs)
-                | _ => false
-                }
+        | [(_, Epair(_, _)), ...xs] => allPairs(xs)
+        | _ => false
     }
 };
 
 let rec allFuncs = (exs) => {
     switch (exs) {
         | [] => true
-        | [(_, ex), ...xs] => 
-            switch (ex) {
-                | Efunc(_, _) => allFuncs(xs)
-                | _ => false
-                }
+        | [(_, Efunc(_, _)), ...xs] => allFuncs(xs)
+        | _ => false
     }
 };
 
