@@ -3,7 +3,7 @@
 //----------------------------------------------------------------------
 
 // Variable and hole names
-type identifier = string
+type identifier = int
 type hole_identifier = int
 
 // Expressions in the language

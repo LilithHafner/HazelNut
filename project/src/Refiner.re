@@ -56,8 +56,16 @@ let prepFuncExs = (exs, vid) => List.map(
 let refine = ((context, _, typ, exs)) => {
     switch (typ) {
         | Unit_t when allUnit(exs) => (Unit, [])
-        | Pair_t(t1, t2) when allPairs(exs) => (Pair(Hole(0), Hole(0)), [(context, 0, t1, firstExs(exs)), (context, 0, t2, sndExs(exs))])
-        | Function_t(t1, t2) when allFuncs(exs) => (Function("f", Hole(0)), [([("f", t1), ...context], 0, t2, prepFuncExs(exs, "f"))])
+        | Pair_t(t1, t2) when allPairs(exs) => {
+            let x = IdGenerator.getId();
+            let y = IdGenerator.getId();
+            (Pair(Hole(x), Hole(y)), [(context, x, t1, firstExs(exs)), (context, y, t2, sndExs(exs))])
+        }
+        | Function_t(t1, t2) when allFuncs(exs) => {
+            let x = IdGenerator.getId();
+            let h = IdGenerator.getId();
+            (Function(x, Hole(h)), [([(x, t1), ...context], h, t2, prepFuncExs(exs, x))])
+        }
         | Unit_t 
         | Pair_t(_, _)
         | Function_t(_, _) => failwith("Goal type inconsistent with examples")
