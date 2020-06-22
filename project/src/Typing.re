@@ -67,4 +67,6 @@ and generateContext = (delta, env) =>
         | [(x, r), ...env'] => 
             [(x, getResType(delta, r)), ...generateContext(delta, env')]
     };
+
+
         
