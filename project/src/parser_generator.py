@@ -113,7 +113,7 @@ and res =
 and type_ =
   | Int_t 
   | Bool_t 
-  | Cons_t(type_)
+  | Cons_t(type_, type_)
   | Function_t(type_, type_)
   | Unit_t 
   | Pair_t(type_, type_)

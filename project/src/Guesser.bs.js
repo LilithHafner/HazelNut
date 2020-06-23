@@ -28,9 +28,9 @@ function partition(n) {
   return partition_h(n - 1 | 0, 1);
 }
 
-function guessApp(gamma, typ, i, j) {
+function guessApp(delta, gamma, typ, i, j) {
   var funcs = List.filter((function (e) {
-            var match = Typing$MyNewProject.getType(e);
+            var match = Typing$MyNewProject.getType(delta, gamma, e);
             if (typeof match === "number" || match.tag !== /* Function_t */1) {
               return false;
             } else {
@@ -39,8 +39,8 @@ function guessApp(gamma, typ, i, j) {
           }))(Caml_array.caml_array_get(memo, i));
   var args = List.filter((function (e) {
             return List.exists((function (x) {
-                          Typing$MyNewProject.getType(e);
-                          var match = Typing$MyNewProject.getType(x);
+                          Typing$MyNewProject.getType(delta, gamma, e);
+                          var match = Typing$MyNewProject.getType(delta, gamma, x);
                           if (typeof match === "number" || match.tag !== /* Function_t */1) {
                             return false;
                           } else {
@@ -49,7 +49,7 @@ function guessApp(gamma, typ, i, j) {
                         }), funcs);
           }))(Caml_array.caml_array_get(memo, j));
   return List.concat(List.map((function (e) {
-                    var match = Typing$MyNewProject.getType(e);
+                    var match = Typing$MyNewProject.getType(delta, gamma, e);
                     if (typeof match === "number") {
                       return Pervasives.failwith("Something is wrong with guesser");
                     }
@@ -58,7 +58,7 @@ function guessApp(gamma, typ, i, j) {
                     }
                     var t1 = match[0];
                     var corrArgs = List.filter((function (e2) {
-                              return Caml_obj.caml_equal(t1, Typing$MyNewProject.getType(e2));
+                              return Caml_obj.caml_equal(t1, Typing$MyNewProject.getType(delta, gamma, e2));
                             }))(args);
                     return List.map((function (e2) {
                                   return /* Application */Block.__(6, [
@@ -69,7 +69,7 @@ function guessApp(gamma, typ, i, j) {
                   }), funcs));
 }
 
-function guess(gamma, typ, i) {
+function guess(delta, gamma, typ, i) {
   if (i === 1) {
     var terms = List.filter((function (param) {
               return Caml_obj.caml_equal(param[1], typ);
@@ -81,7 +81,7 @@ function guess(gamma, typ, i) {
   }
   var pairs = partition(i);
   Caml_array.caml_array_set(memo, i, List.concat(List.map((function (param) {
-                  return guessApp(gamma, typ, param[0], param[1]);
+                  return guessApp(delta, gamma, typ, param[0], param[1]);
                 }), pairs)));
   return Caml_array.caml_array_get(memo, i);
 }

@@ -8,16 +8,15 @@ var Types$MyNewProject = require("./Types.bs.js");
 var Caml_builtin_exceptions = require("bs-platform/lib/js/caml_builtin_exceptions.js");
 var IdGenerator$MyNewProject = require("./IdGenerator.bs.js");
 
-function refinable(param) {
-  var tmp = param[2];
-  if (typeof tmp === "number") {
-    if (tmp === /* Unit_t */2) {
+function refinable(typ) {
+  if (typeof typ === "number") {
+    if (typ === /* Unit_t */2) {
       return true;
     } else {
       return false;
     }
   }
-  switch (tmp.tag | 0) {
+  switch (typ.tag | 0) {
     case /* Function_t */1 :
     case /* Pair_t */2 :
         return true;
@@ -176,10 +175,7 @@ function prepFuncExs(exs, vid) {
               }), exs);
 }
 
-function refine(param) {
-  var exs = param[3];
-  var typ = param[2];
-  var context = param[0];
+function refine(context, param, typ, exs) {
   if (typeof typ === "number") {
     if (typ === /* Unit_t */2) {
       if (allUnit(exs)) {
