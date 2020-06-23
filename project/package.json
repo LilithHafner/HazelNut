@@ -13,5 +13,8 @@
   "license": "MIT",
   "devDependencies": {
     "bs-platform": "^7.3.2"
+  },
+  "dependencies": {
+    "bs-readline": "^1.0.4"
   }
 }
