@@ -2,7 +2,7 @@
 
 open Types;
 
-let rec getType = (delta: hole_constraints, gamma: context, e: exp) : type_ =>
+let rec getType = (delta: hole_context, gamma: context, e: exp) : type_ =>
     switch(e) {
         | Int(_) => Int_t 
         | Float(_) => Any_t 
@@ -29,6 +29,7 @@ let rec getType = (delta: hole_constraints, gamma: context, e: exp) : type_ =>
             | Pair(_, e2) => getType(delta, gamma, e2)
             | _ => failwith("Type error, expected pair")
             }
+        | _ => failwith("Not yet implemented")
     };
 
 let rec getResType = (delta, r: res) => 
@@ -59,6 +60,7 @@ let rec getResType = (delta, r: res) =>
             | Rpair(_, r2) => getResType(delta, r2)
             | _ => failwith("Type error: Exppected pair")
             }
+        | _ => failwith("Not yet implemented")
     }
 
 and generateContext = (delta, env) => 
@@ -68,5 +70,39 @@ and generateContext = (delta, env) =>
             [(x, getResType(delta, r)), ...generateContext(delta, env')]
     };
 
+let rec getExType = (delta, ex) => {
+   switch (ex) {
+       | Top => Any_t 
+       | Eunit => Unit_t 
+       | Epair(ex1, ex2) => Pair_t(getExType(delta, ex1), getExType(delta, ex2))
+       | Efunc(v, ex1) => Function_t(valToRes(v) |> getResType(delta), getExType(delta, ex1))
+       }
+};
 
+let getConstraintType = (delta, exs) => {
+    let contexts = List.map(
+        ((env, ex)) => (generateContext(delta, env), getExType(delta, ex)),
+        exs);
+    switch (contexts) {
+        | [] => ([], Any_t)
+        | [x, _] => 
+            switch (List.filter((y) => x != y, contexts)) {
+                | [] => failwith("Inconsistent environment / example types")
+                | _ => x
+                }
+        }
+};
+
+let rec generateHoleContextU = (us) => {
+    switch (us) {
+        | [] => []
+        | [(id, exs), ...xs] => [(id, getConstraintType([], exs)), ...generateHoleContextU(xs)]
+        }
+};
         
+let rec generateHoleContextF = (fs) => {
+    switch (fs) {
+        | [] => []
+        | [(id, e), ...xs] => []
+        }
+};
