@@ -1,35 +1,3 @@
-'''
-let rec parse_token(x) = {
-    let rec parse_token_r(x, y) = {
-        switch(x) {
-        | [',' | ')', ...x] => (x, y)
-        | [c, ...x] => parse_token_r(x,[c,...y])
-        | _ => (x,y)
-        };
-    }
-    let (x,y) = parse_token_r(x,[]);
-    (implode(List.rev(y)), x)
-}
-and parse_int(x) = {
-    let (v0, x) = parse_token(x);
-    (int_of_string(v0), x)
-}
-and parse_exp(x) = 
-    switch(x) {
-    | ['h', ...x] => 
-        let (v0, x) = parse_int(x);
-        (Hole(v0), x)
-    | ['v', 'a', 'r', ...x] => 
-        let (v0, x) = parse_int(x);
-        (Variable(v0), x)
-    | ['a', 'p', 'l', ...x] => 
-        let (v0, x) = parse_exp(x);
-        let (v1, x) = parse_exp(x);
-        (Application(v0, v1), x)
-    | _ => (Variable(-17), [])
-    }
-'''
-
 def p(_quit=''):
     out = []
     while True:
@@ -65,67 +33,17 @@ def build(types):
 
 
 
-source = '''
-//----------------------------------------------------------------------
-//                                Types
-//----------------------------------------------------------------------
+source = []
+marker = '//marker for parser_generator.py'
+for line in open('Types.re', 'r'):
+    source.append(line)
+    if line[:len(marker)] == marker:
+        break
+else:
+    source = []
+    print('Warning: No Marker')
+source = '\n'.join(source)
 
-// Variable and hole names
-type identifier = int
-type hole_identifier = int
-
-// Expressions in the language
-//   Very small for now
-type exp = 
-  | Int(int)
-  | Float(float)
-  | Bool(bool)
-  | Cons(exp, exp)
-  | Nil 
-  | Variable(identifier)
-  | Function(identifier, exp)
-  | Application(exp, exp)
-  | Hole(hole_identifier)
-  | Unit 
-  | Var(identifier)
-  | Pair(exp, exp)
-  | Fst(exp)
-  | Snd(exp)
-
-// Results in the language
-//   Act as values that can have holes
-and res =
-    | Rint(int)
-    | Rfloat(float)
-    | Rbool(bool)
-    | Rcons(res, res)
-    | Rnil 
-    | Rfunc(identifier, exp, environment)
-    | Rapp(res, res)//Can we limit the type of result in the applicator position?
-    | Rhole(hole_identifier, environment)
-    | Runit 
-    | Rpair(res, res)
-    | Rfst(res)
-    | Rsnd(res)
-
-// Types in the language
-//   Currently not in much use
-and type_ =
-  | Int_t 
-  | Bool_t 
-  | Cons_t(type_, type_)
-  | Function_t(type_, type_)
-  | Unit_t 
-  | Pair_t(type_, type_)
-  | Any_t 
-  | Fail_t 
-
-and debug_construct = 
-    | Exp(exp)
-    | Environment(environment)
-    | Res(res)
-
-'''
 
 def process(source):
     type_names = {}

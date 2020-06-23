@@ -57,6 +57,8 @@ and debug_construct =
     | Environment(environment)
     | Res(res)
 
+//marker for parser_generator.py
+
 // Map from variable names to results
 and environment = Tools.pairlist(identifier, res)
 // Map from variable names to types
