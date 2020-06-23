@@ -5,6 +5,14 @@ open Types;
 // Evaluating the expression until a hole is in applciation position
 // This process is completely deterministic
 
+// Take in an environment E and a expression e, and change the expression to
+// a result. Evaluator.eval(E, e) 
+// e = () => r = ()
+// e = (\x.x) () => r = ()
+// e = (\x.??) () => (E, x -> ()) ??
+// e = 6 + 11 => 17
+// e = 6 + ?? => 6 + [E] ??
+
 let rec eval = (_env:environment, e:exp):res => {
     switch (e) {
         | Hole(x) => Rhole(x, _env)

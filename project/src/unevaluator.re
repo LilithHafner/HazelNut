@@ -6,6 +6,12 @@
 
 open Types;
 
+// constraints = (U, F)
+// U = list((id, (env, ex)))
+// result r, example ex => (U, F)
+
+// call uneval on different results and examples.
+// r = ([E] ??1, ()), ex = () => ([(1, (E, ()))], -) 
 
 // Generates constraints from a result and example
 // No constructors in language yet, will probably add later
@@ -51,6 +57,10 @@ let rec unevaluate = (res:res, ex:example) => {
         | _ => None // fail
     }
 }
+
+// exs = list((env, ex))
+// e -> r using env
+// unevaluate(r, ex)
 
 and constrainExp = (exp, exs) => {
     switch (exs) {

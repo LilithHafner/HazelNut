@@ -59,7 +59,7 @@ and context = Tools.pairlist(identifier, type_)
 
 // Types all of the holes
 // I think we should clarify this and the type which unevaluate returns.
-type hole_constraints = Tools.pairlist(hole_identifier, (context, type_));
+type hole_context = Tools.pairlist(hole_identifier, (context, type_));
 
 // Examples
 //   Needs to be filled out more
@@ -85,6 +85,7 @@ and value =
     | Vpair(value, value);
 
 type goal = (context, hole_identifier, type_, excons);
+type goals = list(goal);
 
 //----------------------------------------------------------------------
 //                     Typecasting Functions
