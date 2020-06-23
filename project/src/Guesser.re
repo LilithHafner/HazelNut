@@ -1,7 +1,10 @@
 // File to hold the main guessing function
 
 // Takes in context and hole type and returns an expression.
-// (context, type) -> e
+// (context, goal type) -> e (all of the goal type)
+
+// Gamma [(variable name, type)]
+// guess(context, t) ::> 
 
 open Types;
 
