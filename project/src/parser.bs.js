@@ -73,26 +73,200 @@ function parse_token(x) {
         ];
 }
 
-function parse_bool(x) {
-  var match = parse_token(x);
-  return /* tuple */[
-          Pervasives.bool_of_string(match[0]),
-          match[1]
-        ];
-}
-
-function parse_float(x) {
-  var match = parse_token(x);
-  return /* tuple */[
-          Caml_format.caml_float_of_string(match[0]),
-          match[1]
-        ];
+function parse_environment(_x) {
+  while(true) {
+    var x = _x;
+    if (!x) {
+      return /* tuple */[
+              /* [] */0,
+              x
+            ];
+    }
+    var switcher = x[0] - 9 | 0;
+    if (switcher > 23 || switcher < 0) {
+      if (switcher > 48 || switcher < 39) {
+        return /* tuple */[
+                /* [] */0,
+                x
+              ];
+      }
+      var match = parse_int(x);
+      var match$1 = parse_res(match[1]);
+      var match$2 = parse_environment(match$1[1]);
+      return /* tuple */[
+              /* :: */[
+                /* tuple */[
+                  match[0],
+                  match$1[0]
+                ],
+                match$2[0]
+              ],
+              match$2[1]
+            ];
+    }
+    if (!(switcher > 22 || switcher < 2)) {
+      return /* tuple */[
+              /* [] */0,
+              x
+            ];
+    }
+    _x = x[1];
+    continue ;
+  };
 }
 
 function parse_int(x) {
   var match = parse_token(x);
   return /* tuple */[
           Caml_format.caml_int_of_string(match[0]),
+          match[1]
+        ];
+}
+
+function parse_res(_x) {
+  while(true) {
+    var x = _x;
+    if (x) {
+      var switcher = x[0] - 9 | 0;
+      if (switcher > 23 || switcher < 0) {
+        switch (switcher) {
+          case 83 :
+              var match = parse_int(x[1]);
+              var match$1 = parse_exp(match[1]);
+              var match$2 = parse_environment(match$1[1]);
+              return /* tuple */[
+                      /* Rfunc */Block.__(4, [
+                          match[0],
+                          match$1[0],
+                          match$2[0]
+                        ]),
+                      match$2[1]
+                    ];
+          case 88 :
+              var match$3 = parse_res(x[1]);
+              var match$4 = parse_res(match$3[1]);
+              return /* tuple */[
+                      /* Rapp */Block.__(5, [
+                          match$3[0],
+                          match$4[0]
+                        ]),
+                      match$4[1]
+                    ];
+          case 89 :
+              var match$5 = parse_bool(x[1]);
+              return /* tuple */[
+                      /* Rbool */Block.__(2, [match$5[0]]),
+                      match$5[1]
+                    ];
+          case 90 :
+              var match$6 = parse_res(x[1]);
+              var match$7 = parse_res(match$6[1]);
+              return /* tuple */[
+                      /* Rcons */Block.__(3, [
+                          match$6[0],
+                          match$7[0]
+                        ]),
+                      match$7[1]
+                    ];
+          case 93 :
+              var x$1 = x[1];
+              var exit = 0;
+              if (x$1 && x$1[0] === 115) {
+                var match$8 = x$1[1];
+                if (match$8 && match$8[0] === 116) {
+                  var match$9 = parse_res(match$8[1]);
+                  return /* tuple */[
+                          /* Rfst */Block.__(8, [match$9[0]]),
+                          match$9[1]
+                        ];
+                }
+                exit = 2;
+              } else {
+                exit = 2;
+              }
+              if (exit === 2) {
+                var match$10 = parse_float(x$1);
+                return /* tuple */[
+                        /* Rfloat */Block.__(1, [match$10[0]]),
+                        match$10[1]
+                      ];
+              }
+              break;
+          case 95 :
+              var match$11 = parse_int(x[1]);
+              var match$12 = parse_environment(match$11[1]);
+              return /* tuple */[
+                      /* Rhole */Block.__(6, [
+                          match$11[0],
+                          match$12[0]
+                        ]),
+                      match$12[1]
+                    ];
+          case 96 :
+              var match$13 = parse_int(x[1]);
+              return /* tuple */[
+                      /* Rint */Block.__(0, [match$13[0]]),
+                      match$13[1]
+                    ];
+          case 101 :
+              return /* tuple */[
+                      /* Rnil */0,
+                      x[1]
+                    ];
+          case 103 :
+              var match$14 = parse_res(x[1]);
+              var match$15 = parse_res(match$14[1]);
+              return /* tuple */[
+                      /* Rpair */Block.__(7, [
+                          match$14[0],
+                          match$15[0]
+                        ]),
+                      match$15[1]
+                    ];
+          case 106 :
+              var match$16 = parse_res(x[1]);
+              return /* tuple */[
+                      /* Rsnd */Block.__(9, [match$16[0]]),
+                      match$16[1]
+                    ];
+          case 84 :
+          case 85 :
+          case 86 :
+          case 87 :
+          case 91 :
+          case 92 :
+          case 94 :
+          case 97 :
+          case 98 :
+          case 99 :
+          case 100 :
+          case 102 :
+          case 104 :
+          case 105 :
+          case 107 :
+              break;
+          case 108 :
+              return /* tuple */[
+                      /* Runit */1,
+                      x[1]
+                    ];
+          default:
+            
+        }
+      } else if (switcher > 22 || switcher < 2) {
+        _x = x[1];
+        continue ;
+      }
+      
+    }
+    return Pervasives.failwith("Some code generated by parser_generator.py is throwing a parse error:\nWhile parsing a/an res, I got \"" + (implode(x) + "\" which doesn't match any of the expected tags: ['fst', '\\\\', 'i', 'f', 'b', 'c', 'n', 'a', 'h', 'u', 'p', 's']"));
+  };
+}
+
+function parse_float(x) {
+  var match = parse_token(x);
+  return /* tuple */[
+          Caml_format.caml_float_of_string(match[0]),
           match[1]
         ];
 }
@@ -237,6 +411,14 @@ function parse_exp(_x) {
   };
 }
 
+function parse_bool(x) {
+  var match = parse_token(x);
+  return /* tuple */[
+          Pervasives.bool_of_string(match[0]),
+          match[1]
+        ];
+}
+
 function parse_value(_x) {
   while(true) {
     var x = _x;
@@ -275,188 +457,6 @@ function parse_value(_x) {
       
     }
     return Pervasives.failwith("Some code generated by parser_generator.py is throwing a parse error:\nWhile parsing a/an value, I got \"" + (implode(x) + "\" which doesn't match any of the expected tags: ['u', 'p']"));
-  };
-}
-
-function parse_environment(_x) {
-  while(true) {
-    var x = _x;
-    if (!x) {
-      return /* tuple */[
-              /* [] */0,
-              x
-            ];
-    }
-    var switcher = x[0] - 9 | 0;
-    if (switcher > 23 || switcher < 0) {
-      if (switcher > 48 || switcher < 39) {
-        return /* tuple */[
-                /* [] */0,
-                x
-              ];
-      }
-      var match = parse_int(x);
-      var match$1 = parse_res(match[1]);
-      var match$2 = parse_environment(match$1[1]);
-      return /* tuple */[
-              /* :: */[
-                /* tuple */[
-                  match[0],
-                  match$1[0]
-                ],
-                match$2[0]
-              ],
-              match$2[1]
-            ];
-    }
-    if (!(switcher > 22 || switcher < 2)) {
-      return /* tuple */[
-              /* [] */0,
-              x
-            ];
-    }
-    _x = x[1];
-    continue ;
-  };
-}
-
-function parse_res(_x) {
-  while(true) {
-    var x = _x;
-    if (x) {
-      var switcher = x[0] - 9 | 0;
-      if (switcher > 23 || switcher < 0) {
-        switch (switcher) {
-          case 83 :
-              var match = parse_int(x[1]);
-              var match$1 = parse_exp(match[1]);
-              var match$2 = parse_environment(match$1[1]);
-              return /* tuple */[
-                      /* Rfunc */Block.__(4, [
-                          match[0],
-                          match$1[0],
-                          match$2[0]
-                        ]),
-                      match$2[1]
-                    ];
-          case 88 :
-              var match$3 = parse_res(x[1]);
-              var match$4 = parse_res(match$3[1]);
-              return /* tuple */[
-                      /* Rapp */Block.__(5, [
-                          match$3[0],
-                          match$4[0]
-                        ]),
-                      match$4[1]
-                    ];
-          case 89 :
-              var match$5 = parse_bool(x[1]);
-              return /* tuple */[
-                      /* Rbool */Block.__(2, [match$5[0]]),
-                      match$5[1]
-                    ];
-          case 90 :
-              var match$6 = parse_res(x[1]);
-              var match$7 = parse_res(match$6[1]);
-              return /* tuple */[
-                      /* Rcons */Block.__(3, [
-                          match$6[0],
-                          match$7[0]
-                        ]),
-                      match$7[1]
-                    ];
-          case 93 :
-              var x$1 = x[1];
-              var exit = 0;
-              if (x$1 && x$1[0] === 115) {
-                var match$8 = x$1[1];
-                if (match$8 && match$8[0] === 116) {
-                  var match$9 = parse_res(match$8[1]);
-                  return /* tuple */[
-                          /* Rfst */Block.__(8, [match$9[0]]),
-                          match$9[1]
-                        ];
-                }
-                exit = 2;
-              } else {
-                exit = 2;
-              }
-              if (exit === 2) {
-                var match$10 = parse_float(x$1);
-                return /* tuple */[
-                        /* Rfloat */Block.__(1, [match$10[0]]),
-                        match$10[1]
-                      ];
-              }
-              break;
-          case 95 :
-              var match$11 = parse_int(x[1]);
-              var match$12 = parse_environment(match$11[1]);
-              return /* tuple */[
-                      /* Rhole */Block.__(6, [
-                          match$11[0],
-                          match$12[0]
-                        ]),
-                      match$12[1]
-                    ];
-          case 96 :
-              var match$13 = parse_int(x[1]);
-              return /* tuple */[
-                      /* Rint */Block.__(0, [match$13[0]]),
-                      match$13[1]
-                    ];
-          case 101 :
-              return /* tuple */[
-                      /* Rnil */0,
-                      x[1]
-                    ];
-          case 103 :
-              var match$14 = parse_res(x[1]);
-              var match$15 = parse_res(match$14[1]);
-              return /* tuple */[
-                      /* Rpair */Block.__(7, [
-                          match$14[0],
-                          match$15[0]
-                        ]),
-                      match$15[1]
-                    ];
-          case 106 :
-              var match$16 = parse_res(x[1]);
-              return /* tuple */[
-                      /* Rsnd */Block.__(9, [match$16[0]]),
-                      match$16[1]
-                    ];
-          case 84 :
-          case 85 :
-          case 86 :
-          case 87 :
-          case 91 :
-          case 92 :
-          case 94 :
-          case 97 :
-          case 98 :
-          case 99 :
-          case 100 :
-          case 102 :
-          case 104 :
-          case 105 :
-          case 107 :
-              break;
-          case 108 :
-              return /* tuple */[
-                      /* Runit */1,
-                      x[1]
-                    ];
-          default:
-            
-        }
-      } else if (switcher > 22 || switcher < 2) {
-        _x = x[1];
-        continue ;
-      }
-      
-    }
-    return Pervasives.failwith("Some code generated by parser_generator.py is throwing a parse error:\nWhile parsing a/an res, I got \"" + (implode(x) + "\" which doesn't match any of the expected tags: ['fst', '\\\\', 'i', 'f', 'b', 'c', 'n', 'a', 'h', 'u', 'p', 's']"));
   };
 }
 
@@ -752,9 +752,9 @@ exports.parse_type_ = parse_type_;
 exports.parse_example = parse_example;
 exports.parse_value = parse_value;
 exports.parse_debug_construct = parse_debug_construct;
-exports.parse_int = parse_int;
-exports.parse_float = parse_float;
+exports.parse_bool = parse_bool;
 exports.parse_environment = parse_environment;
 exports.parse_constraint_ = parse_constraint_;
-exports.parse_bool = parse_bool;
+exports.parse_float = parse_float;
+exports.parse_int = parse_int;
 /* No side effect */

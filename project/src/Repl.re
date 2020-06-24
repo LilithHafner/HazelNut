@@ -35,6 +35,9 @@ let process(inp:list(char), stack:list(debug_construct), command:string):(list(c
     | "ex" =>
         let (v, inp) = parse_example(inp);
         (inp, [Example(v),...stack])
+    | "example" =>
+        let (v, inp) = parse_example(inp);
+        (inp, [Example(v),...stack])
     | "eval" =>
         switch(stack) {
         | [Exp(v1),...stack] =>
@@ -48,6 +51,18 @@ let process(inp:list(char), stack:list(debug_construct), command:string):(list(c
         | _ => failwith("Type error")
         }
     | "uneval" =>
+        switch(stack) {
+        | [Example(v1),...stack] =>
+        switch(stack) {
+        | [Res(v0),...stack] =>
+            (inp, [Constraint_(Unevaluator.unevaluate(v0, v1)), ...stack])
+        | [] => failwith("Empty stack")
+        | _ => failwith("Type error")
+        }
+        | [] => failwith("Empty stack")
+        | _ => failwith("Type error")
+        }
+    | "unevaluate" =>
         switch(stack) {
         | [Example(v1),...stack] =>
         switch(stack) {

@@ -107,38 +107,32 @@ function $$process(inp, stack, command) {
           return Pervasives.failwith("Type error");
         }
     case "ex" :
-        var match$2 = Parser$MyNewProject.parse_example(inp);
+    case "example" :
+        break;
+    case "exp" :
+        var match$2 = Parser$MyNewProject.parse_exp(inp);
         return /* tuple */[
                 match$2[1],
                 /* :: */[
-                  /* Example */Block.__(4, [match$2[0]]),
-                  stack
-                ]
-              ];
-    case "exp" :
-        var match$3 = Parser$MyNewProject.parse_exp(inp);
-        return /* tuple */[
-                match$3[1],
-                /* :: */[
-                  /* Exp */Block.__(0, [match$3[0]]),
+                  /* Exp */Block.__(0, [match$2[0]]),
                   stack
                 ]
               ];
     case "res" :
-        var match$4 = Parser$MyNewProject.parse_res(inp);
+        var match$3 = Parser$MyNewProject.parse_res(inp);
         return /* tuple */[
-                match$4[1],
+                match$3[1],
                 /* :: */[
-                  /* Res */Block.__(2, [match$4[0]]),
+                  /* Res */Block.__(2, [match$3[0]]),
                   stack
                 ]
               ];
     case "type" :
-        var match$5 = Parser$MyNewProject.parse_type_(inp);
+        var match$4 = Parser$MyNewProject.parse_type_(inp);
         return /* tuple */[
-                match$5[1],
+                match$4[1],
                 /* :: */[
-                  /* Type_ */Block.__(3, [match$5[0]]),
+                  /* Type_ */Block.__(3, [match$4[0]]),
                   stack
                 ]
               ];
@@ -166,9 +160,41 @@ function $$process(inp, stack, command) {
         } else {
           return Pervasives.failwith("Type error");
         }
+    case "unevaluate" :
+        if (!stack) {
+          return Pervasives.failwith("Empty stack");
+        }
+        var v1$2 = stack[0];
+        if (v1$2.tag !== /* Example */4) {
+          return Pervasives.failwith("Type error");
+        }
+        var stack$3 = stack[1];
+        if (!stack$3) {
+          return Pervasives.failwith("Empty stack");
+        }
+        var v0$2 = stack$3[0];
+        if (v0$2.tag === /* Res */2) {
+          return /* tuple */[
+                  inp,
+                  /* :: */[
+                    /* Constraint_ */Block.__(5, [Unevaluator$MyNewProject.unevaluate(v0$2[0], v1$2[0])]),
+                    stack$3[1]
+                  ]
+                ];
+        } else {
+          return Pervasives.failwith("Type error");
+        }
     default:
       return Pervasives.failwith("Unknown command: \"" + (command + "\""));
   }
+  var match$5 = Parser$MyNewProject.parse_example(inp);
+  return /* tuple */[
+          match$5[1],
+          /* :: */[
+            /* Example */Block.__(4, [match$5[0]]),
+            stack
+          ]
+        ];
 }
 
 function main(inp, commands) {

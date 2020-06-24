@@ -12,3 +12,4 @@ example = parse_example(inp); Example(v)
 
 eval = Environment(v0); Exp(v1); Res(Evaluator.eval(v0, v1))
 uneval = Res(v0); Example(v1); Constraint_(Unevaluator.unevaluate(v0, v1))
+unevaluate = Res(v0); Example(v1); Constraint_(Unevaluator.unevaluate(v0, v1))
