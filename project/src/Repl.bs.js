@@ -7,6 +7,7 @@ var Pervasives = require("bs-platform/lib/js/pervasives.js");
 var Parser$MyNewProject = require("./Parser.bs.js");
 var Printer$MyNewProject = require("./Printer.bs.js");
 var Evaluator$MyNewProject = require("./evaluator.bs.js");
+var Unevaluator$MyNewProject = require("./unevaluator.bs.js");
 
 function split(str) {
   var r = function (_inp, _out, _live) {
@@ -86,50 +87,85 @@ function $$process(inp, stack, command) {
           return Pervasives.failwith("Empty stack");
         }
         var v1 = stack[0];
-        switch (v1.tag | 0) {
-          case /* Exp */0 :
-              var stack$1 = stack[1];
-              if (!stack$1) {
-                return Pervasives.failwith("Empty stack");
-              }
-              var v0 = stack$1[0];
-              switch (v0.tag | 0) {
-                case /* Environment */1 :
-                    return /* tuple */[
-                            inp,
-                            /* :: */[
-                              /* Res */Block.__(2, [Evaluator$MyNewProject.$$eval(v0[0], v1[0])]),
-                              stack$1[1]
-                            ]
-                          ];
-                case /* Exp */0 :
-                case /* Res */2 :
-                    return Pervasives.failwith("Type error");
-                
-              }
-          case /* Environment */1 :
-          case /* Res */2 :
-              return Pervasives.failwith("Type error");
-          
+        if (v1.tag) {
+          return Pervasives.failwith("Type error");
         }
-    case "exp" :
-        var match$2 = Parser$MyNewProject.parse_exp(inp);
+        var stack$1 = stack[1];
+        if (!stack$1) {
+          return Pervasives.failwith("Empty stack");
+        }
+        var v0 = stack$1[0];
+        if (v0.tag === /* Environment */1) {
+          return /* tuple */[
+                  inp,
+                  /* :: */[
+                    /* Res */Block.__(2, [Evaluator$MyNewProject.$$eval(v0[0], v1[0])]),
+                    stack$1[1]
+                  ]
+                ];
+        } else {
+          return Pervasives.failwith("Type error");
+        }
+    case "ex" :
+        var match$2 = Parser$MyNewProject.parse_example(inp);
         return /* tuple */[
                 match$2[1],
                 /* :: */[
-                  /* Exp */Block.__(0, [match$2[0]]),
+                  /* Example */Block.__(4, [match$2[0]]),
+                  stack
+                ]
+              ];
+    case "exp" :
+        var match$3 = Parser$MyNewProject.parse_exp(inp);
+        return /* tuple */[
+                match$3[1],
+                /* :: */[
+                  /* Exp */Block.__(0, [match$3[0]]),
                   stack
                 ]
               ];
     case "res" :
-        var match$3 = Parser$MyNewProject.parse_res(inp);
+        var match$4 = Parser$MyNewProject.parse_res(inp);
         return /* tuple */[
-                match$3[1],
+                match$4[1],
                 /* :: */[
-                  /* Res */Block.__(2, [match$3[0]]),
+                  /* Res */Block.__(2, [match$4[0]]),
                   stack
                 ]
               ];
+    case "type" :
+        var match$5 = Parser$MyNewProject.parse_type_(inp);
+        return /* tuple */[
+                match$5[1],
+                /* :: */[
+                  /* Type_ */Block.__(3, [match$5[0]]),
+                  stack
+                ]
+              ];
+    case "uneval" :
+        if (!stack) {
+          return Pervasives.failwith("Empty stack");
+        }
+        var v1$1 = stack[0];
+        if (v1$1.tag !== /* Example */4) {
+          return Pervasives.failwith("Type error");
+        }
+        var stack$2 = stack[1];
+        if (!stack$2) {
+          return Pervasives.failwith("Empty stack");
+        }
+        var v0$1 = stack$2[0];
+        if (v0$1.tag === /* Res */2) {
+          return /* tuple */[
+                  inp,
+                  /* :: */[
+                    /* Constraint_ */Block.__(5, [Unevaluator$MyNewProject.unevaluate(v0$1[0], v1$1[0])]),
+                    stack$2[1]
+                  ]
+                ];
+        } else {
+          return Pervasives.failwith("Type error");
+        }
     default:
       return Pervasives.failwith("Unknown command: \"" + (command + "\""));
   }

@@ -27,7 +27,7 @@ mutable, so you'll likely need to tyoe Repl.history^.
 DISCLAIMER: everything I just said about a Reason repl
 Isn't true yet, you are stuck in the Candlenut repl.");
 
-let command = ref("parse_any parse_any eval");
+let command = ref("env exp eval");
 let r() =
     Readline.readline((inp) => {
         //Js.log(inp);
