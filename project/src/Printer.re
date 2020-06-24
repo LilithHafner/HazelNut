@@ -80,7 +80,7 @@ and string_of_one_constraint_(c):string =
 and string_of_constraint_(c:constraint_):string =
     switch(c) {
         | None => "None"
-        | Some(c) => string_of_one_constraint_(c)
+        | Some(c) => string_of_unevalcons(c)
     }
 and string_of_context(e:context):string =
     switch(e) {

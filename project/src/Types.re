@@ -76,20 +76,22 @@ would that be an application expression? */
 // be the input value and example would be the output.
     | Efunc(value, example)
 
-and excons = Tools.pairlist(environment, example)//parser_generator.py: ignore
-
-// Simple values
-//   For now a single constant
-//   plus pairs
 and value =
     | Vunit 
     | Vpair(value, value);
 
-type constraint_ = option(Tools.pairlist(environment, (hole_identifier, example)))//parser_generator.py: ignore
 
-type hole_fillings = Tools.pairlist(hole_identifier, exp);//parser_generator.py: ignore
-type unfilled_holes = Tools.pairlist(hole_identifier, excons);//parser_generator.py: ignore
-type unevalcons = (unfilled_holes,hole_fillings);//parser_generator.py: ignore
+type hole_fillings = Tools.pairlist(hole_identifier, exp)//parser_generator.py: ignore
+and unfilled_holes = Tools.pairlist(hole_identifier, excons)//parser_generator.py: ignore
+
+and excons = Tools.pairlist(environment, example)//parser_generator.py: ignore
+and unevalcons = (unfilled_holes,hole_fillings);//parser_generator.py: ignore
+
+// Simple values
+//   For now a single constant
+//   plus pairs
+type constraint_ = option(unevalcons)//parser_generator.py: ignore
+
 type guess_output = list(exp);//parser_generator.py: ignore
 type solver_output = (hole_fillings, hole_context);//parser_generator.py: ignore
 type filler_output = (unevalcons, hole_context);//parser_generator.py: ignore

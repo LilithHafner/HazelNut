@@ -17,25 +17,25 @@ open Types;
 // No constructors in language yet, will probably add later
 // But that means there's a bunch less cases
 // I believe this is all cases without adding in constructors
-let rec unevaluate = (res:res, ex:example) => {
+let rec unevaluate = (res:res, ex:example) : option(unevalcons) => {
     switch ((ex, res)) {
         // Top adds no constraints
-        | (Top, _) => Some([])
+        | (Top, _) => Some(([], []))
         // Matching constants adds no constraints
-        | (Eunit, Runit) => Some([])
-        | (Eint(x), Rint(y)) when x == y => Some([])
-        | (Ebool(x), Rbool(y)) when x == y => Some([])
+        | (Eunit, Runit) => Some(([], []))
+        | (Eint(x), Rint(y)) when x == y => Some(([], []))
+        | (Ebool(x), Rbool(y)) when x == y => Some(([], []))
         // A pair of examples adds the constraints of both examples
         // on their respective results
         | (Epair(ex1, ex2), Rpair(r1, r2)) => {
             switch (unevaluate(r1, ex1), unevaluate(r2, ex2)) {
-                | (Some(k1), Some(k2)) => Some(List.concat([k1, k2]))
+                | (Some((k1, _)), Some((k2, _))) => Some((List.concat([k1, k2]), []))
                 | _ => None
                 }
         }
         // A hole adds its environment and example to the list of 
         // unfilled holes.
-        | (_, Rhole(env, id)) => Some([(id, (env, ex))])
+        | (_, Rhole(id, env)) => Some(([(id, [(env, ex)])], []))
         | (_, Rfst(r)) => unevaluate(r, Epair(ex, Top))
         | (_, Rsnd(r)) => unevaluate(r, Epair(Top, ex))
         // Attempts to cast r2 to a value, and then continues
@@ -66,12 +66,12 @@ let rec unevaluate = (res:res, ex:example) => {
 
 and constrainExp = (exp, exs) => {
     switch (exs) {
-        | [] => Some([])
+        | [] => Some(([], []))
         | [(env, ex), ...xs] => {
             switch (constrainExp(exp, xs), unevaluate(Evaluator.eval(env, exp), ex)) {
                 | (None, _) => None
                 | (_, None) => None
-                | (Some(k1), Some(k2)) => Some(List.concat([k1, k2]))
+                | (Some((k1, _)), Some((k2, _))) => Some((List.concat([k1, k2]), []))
                 }
         }
     }

@@ -116,7 +116,7 @@ let process(inp:list(char), stack:list(debug_construct), command:string):(list(c
         }
     | "solve" =>
         switch(stack) {
-        | [Unevalcons(v1),...stack] =>
+        | [Constraint_(v1),...stack] =>
         switch(stack) {
         | [Hole_Context(v0),...stack] =>
             (inp, [Solver_Output(Solver.solve(v0,v1)), ...stack])

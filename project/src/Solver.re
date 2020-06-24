@@ -1,7 +1,7 @@
 // Houses the main recursive function which iterates through
 // the list of all unsolved holes and fills them.
 
-let rec solve = (hContext, k) => {
+let rec solve_h = (hContext, k) => {
     let (u, f) = k;
     switch (u) {
         | [] => (f, hContext)
@@ -10,7 +10,12 @@ let rec solve = (hContext, k) => {
             let (k', hContext') = Filler.fill(hContext, f, context, h, t, x);
             let (us', f') = k';
             let k'' =  (us' @ us, f');
-            solve(hContext', k'');
+            solve_h(hContext', k'');
         }
     }
+};
+
+let solve = (hContext, k) => {
+    let Some(k') = k;
+    solve_h(hContext, k')
 };
