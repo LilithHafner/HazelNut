@@ -2,7 +2,42 @@
 'use strict';
 
 var Pervasives = require("bs-platform/lib/js/pervasives.js");
-var Caml_builtin_exceptions = require("bs-platform/lib/js/caml_builtin_exceptions.js");
+
+function string_of_one_constraint_(c) {
+  if (!c) {
+    return "-";
+  }
+  var match = c[0];
+  return string_of_env(match[0]) + (": " + (String(match[1][0]) + ("->String of example not implemented; " + string_of_one_constraint_(c[1]))));
+}
+
+function string_of_type_(t) {
+  if (typeof t === "number") {
+    switch (t) {
+      case /* Int_t */0 :
+          return "Int";
+      case /* Bool_t */1 :
+          return "Bool";
+      case /* Unit_t */2 :
+          return "Unit";
+      case /* Any_t */3 :
+          return "Any";
+      case /* Fail_t */4 :
+          return "Fail";
+      
+    }
+  } else {
+    switch (t.tag | 0) {
+      case /* Cons_t */0 :
+          return "Cons(" + (string_of_type_(t[0]) + ("," + (string_of_type_(t[1]) + ")")));
+      case /* Function_t */1 :
+          return "(" + (string_of_type_(t[0]) + ("->" + (string_of_type_(t[1]) + ")")));
+      case /* Pair_t */2 :
+          return "(" + (string_of_type_(t[0]) + (", " + (string_of_type_(t[1]) + ")")));
+      
+    }
+  }
+}
 
 function string_of_res(r) {
   if (typeof r === "number") {
@@ -88,6 +123,18 @@ function string_of_hole_identifier(prim) {
   return String(prim);
 }
 
+function string_of_example(param) {
+  return "String of example not implemented";
+}
+
+function string_of_constraint_(c) {
+  if (c !== undefined) {
+    return string_of_one_constraint_(c);
+  } else {
+    return "None";
+  }
+}
+
 function string_of_debug_construct(c) {
   switch (c.tag | 0) {
     case /* Exp */0 :
@@ -96,15 +143,13 @@ function string_of_debug_construct(c) {
         return string_of_env(c[0]);
     case /* Res */2 :
         return string_of_res(c[0]);
-    default:
-      throw [
-            Caml_builtin_exceptions.match_failure,
-            /* tuple */[
-              "Printer.re",
-              4,
-              4
-            ]
-          ];
+    case /* Type_ */3 :
+        return string_of_type_(c[0]);
+    case /* Example */4 :
+        return "String of example not implemented";
+    case /* Constraint_ */5 :
+        return string_of_constraint_(c[0]);
+    
   }
 }
 
@@ -114,4 +159,8 @@ exports.string_of_res = string_of_res;
 exports.string_of_env = string_of_env;
 exports.string_of_identifier = string_of_identifier;
 exports.string_of_hole_identifier = string_of_hole_identifier;
+exports.string_of_type_ = string_of_type_;
+exports.string_of_example = string_of_example;
+exports.string_of_one_constraint_ = string_of_one_constraint_;
+exports.string_of_constraint_ = string_of_constraint_;
 /* No side effect */

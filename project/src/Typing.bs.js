@@ -7,7 +7,6 @@ var Caml_obj = require("bs-platform/lib/js/caml_obj.js");
 var Pervasives = require("bs-platform/lib/js/pervasives.js");
 var Tools$MyNewProject = require("./Tools.bs.js");
 var Types$MyNewProject = require("./Types.bs.js");
-var Caml_builtin_exceptions = require("bs-platform/lib/js/caml_builtin_exceptions.js");
 
 function getType(delta, gamma, _e) {
   while(true) {
@@ -168,16 +167,23 @@ function getExType(delta, ex) {
     } else {
       return /* Unit_t */2;
     }
-  } else if (ex.tag) {
-    return /* Function_t */Block.__(1, [
-              getResType(delta, Types$MyNewProject.valToRes(ex[0])),
-              getExType(delta, ex[1])
-            ]);
-  } else {
-    return /* Pair_t */Block.__(2, [
-              getExType(delta, ex[0]),
-              getExType(delta, ex[1])
-            ]);
+  }
+  switch (ex.tag | 0) {
+    case /* Eint */0 :
+        return /* Int_t */0;
+    case /* Ebool */1 :
+        return /* Bool_t */1;
+    case /* Epair */2 :
+        return /* Pair_t */Block.__(2, [
+                  getExType(delta, ex[0]),
+                  getExType(delta, ex[1])
+                ]);
+    case /* Efunc */3 :
+        return /* Function_t */Block.__(1, [
+                  getResType(delta, Types$MyNewProject.valToRes(ex[0])),
+                  getExType(delta, ex[1])
+                ]);
+    
   }
 }
 
@@ -194,36 +200,15 @@ function getConstraintType(delta, exs) {
             /* Any_t */3
           ];
   }
-  var match = contexts[1];
+  var x = contexts[0];
+  var match = List.filter((function (y) {
+            return Caml_obj.caml_notequal(x, y);
+          }))(contexts);
   if (match) {
-    if (match[1]) {
-      throw [
-            Caml_builtin_exceptions.match_failure,
-            /* tuple */[
-              "Typing.re",
-              86,
-              4
-            ]
-          ];
-    }
-    var x = contexts[0];
-    var match$1 = List.filter((function (y) {
-              return Caml_obj.caml_notequal(x, y);
-            }))(contexts);
-    if (match$1) {
-      return x;
-    } else {
-      return Pervasives.failwith("Inconsistent environment / example types");
-    }
+    return x;
+  } else {
+    return Pervasives.failwith("Inconsistent environment / example types");
   }
-  throw [
-        Caml_builtin_exceptions.match_failure,
-        /* tuple */[
-          "Typing.re",
-          86,
-          4
-        ]
-      ];
 }
 
 function generateHoleContextU(us) {

@@ -53,7 +53,7 @@ function allPairs(_exs) {
     if (typeof tmp === "number") {
       return false;
     }
-    if (tmp.tag) {
+    if (tmp.tag !== /* Epair */2) {
       return false;
     }
     _exs = exs[1];
@@ -71,7 +71,7 @@ function allFuncs(_exs) {
     if (typeof tmp === "number") {
       return false;
     }
-    if (tmp.tag !== /* Efunc */1) {
+    if (tmp.tag !== /* Efunc */3) {
       return false;
     }
     _exs = exs[1];
@@ -92,7 +92,7 @@ function firstExs(exs) {
                         ]
                       ];
                 }
-                if (!match.tag) {
+                if (match.tag === /* Epair */2) {
                   return /* tuple */[
                           param[0],
                           match[0]
@@ -122,7 +122,7 @@ function sndExs(exs) {
                         ]
                       ];
                 }
-                if (!match.tag) {
+                if (match.tag === /* Epair */2) {
                   return /* tuple */[
                           param[0],
                           match[1]
@@ -152,7 +152,7 @@ function prepFuncExs(exs, vid) {
                         ]
                       ];
                 }
-                if (match.tag === /* Efunc */1) {
+                if (match.tag === /* Efunc */3) {
                   return /* tuple */[
                           /* :: */[
                             /* tuple */[

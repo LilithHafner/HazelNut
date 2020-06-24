@@ -5,7 +5,6 @@ var List = require("bs-platform/lib/js/list.js");
 var Pervasives = require("bs-platform/lib/js/pervasives.js");
 var Guesser$MyNewProject = require("./Guesser.bs.js");
 var Refiner$MyNewProject = require("./Refiner.bs.js");
-var Caml_builtin_exceptions = require("bs-platform/lib/js/caml_builtin_exceptions.js");
 var Unevaluator$MyNewProject = require("./unevaluator.bs.js");
 
 function updateHoleContext_h(delta, gs) {
@@ -61,28 +60,7 @@ function guessAndCheck_h(delta, gamma, typ, exs, _i) {
               return optionPred(Unevaluator$MyNewProject.constrainExp(e, exs));
             }))(es);
     if (checked) {
-      var match = checked[1];
-      if (match) {
-        if (match[1]) {
-          throw [
-                Caml_builtin_exceptions.match_failure,
-                /* tuple */[
-                  "Filler.re",
-                  45,
-                  8
-                ]
-              ];
-        }
-        return checked[0];
-      }
-      throw [
-            Caml_builtin_exceptions.match_failure,
-            /* tuple */[
-              "Filler.re",
-              45,
-              8
-            ]
-          ];
+      return checked[0];
     }
     _i = i + 1 | 0;
     continue ;

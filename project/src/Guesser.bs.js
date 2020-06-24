@@ -31,7 +31,7 @@ function partition(n) {
 function guessApp(delta, gamma, typ, i, j) {
   var funcs = List.filter((function (e) {
             var match = Typing$MyNewProject.getType(delta, gamma, e);
-            if (typeof match === "number" || match.tag !== /* Function_t */1) {
+            if (typeof match === "number" || !(match.tag === /* Function_t */1 && Caml_obj.caml_equal(match[1], typ))) {
               return false;
             } else {
               return true;
@@ -39,9 +39,9 @@ function guessApp(delta, gamma, typ, i, j) {
           }))(Caml_array.caml_array_get(memo, i));
   var args = List.filter((function (e) {
             return List.exists((function (x) {
-                          Typing$MyNewProject.getType(delta, gamma, e);
+                          var t = Typing$MyNewProject.getType(delta, gamma, e);
                           var match = Typing$MyNewProject.getType(delta, gamma, x);
-                          if (typeof match === "number" || match.tag !== /* Function_t */1) {
+                          if (typeof match === "number" || !(match.tag === /* Function_t */1 && Caml_obj.caml_equal(t, match[0]))) {
                             return false;
                           } else {
                             return true;

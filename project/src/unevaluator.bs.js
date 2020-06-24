@@ -31,64 +31,110 @@ function unevaluate(_res, _ex) {
         default:
           return ;
       }
-    } else if (ex.tag) {
-      if (typeof res === "number") {
-        return ;
-      }
-      switch (res.tag | 0) {
-        case /* Rfunc */4 :
-            var env$prime_000 = /* tuple */[
-              res[0],
-              Types$MyNewProject.valToRes(ex[0])
-            ];
-            var env$prime_001 = res[2];
-            var env$prime = /* :: */[
-              env$prime_000,
-              env$prime_001
-            ];
-            var exs_000 = /* tuple */[
-              env$prime,
-              ex[1]
-            ];
-            var exs = /* :: */[
-              exs_000,
-              /* [] */0
-            ];
-            return constrainExp(res[1], exs);
-        case /* Rapp */5 :
-        case /* Rhole */6 :
-        case /* Rfst */8 :
-        case /* Rsnd */9 :
-            break;
-        default:
-          return ;
-      }
     } else {
-      if (typeof res === "number") {
-        return ;
-      }
-      switch (res.tag | 0) {
-        case /* Rpair */7 :
-            var match = unevaluate(res[0], ex[0]);
-            var match$1 = unevaluate(res[1], ex[1]);
-            if (match !== undefined && match$1 !== undefined) {
-              return List.concat(/* :: */[
-                          match,
-                          /* :: */[
-                            match$1,
-                            /* [] */0
-                          ]
-                        ]);
-            } else {
+      switch (ex.tag | 0) {
+        case /* Eint */0 :
+            if (typeof res === "number") {
               return ;
             }
-        case /* Rapp */5 :
-        case /* Rhole */6 :
-        case /* Rfst */8 :
-        case /* Rsnd */9 :
+            switch (res.tag | 0) {
+              case /* Rint */0 :
+                  if (ex[0] === res[0]) {
+                    return /* [] */0;
+                  } else {
+                    return ;
+                  }
+              case /* Rapp */5 :
+              case /* Rhole */6 :
+              case /* Rfst */8 :
+              case /* Rsnd */9 :
+                  break;
+              default:
+                return ;
+            }
             break;
-        default:
-          return ;
+        case /* Ebool */1 :
+            if (typeof res === "number") {
+              return ;
+            }
+            switch (res.tag | 0) {
+              case /* Rbool */2 :
+                  if (ex[0] === res[0]) {
+                    return /* [] */0;
+                  } else {
+                    return ;
+                  }
+              case /* Rapp */5 :
+              case /* Rhole */6 :
+              case /* Rfst */8 :
+              case /* Rsnd */9 :
+                  break;
+              default:
+                return ;
+            }
+            break;
+        case /* Epair */2 :
+            if (typeof res === "number") {
+              return ;
+            }
+            switch (res.tag | 0) {
+              case /* Rpair */7 :
+                  var match = unevaluate(res[0], ex[0]);
+                  var match$1 = unevaluate(res[1], ex[1]);
+                  if (match !== undefined && match$1 !== undefined) {
+                    return List.concat(/* :: */[
+                                match,
+                                /* :: */[
+                                  match$1,
+                                  /* [] */0
+                                ]
+                              ]);
+                  } else {
+                    return ;
+                  }
+              case /* Rapp */5 :
+              case /* Rhole */6 :
+              case /* Rfst */8 :
+              case /* Rsnd */9 :
+                  break;
+              default:
+                return ;
+            }
+            break;
+        case /* Efunc */3 :
+            if (typeof res === "number") {
+              return ;
+            }
+            switch (res.tag | 0) {
+              case /* Rfunc */4 :
+                  var env$prime_000 = /* tuple */[
+                    res[0],
+                    Types$MyNewProject.valToRes(ex[0])
+                  ];
+                  var env$prime_001 = res[2];
+                  var env$prime = /* :: */[
+                    env$prime_000,
+                    env$prime_001
+                  ];
+                  var exs_000 = /* tuple */[
+                    env$prime,
+                    ex[1]
+                  ];
+                  var exs = /* :: */[
+                    exs_000,
+                    /* [] */0
+                  ];
+                  return constrainExp(res[1], exs);
+              case /* Rapp */5 :
+              case /* Rhole */6 :
+              case /* Rfst */8 :
+              case /* Rsnd */9 :
+                  break;
+              default:
+                return ;
+            }
+            break;
+        
       }
     }
     if (typeof res !== "number") {
@@ -100,7 +146,7 @@ function unevaluate(_res, _ex) {
             }
             var v = Types$MyNewProject.resToVal(r2);
             if (v !== undefined) {
-              _ex = /* Efunc */Block.__(1, [
+              _ex = /* Efunc */Block.__(3, [
                   v,
                   ex
                 ]);
@@ -111,7 +157,7 @@ function unevaluate(_res, _ex) {
                   Caml_builtin_exceptions.match_failure,
                   /* tuple */[
                     "unevaluator.re",
-                    43,
+                    45,
                     20
                   ]
                 ];
@@ -127,14 +173,14 @@ function unevaluate(_res, _ex) {
                     /* [] */0
                   ];
         case /* Rfst */8 :
-            _ex = /* Epair */Block.__(0, [
+            _ex = /* Epair */Block.__(2, [
                 ex,
                 /* Top */0
               ]);
             _res = res[0];
             continue ;
         case /* Rsnd */9 :
-            _ex = /* Epair */Block.__(0, [
+            _ex = /* Epair */Block.__(2, [
                 /* Top */0,
                 ex
               ]);

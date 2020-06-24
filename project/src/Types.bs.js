@@ -27,13 +27,13 @@ function valToRes(v) {
 
 function exToExp(ex) {
   if (typeof ex === "number") {
-    if (ex === /* Top */0) {
-      return ;
-    } else {
+    if (ex === /* Eunit */1) {
       return /* Unit */1;
+    } else {
+      return ;
     }
   }
-  if (ex.tag) {
+  if (ex.tag !== /* Epair */2) {
     return ;
   }
   var match = exToExp(ex[0]);
