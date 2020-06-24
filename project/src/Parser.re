@@ -17,8 +17,8 @@ let implode(cs:list(char)):string =
 let rec parse_token(x) = {
     let rec parse_token_r(x, y) = {
         switch(x) {
-        | [',' | ')' | ' ', ...x] => (x, y)
-        | [c, ...x] => parse_token_r(x,[c,...y])
+        | ['0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '.', ..._] => 
+            parse_token_r(List.tl(x), [List.hd(x),...y])
         | _ => (x,y)
         };
     }
@@ -27,6 +27,8 @@ let rec parse_token(x) = {
 }
 and parse_exp(x) = 
     switch(x) {
+    | [' ' | '\t' | '\n', ...x] =>
+        parse_exp(x)
     | ['v', 'a', 'r', ...x] =>
         let (v0, x) = parse_int(x);
         (Var(v0), x)
@@ -75,6 +77,8 @@ and parse_exp(x) =
     }
 and parse_res(x) = 
     switch(x) {
+    | [' ' | '\t' | '\n', ...x] =>
+        parse_res(x)
     | ['f', 's', 't', ...x] =>
         let (v0, x) = parse_res(x);
         (Rfst(v0), x)
@@ -119,6 +123,8 @@ and parse_res(x) =
     }
 and parse_type_(x) = 
     switch(x) {
+    | [' ' | '\t' | '\n', ...x] =>
+        parse_type_(x)
     | ['f', 'a', 'i', 'l', ...x] =>
         (Fail_t, x)
     | ['i', ...x] =>
@@ -145,6 +151,8 @@ and parse_type_(x) =
     }
 and parse_debug_construct(x) = 
     switch(x) {
+    | [' ' | '\t' | '\n', ...x] =>
+        parse_debug_construct(x)
     | ['e', 'n', 'v', ...x] =>
         let (v0, x) = parse_environment(x);
         (Environment(v0), x)
@@ -164,18 +172,19 @@ and parse_float(x) = {
     let(v0, x) = parse_token(x);
     (float_of_string(v0), x)
 }
-and parse_int(x) = {
-    let(v0, x) = parse_token(x);
-    (int_of_string(v0), x)
-}
 and parse_environment(x) = {
     switch(x) {
-    | [',' | ' ', ']', ...x] => ([], x)
-    | [] => ([], [])
-    | x =>
+    | [' ' | '\t' | '\n', ...x] =>
+        parse_environment(x)
+    | ['0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9', ..._] =>   
         let (v0, x) = parse_int(x);
         let (v1, x) = parse_res(x);
         let (v2, x) = parse_environment(x);
         ([(v0, v1), ...v2], x)
+    | x => ([], x)
     }
+}
+and parse_int(x) = {
+    let(v0, x) = parse_token(x);
+    (int_of_string(v0), x)
 }
