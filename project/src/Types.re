@@ -14,7 +14,6 @@ type exp =
   | Bool(bool)
   | Cons(exp, exp)
   | Nil 
-  | Variable(identifier)
   | Function(identifier, exp)
   | Application(exp, exp)
   | Hole(hole_identifier)

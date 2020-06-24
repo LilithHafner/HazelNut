@@ -126,7 +126,7 @@ def post_process(out):
 mid_replacements = {
 ('f','Rfst',('res',)):('fst','Rfst',('res',)),
 ('f','Fst',('exp',)):('fst','Fst',('exp',)),
-('v','Var',('int',)):('var','Var',('int',)),
+#('v','Var',('int',)):('var','Var',('int',)),
 ('e','Environment',('environment',)):('env','Environment',('environment',)),
 ('f','Function',('int','exp')):('\\\\','Function',('int','exp')),
 ('f','Rfunc',('int','exp', 'environment')):('\\\\','Rfunc',('int','exp', 'environment')),

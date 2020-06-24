@@ -6,6 +6,7 @@ env = parse_environment(inp); Environment(v)
 res = parse_res(inp); Res(v)
 type = parse_type_(inp); Type_(v)
 ex = parse_example(inp); Example(v)
+example = parse_example(inp); Example(v)
 
 #Processors
 

@@ -95,21 +95,20 @@ function string_of_exp(e) {
         return Pervasives.string_of_bool(e[0]);
     case /* Cons */3 :
         return string_of_exp(e[0]) + ("::" + string_of_exp(e[1]));
-    case /* Function */5 :
+    case /* Function */4 :
         return "\\" + (String(e[0]) + ("." + string_of_exp(e[1])));
-    case /* Application */6 :
+    case /* Application */5 :
         return string_of_exp(e[0]) + (" " + string_of_exp(e[1]));
-    case /* Hole */7 :
+    case /* Hole */6 :
         return "??_" + String(e[0]);
     case /* Int */0 :
-    case /* Variable */4 :
-    case /* Var */8 :
+    case /* Var */7 :
         return String(e[0]);
-    case /* Pair */9 :
+    case /* Pair */8 :
         return "(" + (string_of_exp(e[0]) + (", " + (string_of_exp(e[1]) + ")")));
-    case /* Fst */10 :
+    case /* Fst */9 :
         return "fst(" + (string_of_exp(e[0]) + ")");
-    case /* Snd */11 :
+    case /* Snd */10 :
         return "snd(" + (string_of_exp(e[0]) + ")");
     
   }

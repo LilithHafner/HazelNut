@@ -5,7 +5,7 @@ var Block = require("bs-platform/lib/js/block.js");
 
 function valToExp(v) {
   if (v) {
-    return /* Pair */Block.__(9, [
+    return /* Pair */Block.__(8, [
               valToExp(v[0]),
               valToExp(v[1])
             ]);
@@ -39,7 +39,7 @@ function exToExp(ex) {
   var match = exToExp(ex[0]);
   var match$1 = exToExp(ex[1]);
   if (match !== undefined && match$1 !== undefined) {
-    return /* Pair */Block.__(9, [
+    return /* Pair */Block.__(8, [
               match,
               match$1
             ]);

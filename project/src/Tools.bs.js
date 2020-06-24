@@ -10,20 +10,11 @@ function lookup(key, _plst) {
     if (!plst) {
       return Pervasives.failwith("Key not in list");
     }
-    var xs = plst[1];
     var match = plst[0];
-    if (xs) {
-      if (xs[1]) {
-        _plst = xs;
-        continue ;
-      }
-      if (Caml_obj.caml_equal(match[0], key)) {
-        return match[1];
-      }
-      _plst = xs;
-      continue ;
+    if (Caml_obj.caml_equal(match[0], key)) {
+      return match[1];
     }
-    _plst = xs;
+    _plst = plst[1];
     continue ;
   };
 }

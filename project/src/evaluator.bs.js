@@ -3,7 +3,6 @@
 
 var Block = require("bs-platform/lib/js/block.js");
 var Tools$MyNewProject = require("./Tools.bs.js");
-var Caml_builtin_exceptions = require("bs-platform/lib/js/caml_builtin_exceptions.js");
 
 function $$eval(__env, _e) {
   while(true) {
@@ -28,25 +27,16 @@ function $$eval(__env, _e) {
                     $$eval(_env, e[0]),
                     $$eval(_env, e[1])
                   ]);
-      case /* Variable */4 :
-          throw [
-                Caml_builtin_exceptions.match_failure,
-                /* tuple */[
-                  "evaluator.re",
-                  16,
-                  48
-                ]
-              ];
-      case /* Function */5 :
+      case /* Function */4 :
           return /* Rfunc */Block.__(4, [
                     e[0],
                     e[1],
                     _env
                   ]);
-      case /* Application */6 :
+      case /* Application */5 :
           var e2 = e[1];
           var e1 = e[0];
-          if (typeof e1 !== "number" && e1.tag === /* Function */5) {
+          if (typeof e1 !== "number" && e1.tag === /* Function */4) {
             _e = e1[1];
             __env = /* :: */[
               /* tuple */[
@@ -61,21 +51,21 @@ function $$eval(__env, _e) {
                     $$eval(_env, e1),
                     $$eval(_env, e2)
                   ]);
-      case /* Hole */7 :
+      case /* Hole */6 :
           return /* Rhole */Block.__(6, [
                     e[0],
                     _env
                   ]);
-      case /* Var */8 :
+      case /* Var */7 :
           return Tools$MyNewProject.lookup(e[0], _env);
-      case /* Pair */9 :
+      case /* Pair */8 :
           return /* Rpair */Block.__(7, [
                     $$eval(_env, e[0]),
                     $$eval(_env, e[1])
                   ]);
-      case /* Fst */10 :
+      case /* Fst */9 :
           return /* Rfst */Block.__(8, [$$eval(_env, e[0])]);
-      case /* Snd */11 :
+      case /* Snd */10 :
           return /* Rsnd */Block.__(9, [$$eval(_env, e[0])]);
       
     }

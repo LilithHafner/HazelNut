@@ -30,45 +30,43 @@ function getType(delta, gamma, _e) {
                     getType(delta, gamma, e[0]),
                     getType(delta, gamma, e[1])
                   ]);
-      case /* Variable */4 :
-          return Pervasives.failwith("Not yet implemented");
-      case /* Function */5 :
+      case /* Function */4 :
           return /* Function_t */Block.__(1, [
                     Tools$MyNewProject.lookup(e[0], gamma),
                     getType(delta, gamma, e[1])
                   ]);
-      case /* Application */6 :
+      case /* Application */5 :
           var match = getType(delta, gamma, e[0]);
           if (typeof match === "number" || !(match.tag === /* Function_t */1 && Caml_obj.caml_equal(getType(delta, gamma, e[1]), match[0]))) {
             return Pervasives.failwith("Application type error");
           } else {
             return match[1];
           }
-      case /* Hole */7 :
+      case /* Hole */6 :
           return Tools$MyNewProject.lookup(e[0], delta)[1];
-      case /* Var */8 :
+      case /* Var */7 :
           return Tools$MyNewProject.lookup(e[0], gamma);
-      case /* Pair */9 :
+      case /* Pair */8 :
           return /* Pair_t */Block.__(2, [
                     getType(delta, gamma, e[0]),
                     getType(delta, gamma, e[1])
                   ]);
-      case /* Fst */10 :
+      case /* Fst */9 :
           var e$prime = e[0];
           if (typeof e$prime === "number") {
             return Pervasives.failwith("Type error, expected pair");
           }
-          if (e$prime.tag !== /* Pair */9) {
+          if (e$prime.tag !== /* Pair */8) {
             return Pervasives.failwith("Type error, expected pair");
           }
           _e = e$prime[0];
           continue ;
-      case /* Snd */11 :
+      case /* Snd */10 :
           var e$prime$1 = e[0];
           if (typeof e$prime$1 === "number") {
             return Pervasives.failwith("Type error, expected pair");
           }
-          if (e$prime$1.tag !== /* Pair */9) {
+          if (e$prime$1.tag !== /* Pair */8) {
             return Pervasives.failwith("Type error, expected pair");
           }
           _e = e$prime$1[1];
@@ -98,7 +96,7 @@ function getResType(delta, _r) {
       case /* Rcons */3 :
           return Pervasives.failwith("Not yet implemented");
       case /* Rfunc */4 :
-          return getType(delta, generateContext(delta, r[2]), /* Function */Block.__(5, [
+          return getType(delta, generateContext(delta, r[2]), /* Function */Block.__(4, [
                         r[0],
                         r[1]
                       ]));

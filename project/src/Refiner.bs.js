@@ -198,9 +198,9 @@ function refine(context, param, typ, exs) {
         var x = IdGenerator$MyNewProject.getId(undefined);
         var h = IdGenerator$MyNewProject.getId(undefined);
         return /* tuple */[
-                /* Function */Block.__(5, [
+                /* Function */Block.__(4, [
                     x,
-                    /* Hole */Block.__(7, [h])
+                    /* Hole */Block.__(6, [h])
                   ]),
                 /* :: */[
                   /* tuple */[
@@ -225,9 +225,9 @@ function refine(context, param, typ, exs) {
         var x$1 = IdGenerator$MyNewProject.getId(undefined);
         var y = IdGenerator$MyNewProject.getId(undefined);
         return /* tuple */[
-                /* Pair */Block.__(9, [
-                    /* Hole */Block.__(7, [x$1]),
-                    /* Hole */Block.__(7, [y])
+                /* Pair */Block.__(8, [
+                    /* Hole */Block.__(6, [x$1]),
+                    /* Hole */Block.__(6, [y])
                   ]),
                 /* :: */[
                   /* tuple */[

@@ -61,7 +61,7 @@ function guessApp(delta, gamma, typ, i, j) {
                               return Caml_obj.caml_equal(t1, Typing$MyNewProject.getType(delta, gamma, e2));
                             }))(args);
                     return List.map((function (e2) {
-                                  return /* Application */Block.__(6, [
+                                  return /* Application */Block.__(5, [
                                             e,
                                             e2
                                           ]);
@@ -75,7 +75,7 @@ function guess(delta, gamma, typ, i) {
               return Caml_obj.caml_equal(param[1], typ);
             }))(gamma);
     Caml_array.caml_array_set(memo, 0, List.map((function (param) {
-                return /* Var */Block.__(8, [param[0]]);
+                return /* Var */Block.__(7, [param[0]]);
               }), terms));
     return Caml_array.caml_array_get(memo, 0);
   }
