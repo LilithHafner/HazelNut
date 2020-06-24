@@ -7,7 +7,14 @@ var Caml_string = require("bs-platform/lib/js/caml_string.js");
 var Repl$MyNewProject = require("./Repl.bs.js");
 var Parser$MyNewProject = require("./Parser.bs.js");
 
-console.log("\nWelcome to the REPL in REPL debug expirence!\n\nYou are currently in a Reason repl, where you can run\nany Reason command. One available reason command is \n\n    r()\n\nWhich enters a sub-repl in Candlenut. This sub-repl has three commands:\n    q\n        Any command starting with q will exit the\n        sub-repl and re-enter the reason repl.\n    #env exp eval\n        A command starting with # indicates a reconfiguration of the\n        repl's behavior. Specify a list of commands in reverse-polish\n        Notation. Available commands can be found in repl_source.dat.\n    2f3.14 ppi3i4i5\n        Anything else is interpreted via the specified commands. The \n        input format is polish notation and whitespace insensitive.\n\nIf you quit the repl, you will still have access to the\nentire history of computation in Repl.history, which is\nmutable, so you'll likely need to tyoe Repl.history^.\n\nDISCLAIMER: everything I just said about a Reason repl\nIsn't true yet, you are stuck in the Candlenut repl.");
+var help = "\nWelcome to the REPL in REPL debug expirence!\n\nYou are currently in a Reason repl, where you can run\nany Reason command. One available reason command is \n\n    r()\n\nWhich enters a sub-repl in Candlenut. This sub-repl has three commands:\n    q\n        Any command starting with q will exit the\n        sub-repl and re-enter the reason repl.\n    #env exp eval\n        A command starting with # indicates a reconfiguration of the\n        repl's behavior. Specify a list of commands in reverse-polish\n        Notation. Available commands can be found in repl_source.dat.\n    2f3.14 ppi3i4i5\n        Anything else is interpreted via the specified commands. The \n        input format is polish notation and whitespace insensitive.\n\nIf you quit the repl, you will still have access to the\nentire history of computation in Repl.history, which is\nmutable, so you'll likely need to tyoe Repl.history^.\n\nDISCLAIMER: everything I just said about a Reason repl\nIsn't true yet, you are stuck in the Candlenut repl.";
+
+function h(param) {
+  console.log(help);
+  
+}
+
+console.log("r() enters repl, ? for help in repl, h() for help outside of repl.");
 
 var command = {
   contents: "env exp eval"
@@ -17,10 +24,15 @@ function r(param) {
   return Readline.readline((function (inp) {
                 var match = Caml_string.get(inp, 0);
                 if (match !== 35) {
-                  if (match !== 113) {
-                    return Repl$MyNewProject.main(inp, command.contents);
+                  if (match !== 63) {
+                    if (match !== 113) {
+                      return Repl$MyNewProject.main(inp, command.contents);
+                    } else {
+                      return Readline.close(undefined);
+                    }
                   } else {
-                    return Readline.close(undefined);
+                    console.log(help);
+                    return ;
                   }
                 } else {
                   command.contents = Parser$MyNewProject.implode(List.tl(Parser$MyNewProject.explode(inp)));
@@ -32,6 +44,8 @@ function r(param) {
 
 r(undefined);
 
+exports.help = help;
+exports.h = h;
 exports.command = command;
 exports.r = r;
 /*  Not a pure module */

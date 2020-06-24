@@ -1,6 +1,6 @@
 open Parser;
 
-Js.log("
+let help = "
 Welcome to the REPL in REPL debug expirence!
 
 You are currently in a Reason repl, where you can run
@@ -25,8 +25,12 @@ entire history of computation in Repl.history, which is
 mutable, so you'll likely need to tyoe Repl.history^.
 
 DISCLAIMER: everything I just said about a Reason repl
-Isn't true yet, you are stuck in the Candlenut repl.");
+Isn't true yet, you are stuck in the Candlenut repl.";
 
+let h() = 
+    Js.log(help)
+
+Js.log("r() enters repl, ? for help in repl, h() for help outside of repl.")
 let command = ref("env exp eval");
 let r() =
     Readline.readline((inp) => {
@@ -35,6 +39,7 @@ let r() =
         //Js.log(string_of_debug_construct(construct));
         switch(String.get(inp, 0)) {
         | 'q' => Readline.close()
+        | '?' => h()
         | '#' => command := implode(List.tl(explode(inp))); Js.log("Command = \""++command^ ++"\"")
         | _ => Repl.main(inp, command^)
         }
