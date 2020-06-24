@@ -29,12 +29,30 @@ let process(inp:list(char), stack:list(debug_construct), command:string):(list(c
     | "res" =>
         let (v, inp) = parse_res(inp);
         (inp, [Res(v),...stack])
+    | "type" =>
+        let (v, inp) = parse_type_(inp);
+        (inp, [Type_(v),...stack])
+    | "ex" =>
+        let (v, inp) = parse_example(inp);
+        (inp, [Example(v),...stack])
     | "eval" =>
         switch(stack) {
         | [Exp(v1),...stack] =>
         switch(stack) {
         | [Environment(v0),...stack] =>
             (inp, [Res(Evaluator.eval(v0, v1)), ...stack])
+        | [] => failwith("Empty stack")
+        | _ => failwith("Type error")
+        }
+        | [] => failwith("Empty stack")
+        | _ => failwith("Type error")
+        }
+    | "uneval" =>
+        switch(stack) {
+        | [Example(v1),...stack] =>
+        switch(stack) {
+        | [Res(v0),...stack] =>
+            (inp, [Constraint_(Unevaluator.unevaluate(v0, v1)), ...stack])
         | [] => failwith("Empty stack")
         | _ => failwith("Type error")
         }

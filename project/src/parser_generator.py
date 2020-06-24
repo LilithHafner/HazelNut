@@ -49,6 +49,8 @@ source = '\n'.join(source)
 def process(source):
     type_names = {}
     for line in source.split('\n'):
+        if '//parser_generator.py: ignore' in line:
+            continue
         line = line.strip()
         if line[:5] != 'type ' and line[:4] != 'and ':
             continue
@@ -56,7 +58,7 @@ def process(source):
         if len(lst) != 2 or not lst[-1]:
             continue
         a, b = lst
-        a, b = a.strip(), b.strip()
+        a, b = a.strip(), b.strip()#b.replace('.','_').split('(')[0].strip()
         a = a.split()
         if len(a) != 2:
             continue
@@ -66,6 +68,8 @@ def process(source):
     current_type = None
     members = {}
     for line in source.split('\n'):
+        if '//parser_generator.py: ignore' in line:
+            continue
         if line.strip() and line.strip()[-1] == '=':
             current_type = line.strip()[:-1].split()[-1]
             if current_type in members:
@@ -106,6 +110,11 @@ post_replacements = [
 
 #    ("    | ['e', ...x] =>\n        let (v0, x) = parse_exp(x);\n        (Exp(v0), x)\n    | ['e', ...x] =>\n        let (v0, x) = parse_environment(x);\n        (Environemnt(v0), x)\n",
 #     "    | ['e','n','v', ...x] =>\n        let (v0, x) = parse_environment(x);\n        (Environemnt(v0), x)\n    | ['e', ...x] =>\n        let (v0, x) = parse_exp(x);\n        (Exp(v0), x)\n")
+
+    ('(Tools_pairlist_of_string(v0), x)',
+     'failwith("Tools_pairlist_of_string Not Implemented")'),
+    ('(constraint__of_string(v0), x)',
+     'failwith("constraint__of_string Not Implemented")'),
 ]
 def post_process(out):
     for a,b in post_replacements:

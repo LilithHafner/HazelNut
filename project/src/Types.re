@@ -52,17 +52,10 @@ and type_ =
   | Any_t 
   | Fail_t 
 
-and debug_construct = 
-    | Exp(exp)
-    | Environment(environment)
-    | Res(res)
-
-//marker for parser_generator.py
-
 // Map from variable names to results
-and environment = Tools.pairlist(identifier, res)
+and environment = Tools.pairlist(identifier, res)//parser_generator.py: ignore
 // Map from variable names to types
-and context = Tools.pairlist(identifier, type_)
+and context = Tools.pairlist(identifier, type_)//parser_generator.py: ignore
 
 // Types all of the holes
 // I think we should clarify this and the type which unevaluate returns.
@@ -90,6 +83,18 @@ and excons = Tools.pairlist(environment, example)
 and value =
     | Vunit 
     | Vpair(value, value);
+
+type constraint_ = option(Tools.pairlist(environment, (hole_identifier, example)))//parser_generator.py: ignore
+
+type debug_construct = 
+    | Exp(exp)
+    | Environment(environment)
+    | Res(res)
+    | Type_(type_)
+    | Example(example)
+    | Constraint_(constraint_)
+
+//marker for parser_generator.py
 
 type goal = (context, hole_identifier, type_, excons);
 type goals = list(goal);
