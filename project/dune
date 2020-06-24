@@ -1,0 +1,5 @@
+(dirs src)
+
+(include_subdirs unqualified)
+
+(library synthNutNative)
