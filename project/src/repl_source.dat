@@ -1,0 +1,10 @@
+#Parsers
+
+a = parse_debug_construct(inp); v
+exp = parse_exp(inp); Exp(v)
+env = parse_environment(inp); Environment(v)
+res = parse_res(inp); Res(v)
+
+#Processors
+
+eval = Environment(v0); Exp(v1); Res(Evaluator.eval(v0, v1))

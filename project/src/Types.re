@@ -52,6 +52,13 @@ and type_ =
   | Any_t 
   | Fail_t 
 
+and debug_construct = 
+    | Exp(exp)
+    | Environment(environment)
+    | Res(res)
+
+//marker for parser_generator.py
+
 // Map from variable names to results
 and environment = Tools.pairlist(identifier, res)
 // Map from variable names to types
