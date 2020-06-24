@@ -125,6 +125,7 @@ and parse_exp(x) =
 
 /* let rec infer_types (ert_exp:ert_exp, env:environment):value = { */
 
+/*
 Js.log("Hello, BuckleScript and Reason!");
 
 
@@ -134,6 +135,7 @@ Readline.readline((inp) => {
     let (construct, _) = parse_debug_construct(explode(inp));
     Js.log(string_of_construct(construct));
 });
+*/
 
 
 /*

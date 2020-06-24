@@ -1,0 +1,3 @@
+#!/bin/bash
+
+esy dune top | sed 's/;;/;/' > dune-top

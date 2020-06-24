@@ -61,8 +61,7 @@ let guess = (delta, gamma: context, typ: type_, i: int): list(exp) => {
         memo[0]
     } else {
         let pairs = partition(i);
-        memo[i] = List.map(((n, m)) => guessApp(delta, gamma, typ, n, m), pairs)
-            -> List.concat;
+        memo[i] = List.concat (List.map(((n, m)) => guessApp(delta, gamma, typ, n, m), pairs));
         memo[i]
     }
 };

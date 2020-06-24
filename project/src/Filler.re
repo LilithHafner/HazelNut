@@ -40,7 +40,7 @@ let rec guessAndCheck_h = (delta, gamma, typ, exs, i) => {
     } else {
         let es = Guesser.guess(delta, gamma, typ, i);
         let checked = List.filter(
-            (e) => Unevaluator.constrainExp(e, exs) -> optionPred,
+            (e) => optionPred (Unevaluator.constrainExp(e, exs)),
             es);
         switch (checked) {
             | [] => guessAndCheck_h(delta, gamma, typ, exs, i + 1)
