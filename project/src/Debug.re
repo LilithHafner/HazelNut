@@ -1,140 +1,45 @@
-open Types;
 open Parser;
 
-type construct = debug_construct;
+Js.log("
+Welcome to the REPL in REPL debug expirence!
 
-let rec string_of_construct (c:construct):string =
-    switch(c) {
-        | Exp(x) => string_of_exp(x)
-        | Environment(x) => string_of_env(x)
-        | Res(x) => string_of_res(x)
-    }
-and string_of_exp(e:exp):string =
-    switch(e) {
-        | Int(int) => string_of_int(int)
-        | Float(float) => Js.Float.toString(float)
-        | Bool(bool) => string_of_bool(bool)
-        | Cons(exp, exp2) => string_of_exp(exp) ++ "::" ++ string_of_exp(exp2)
-        | Nil  => "Nil"
-        | Variable(identifier) => string_of_identifier(identifier)
-        | Function(identifier, exp) => "\\" ++ string_of_identifier(identifier) ++ "." ++ string_of_exp(exp)
-        | Application(exp, exp2) => string_of_exp(exp) ++ " " ++ string_of_exp(exp2)
-        | Hole(hole_identifier) => "??_"++string_of_hole_identifier(hole_identifier)
-        | Unit  => "()"
-        | Var(identifier) => string_of_identifier(identifier)
-        | Pair(exp, exp2) => "(" ++ string_of_exp(exp) ++ ", " ++ string_of_exp(exp2) ++ ")"
-        | Fst(exp) => "fst(" ++ string_of_exp(exp) ++ ")"
-        | Snd(exp) => "snd(" ++ string_of_exp(exp) ++ ")"
-    }
-and string_of_res(r:res):string =
-    switch(r) {
-        | Rint(int) => string_of_int(int)
-        | Rfloat(float) => Js.Float.toString(float)
-        | Rbool(bool) => string_of_bool(bool)
-        | Rcons(res, res2) => string_of_res(res) ++ "::" ++ string_of_res(res2)
-        | Rnil  => "Nil"
-        | Rfunc(identifier, exp, environment) => "["++string_of_env(environment)++"]\\" ++ string_of_identifier(identifier) ++ "." ++ string_of_exp(exp)
-        | Rapp(res, res2) => string_of_res(res) ++ " " ++ string_of_res(res2)
-        | Rhole(hole_identifier, environment) => "["++string_of_env(environment)++"]??_"++string_of_hole_identifier(hole_identifier)
-        | Runit  => "()"
-        | Rpair(res, res2) => "(" ++ string_of_res(res) ++ ", " ++ string_of_res(res2) ++ ")"
-        | Rfst(res) => "fst(" ++ string_of_res(res) ++ ")"
-        | Rsnd(res) => "snd(" ++ string_of_res(res) ++ ")"
-    }
-and string_of_env(e:environment):string =
-    switch(e) {
-        | [] => "-"
-        | [(identifier,res),...ms] => string_of_identifier(identifier) ++"->"++string_of_res(res)++"; "++string_of_env(ms)
-    }
-and string_of_identifier = string_of_int
-and string_of_hole_identifier = string_of_int
-/* 
-//This is because I coudln't find List.make or List.create
-let make_list (n:int, f:int=>'a):list('a) = {
-    let out = ref([]);
-    for (i in n-1 downto 0) {
-        out := [f(i), ...out^]
-    }
-    out^
-}
+You are currently in a Reason repl, where you can run
+any Reason command. One available reason command is 
 
-let explode(str:string):list(char) = 
-//This is because I coudln't find String.to_seq
-//    str |> String.to_seq |> List.of_seq 
-    make_list(String.length(str), String.get(str))
-let implode(cs:list(char)):string = 
-//Because runtime doesn't matter
-    String.init(List.length(cs), List.nth(cs))
+    r()
 
-/* let rec parse_token(x) = {
-    let rec parse_token_r(x, y) = {
-        switch(x) {
-        | [',' | ')', ...x] => (x, y)
-        | [c, ...x] => parse_token_r(x,[c,...y])
-        | _ => (x,y)
-        };
-    }
-    let (x,y) = parse_token_r(x,[]);
-    (implode(List.rev(y)), x)
-}
-and parse_int(x) = {
-    let (v0, x) = parse_token(x);
-    (int_of_string(v0), x)
-}
-and parse_exp(x) = 
-    switch(x) {
-    | ['h', ...x] => 
-        let (v0, x) = parse_int(x);
-        (Hole(v0), x)
-    | ['v', 'a', 'r', ...x] => 
-        let (v0, x) = parse_int(x);
-        (Variable(v0), x)
-    | ['a', 'p', 'l', ...x] => 
-        let (v0, x) = parse_exp(x);
-        let (v1, x) = parse_exp(x);
-        (Application(v0, v1), x)
-    | _ => (Variable(-17), [])
-    } */
-    let rec parse_token(x) = {
-        let rec parse_token_r(x, y) = {
-            switch(x) {
-            | [',' | ')', ...x] => (x, y)
-            | [c, ...x] => parse_token_r(x,[c,...y])
-            | _ => (x,y)
-            };
+Which enters a sub-repl in Candlenut. This sub-repl has three commands:
+    q
+        Any command starting with q will exit the
+        sub-repl and re-enter the reason repl.
+    #parse_any parse_any eval
+        A command starting with # indicates a reconfiguration of the
+        repl's behavior. Specify a list of commands in reverse-polish
+        Notation. Available commands can be found in repl_source.dat.
+    env2f3.14 eppi3i4i5
+        Anything else is interpreted via the specified commands. The 
+        input format is polish notation and whitespace insensitive.
+
+If you quit the repl, you will still have access to the
+entire history of computation in Repl.history, which is
+mutable, so you'll likely need to tyoe Repl.history^.
+
+DISCLAIMER: everything I just said about a Reason repl
+Isn't true yet, you are stuck in the Candlenut repl.");
+
+let command = ref("parse_any parse_any eval");
+let r() =
+    Readline.readline((inp) => {
+        //Js.log(inp);
+        //let (construct, _) = parse_debug_construct(explode(inp));
+        //Js.log(string_of_debug_construct(construct));
+        switch(String.get(inp, 0)) {
+        | 'q' => Readline.close()
+        | '#' => command := implode(List.tl(explode(inp))); Js.log("Command = \""++command^ ++"\"")
+        | _ => Repl.main(inp, command^)
         }
-        let (x,y) = parse_token_r(x,[]);
-        (implode(List.rev(y)), x)
-    }
-    and parse_exp(x) = 
-        switch(x) {
-        | ['h', ...x] =>
-            let (v0, x) = parse_int(x);
-            (Hole(v0), x)
-        | ['v', 'a', 'r', ...x] =>
-            let (v0, x) = parse_int(x);
-            (Variable(v0), x)
-        | _ => failwith("Some code generated by parser_generator.py is throwing a parse error:\nWhile parsing a/an exp, I got \"" ++ implode(x) ++ "\" which doesn't match any of the expected values: ['h', 'var']")
-        }
-    and parse_int(x) = {
-        let(v0, x) = parse_token(x);
-        (int_of_string(v0), x)
-    } */
-
-
-
-/* let rec infer_types (ert_exp:ert_exp, env:environment):value = { */
-
-Js.log("Hello, BuckleScript and Reason!");
-
-
-
-Readline.readline((inp) => {
-    //Js.log(inp);
-    let (construct, _) = parse_debug_construct(explode(inp));
-    Js.log(string_of_construct(construct));
-});
-
+    });
+r()
 
 /*
 

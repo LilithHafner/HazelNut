@@ -8,7 +8,7 @@ def p(_quit=''):
 
 #{'exp':[('h', 'Hole', ['int']), ('var', 'Variable', ['int'])]}
 def build(types):
-    out = ["open Types;\n//This is because I coudln't find List.make or List.create\nlet make_list (n:int, f:int=>'a):list('a) = {\n    let out = ref([]);\n    for (i in n-1 downto 0) {\n        out := [f(i), ...out^]\n    }\n    out^\n}\nlet explode(str:string):list(char) = \n//This is because I coudln't find String.to_seq\n//    str |> String.to_seq |> List.of_seq \n    make_list(String.length(str), String.get(str))\nlet implode(cs:list(char)):string = \n//Because runtime doesn't matter\n    String.init(List.length(cs), List.nth(cs))\n\
+    out = ["open Types;\n//This is because I couldn't find List.make or List.create\nlet make_list (n:int, f:int=>'a):list('a) = {\n    let out = ref([]);\n    for (i in n-1 downto 0) {\n        out := [f(i), ...out^]\n    }\n    out^\n}\nlet explode(str:string):list(char) = \n//This is because I couldn't find String.to_seq\n//    str |> String.to_seq |> List.of_seq \n    make_list(String.length(str), String.get(str))\nlet implode(cs:list(char)):string = \n//Because runtime doesn't matter\n    String.init(List.length(cs), List.nth(cs))\n\
 let rec parse_token(x) = {\n    let rec parse_token_r(x, y) = {\n        switch(x) {\n        | ['0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '.', ..._] => \n            parse_token_r(List.tl(x), [List.hd(x),...y])\n        | _ => (x,y)\n        };\n    }\n    let (x,y) = parse_token_r(x,[]);\n    (implode(List.rev(y)), x)\n}"]
     needed_parsers = set()
     for t in types:

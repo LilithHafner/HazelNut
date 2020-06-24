@@ -538,18 +538,18 @@ function parse_debug_construct(_x) {
   };
 }
 
-function parse_bool(x) {
+function parse_int(x) {
   var match = parse_token(x);
   return /* tuple */[
-          Pervasives.bool_of_string(match[0]),
+          Caml_format.caml_int_of_string(match[0]),
           match[1]
         ];
 }
 
-function parse_float(x) {
+function parse_bool(x) {
   var match = parse_token(x);
   return /* tuple */[
-          Caml_format.caml_float_of_string(match[0]),
+          Pervasives.bool_of_string(match[0]),
           match[1]
         ];
 }
@@ -596,10 +596,10 @@ function parse_environment(_x) {
   };
 }
 
-function parse_int(x) {
+function parse_float(x) {
   var match = parse_token(x);
   return /* tuple */[
-          Caml_format.caml_int_of_string(match[0]),
+          Caml_format.caml_float_of_string(match[0]),
           match[1]
         ];
 }
@@ -612,8 +612,8 @@ exports.parse_exp = parse_exp;
 exports.parse_res = parse_res;
 exports.parse_type_ = parse_type_;
 exports.parse_debug_construct = parse_debug_construct;
-exports.parse_bool = parse_bool;
-exports.parse_float = parse_float;
-exports.parse_environment = parse_environment;
 exports.parse_int = parse_int;
+exports.parse_bool = parse_bool;
+exports.parse_environment = parse_environment;
+exports.parse_float = parse_float;
 /* No side effect */
