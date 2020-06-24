@@ -51,6 +51,12 @@ let rec guessAndCheck_h = (delta, gamma, typ, exs, i) => {
 
 let guessAndCheck = (delta, gamma, typ, exs) => guessAndCheck_h(delta, gamma, typ, exs, 1);
 
+// In returns:
+//  - K = (U, F)
+//  - U = the new holes added
+//  - F = The existing hole fillings + 1 new filled hole
+//  - delta = the existing minus the whole just filled, plus any new holes
+
 let rec fill = (delta, holeFillings, gamma, h, typ, exs) => {
     if (Refiner.refinable(typ)) {
         let (e, gs) = Refiner.refine(gamma, h, typ, exs);

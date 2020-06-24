@@ -8,9 +8,9 @@ let rec solve = (hContext, k) => {
         | [(h, x), ...us] => {
             let (context, t) = Tools.lookup(h, hContext);
             let (k', hContext') = Filler.fill(hContext, f, context, h, t, x);
-            // merge((us, k), k') = k'';
-            // solve(hContext', k'');
-            ([], [])
+            let (us', f') = k';
+            let k'' =  (us' @ us, f');
+            solve(hContext', k'');
         }
     }
 };
