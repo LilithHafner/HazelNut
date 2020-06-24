@@ -13,11 +13,17 @@ function unevaluate(_res, _ex) {
     var res = _res;
     if (typeof ex === "number") {
       if (ex === /* Top */0) {
-        return /* [] */0;
+        return /* tuple */[
+                /* [] */0,
+                /* [] */0
+              ];
       }
       if (typeof res === "number") {
         if (res === /* Runit */1) {
-          return /* [] */0;
+          return /* tuple */[
+                  /* [] */0,
+                  /* [] */0
+                ];
         } else {
           return ;
         }
@@ -40,7 +46,10 @@ function unevaluate(_res, _ex) {
             switch (res.tag | 0) {
               case /* Rint */0 :
                   if (ex[0] === res[0]) {
-                    return /* [] */0;
+                    return /* tuple */[
+                            /* [] */0,
+                            /* [] */0
+                          ];
                   } else {
                     return ;
                   }
@@ -60,7 +69,10 @@ function unevaluate(_res, _ex) {
             switch (res.tag | 0) {
               case /* Rbool */2 :
                   if (ex[0] === res[0]) {
-                    return /* [] */0;
+                    return /* tuple */[
+                            /* [] */0,
+                            /* [] */0
+                          ];
                   } else {
                     return ;
                   }
@@ -82,13 +94,16 @@ function unevaluate(_res, _ex) {
                   var match = unevaluate(res[0], ex[0]);
                   var match$1 = unevaluate(res[1], ex[1]);
                   if (match !== undefined && match$1 !== undefined) {
-                    return List.concat(/* :: */[
-                                match,
-                                /* :: */[
-                                  match$1,
-                                  /* [] */0
-                                ]
-                              ]);
+                    return /* tuple */[
+                            List.concat(/* :: */[
+                                  match[0],
+                                  /* :: */[
+                                    match$1[0],
+                                    /* [] */0
+                                  ]
+                                ]),
+                            /* [] */0
+                          ];
                   } else {
                     return ;
                   }
@@ -162,13 +177,19 @@ function unevaluate(_res, _ex) {
                   ]
                 ];
         case /* Rhole */6 :
-            return /* :: */[
-                    /* tuple */[
-                      res[1],
+            return /* tuple */[
+                    /* :: */[
                       /* tuple */[
                         res[0],
-                        ex
-                      ]
+                        /* :: */[
+                          /* tuple */[
+                            res[1],
+                            ex
+                          ],
+                          /* [] */0
+                        ]
+                      ],
+                      /* [] */0
                     ],
                     /* [] */0
                   ];
@@ -195,19 +216,25 @@ function unevaluate(_res, _ex) {
 
 function constrainExp(exp, exs) {
   if (!exs) {
-    return /* [] */0;
+    return /* tuple */[
+            /* [] */0,
+            /* [] */0
+          ];
   }
   var match = exs[0];
   var match$1 = constrainExp(exp, exs[1]);
   var match$2 = unevaluate(Evaluator$MyNewProject.$$eval(match[0], exp), match[1]);
   if (match$1 !== undefined && match$2 !== undefined) {
-    return List.concat(/* :: */[
-                match$1,
-                /* :: */[
-                  match$2,
-                  /* [] */0
-                ]
-              ]);
+    return /* tuple */[
+            List.concat(/* :: */[
+                  match$1[0],
+                  /* :: */[
+                    match$2[0],
+                    /* [] */0
+                  ]
+                ]),
+            /* [] */0
+          ];
   }
   
 }

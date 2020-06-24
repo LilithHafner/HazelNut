@@ -117,15 +117,15 @@ and string_of_unfilled_holes(c):string =
     switch(c) {
         | [] => "-"
         | [(h,x),...cs] => 
-            string_of_int(h)++"->"++string_of_excons(x)++"; "++string_of_unfilled_holes(cs)
+            string_of_int(h)++"->["++string_of_excons(x)++"]; "++string_of_unfilled_holes(cs)
     }
 and string_of_excons(c):string =
     switch(c) {
         | [] => "-"
         | [(e,ex),...cs] => 
-            string_of_env(e)++"->"++string_of_example(ex)++"; "++string_of_excons(cs)
+            "(["++string_of_env(e)++"], "++string_of_example(ex)++"); "++string_of_excons(cs)
     }
 and string_of_unevalcons(c):string = {
         let (uf,hf) = c;
-        "("++string_of_unfilled_holes(uf)++", "++string_of_hole_fillings(hf)++")"
+        "(["++string_of_unfilled_holes(uf)++"], ["++string_of_hole_fillings(hf)++"])"
     }

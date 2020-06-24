@@ -259,7 +259,7 @@ function $$process(inp, stack, command) {
           return Pervasives.failwith("Empty stack");
         }
         var v1$3 = stack[0];
-        if (v1$3.tag !== /* Unevalcons */16) {
+        if (v1$3.tag !== /* Constraint_ */5) {
           return Pervasives.failwith("Type error");
         }
         var stack$10 = stack[1];

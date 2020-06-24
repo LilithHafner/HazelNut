@@ -4,7 +4,7 @@
 var Pervasives = require("bs-platform/lib/js/pervasives.js");
 
 function string_of_unevalcons(c) {
-  return "(" + (string_of_unfilled_holes(c[0]) + (", " + (string_of_hole_fillings(c[1]) + ")")));
+  return "([" + (string_of_unfilled_holes(c[0]) + ("], [" + (string_of_hole_fillings(c[1]) + "])")));
 }
 
 function string_of_hole_context(c) {
@@ -14,14 +14,6 @@ function string_of_hole_context(c) {
   var match = c[0];
   var match$1 = match[1];
   return string_of_context(match$1[0]) + (": " + (String(match[0]) + ("->" + (string_of_type_(match$1[1]) + ("; " + string_of_hole_context(c[1]))))));
-}
-
-function string_of_one_constraint_(c) {
-  if (!c) {
-    return "-";
-  }
-  var match = c[0];
-  return string_of_env(match[0]) + (": " + (String(match[1][0]) + ("->String of example not implemented; " + string_of_one_constraint_(c[1]))));
 }
 
 function string_of_context(e) {
@@ -62,7 +54,7 @@ function string_of_type_(t) {
 
 function string_of_excons(c) {
   if (c) {
-    return string_of_env(c[0][0]) + ("->String of example not implemented; " + string_of_excons(c[1]));
+    return "([" + (string_of_env(c[0][0]) + ("], String of example not implemented); " + string_of_excons(c[1])));
   } else {
     return "-";
   }
@@ -73,7 +65,7 @@ function string_of_unfilled_holes(c) {
     return "-";
   }
   var match = c[0];
-  return String(match[0]) + ("->" + (string_of_excons(match[1]) + ("; " + string_of_unfilled_holes(c[1]))));
+  return String(match[0]) + ("->[" + (string_of_excons(match[1]) + ("]; " + string_of_unfilled_holes(c[1]))));
 }
 
 function string_of_guess_output(c) {
@@ -167,6 +159,14 @@ function string_of_res(r) {
   }
 }
 
+function string_of_one_constraint_(c) {
+  if (!c) {
+    return "-";
+  }
+  var match = c[0];
+  return string_of_env(match[0]) + (": " + (String(match[1][0]) + ("->String of example not implemented; " + string_of_one_constraint_(c[1]))));
+}
+
 function string_of_identifier(prim) {
   return String(prim);
 }
@@ -185,7 +185,7 @@ function string_of_solver_output(c) {
 
 function string_of_constraint_(c) {
   if (c !== undefined) {
-    return string_of_one_constraint_(c);
+    return string_of_unevalcons(c);
   } else {
     return "None";
   }
