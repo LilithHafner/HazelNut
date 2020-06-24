@@ -85,7 +85,7 @@ let getConstraintType = (delta, exs) => {
         exs);
     switch (contexts) {
         | [] => ([], Any_t)
-        | [x, _] => 
+        | [x, ..._] => 
             switch (List.filter((y) => x != y, contexts)) {
                 | [] => failwith("Inconsistent environment / example types")
                 | _ => x

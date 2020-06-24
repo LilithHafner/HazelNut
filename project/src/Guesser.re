@@ -23,7 +23,7 @@ let partition = (n) => partition_h(n - 1, 1);
 let guessApp = (delta, gamma: context, typ: type_, i: int, j: int): list(exp) => {
     let funcs = List.filter(
         (e) => switch(Typing.getType(delta, gamma, e)) {
-            | Function_t(_, typ) => true
+            | Function_t(_, t) when t == typ => true
             | _ => false
             },
         memo[i]);
@@ -32,7 +32,7 @@ let guessApp = (delta, gamma: context, typ: type_, i: int, j: int): list(exp) =>
             (x) => {
                 let t = Typing.getType(delta, gamma, e);
                 switch(Typing.getType(delta, gamma, x)) {
-                    | Function_t(t, _) => true
+                    | Function_t(t', _) when t == t' => true
                     | _ => false
                     }
             },
@@ -56,7 +56,7 @@ let guessApp = (delta, gamma: context, typ: type_, i: int, j: int): list(exp) =>
 
 let guess = (delta, gamma: context, typ: type_, i: int): list(exp) => {
     if (i == 1) {
-        let terms = List.filter(((x, t)) => t == typ, gamma);
+        let terms = List.filter(((_, t)) => t == typ, gamma);
         memo[0] = List.map(((x, _)) => Var(x), terms);
         memo[0]
     } else {

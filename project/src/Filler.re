@@ -9,7 +9,7 @@
 let rec updateHoleContext_h = (delta: Types.hole_context, gs: Types.goals) => {
     switch (gs) {
         | [] => delta
-        | [(context, hole, typ, exs), ...gs'] => {
+        | [(context, hole, typ, _), ...gs'] => {
             let xs = updateHoleContext_h(delta, gs');
             [(hole, (context, typ)), ...xs]
         }
@@ -44,7 +44,7 @@ let rec guessAndCheck_h = (delta, gamma, typ, exs, i) => {
             es);
         switch (checked) {
             | [] => guessAndCheck_h(delta, gamma, typ, exs, i + 1)
-            | [e, _] => e
+            | [e, ..._] => e
             }
     }
 };
@@ -57,7 +57,7 @@ let guessAndCheck = (delta, gamma, typ, exs) => guessAndCheck_h(delta, gamma, ty
 //  - F = The existing hole fillings + 1 new filled hole
 //  - delta = the existing minus the whole just filled, plus any new holes
 
-let rec fill = (delta, holeFillings, gamma, h, typ, exs) => {
+let fill = (delta, holeFillings, gamma, h, typ, exs) => {
     if (Refiner.refinable(typ)) {
         let (e, gs) = Refiner.refine(gamma, h, typ, exs);
         let f = [(h, e), ...holeFillings];
