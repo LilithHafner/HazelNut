@@ -88,7 +88,7 @@ def process(source):
                         parameters[i] = type_names[parameters[i]]
             else:
                 name, parameters = line.strip()[1:].strip(), []
-            members[current_type] += [(name[0 if current_type != 'res' else 1].lower(), name, parameters)]
+            members[current_type] += [(name[1 if (current_type == 'res' or current_type == 'example' and name != 'Top') else 0].lower(), name, parameters)]
 
     return members
 
