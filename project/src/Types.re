@@ -66,6 +66,8 @@ type hole_context = Tools.pairlist(hole_identifier, (context, type_));
 type example =
     | Top 
     | Eunit 
+    | Eint(int)
+    | Ebool(bool)
     | Epair(example, example)
 /* I don't understand this constructor. 
 Is value the formal parameter and example the body? 

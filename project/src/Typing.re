@@ -74,6 +74,8 @@ let rec getExType = (delta, ex) => {
    switch (ex) {
        | Top => Any_t 
        | Eunit => Unit_t 
+       | Eint(_) => Int_t 
+       | Ebool(_) => Bool_t 
        | Epair(ex1, ex2) => Pair_t(getExType(delta, ex1), getExType(delta, ex2))
        | Efunc(v, ex1) => Function_t(valToRes(v) |> getResType(delta), getExType(delta, ex1))
        }

@@ -23,6 +23,8 @@ let rec unevaluate = (res:res, ex:example) => {
         | (Top, _) => Some([])
         // Matching constants adds no constraints
         | (Eunit, Runit) => Some([])
+        | (Eint(x), Rint(y)) when x == y => Some([])
+        | (Ebool(x), Rbool(y)) when x == y => Some([])
         // A pair of examples adds the constraints of both examples
         // on their respective results
         | (Epair(ex1, ex2), Rpair(r1, r2)) => {
