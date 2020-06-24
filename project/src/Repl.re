@@ -17,15 +17,24 @@ let history = ref([]);
 let process(inp:list(char), stack:list(debug_construct), command:string):(list(char), list(debug_construct)) = {
     history := [[(command, implode(inp), stack), ...List.hd(history^)], ...List.tl(history^)];
     switch(command) {
-    | "parse_any" =>
+    | "a" =>
         let (v, inp) = parse_debug_construct(inp);
         (inp, [v,...stack])
+    | "exp" =>
+        let (v, inp) = parse_exp(inp);
+        (inp, [Exp(v),...stack])
+    | "env" =>
+        let (v, inp) = parse_environment(inp);
+        (inp, [Environment(v),...stack])
+    | "res" =>
+        let (v, inp) = parse_res(inp);
+        (inp, [Res(v),...stack])
     | "eval" =>
         switch(stack) {
         | [Exp(v1),...stack] =>
         switch(stack) {
         | [Environment(v0),...stack] =>
-            (inp, [Res(Evaluator.eval(v0,v1)), ...stack])
+            (inp, [Res(Evaluator.eval(v0, v1)), ...stack])
         | [] => failwith("Empty stack")
         | _ => failwith("Type error")
         }

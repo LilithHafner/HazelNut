@@ -12,11 +12,11 @@ Which enters a sub-repl in Candlenut. This sub-repl has three commands:
     q
         Any command starting with q will exit the
         sub-repl and re-enter the reason repl.
-    #parse_any parse_any eval
+    #env exp eval
         A command starting with # indicates a reconfiguration of the
         repl's behavior. Specify a list of commands in reverse-polish
         Notation. Available commands can be found in repl_source.dat.
-    env2f3.14 eppi3i4i5
+    2f3.14 ppi3i4i5
         Anything else is interpreted via the specified commands. The 
         input format is polish notation and whitespace insensitive.
 

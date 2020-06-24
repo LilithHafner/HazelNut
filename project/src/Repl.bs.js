@@ -63,6 +63,24 @@ function $$process(inp, stack, command) {
     List.tl(history.contents)
   ];
   switch (command) {
+    case "a" :
+        var match = Parser$MyNewProject.parse_debug_construct(inp);
+        return /* tuple */[
+                match[1],
+                /* :: */[
+                  match[0],
+                  stack
+                ]
+              ];
+    case "env" :
+        var match$1 = Parser$MyNewProject.parse_environment(inp);
+        return /* tuple */[
+                match$1[1],
+                /* :: */[
+                  /* Environment */Block.__(1, [match$1[0]]),
+                  stack
+                ]
+              ];
     case "eval" :
         if (!stack) {
           return Pervasives.failwith("Empty stack");
@@ -94,12 +112,21 @@ function $$process(inp, stack, command) {
               return Pervasives.failwith("Type error");
           
         }
-    case "parse_any" :
-        var match = Parser$MyNewProject.parse_debug_construct(inp);
+    case "exp" :
+        var match$2 = Parser$MyNewProject.parse_exp(inp);
         return /* tuple */[
-                match[1],
+                match$2[1],
                 /* :: */[
-                  match[0],
+                  /* Exp */Block.__(0, [match$2[0]]),
+                  stack
+                ]
+              ];
+    case "res" :
+        var match$3 = Parser$MyNewProject.parse_res(inp);
+        return /* tuple */[
+                match$3[1],
+                /* :: */[
+                  /* Res */Block.__(2, [match$3[0]]),
                   stack
                 ]
               ];
