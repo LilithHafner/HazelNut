@@ -3,12 +3,33 @@
 
 var Pervasives = require("bs-platform/lib/js/pervasives.js");
 
+function string_of_unevalcons(c) {
+  return "(" + (string_of_unfilled_holes(c[0]) + (", " + (string_of_hole_fillings(c[1]) + ")")));
+}
+
+function string_of_hole_context(c) {
+  if (!c) {
+    return "-";
+  }
+  var match = c[0];
+  var match$1 = match[1];
+  return string_of_context(match$1[0]) + (": " + (String(match[0]) + ("->" + (string_of_type_(match$1[1]) + ("; " + string_of_hole_context(c[1]))))));
+}
+
 function string_of_one_constraint_(c) {
   if (!c) {
     return "-";
   }
   var match = c[0];
   return string_of_env(match[0]) + (": " + (String(match[1][0]) + ("->String of example not implemented; " + string_of_one_constraint_(c[1]))));
+}
+
+function string_of_context(e) {
+  if (!e) {
+    return "-";
+  }
+  var match = e[0];
+  return String(match[0]) + ("->" + (string_of_type_(match[1]) + ("; " + string_of_context(e[1]))));
 }
 
 function string_of_type_(t) {
@@ -39,45 +60,28 @@ function string_of_type_(t) {
   }
 }
 
-function string_of_res(r) {
-  if (typeof r === "number") {
-    if (r === /* Rnil */0) {
-      return "Nil";
-    } else {
-      return "()";
-    }
-  }
-  switch (r.tag | 0) {
-    case /* Rint */0 :
-        return String(r[0]);
-    case /* Rfloat */1 :
-        return r[0].toString();
-    case /* Rbool */2 :
-        return Pervasives.string_of_bool(r[0]);
-    case /* Rcons */3 :
-        return string_of_res(r[0]) + ("::" + string_of_res(r[1]));
-    case /* Rfunc */4 :
-        return "[" + (string_of_env(r[2]) + ("]\\" + (String(r[0]) + ("." + string_of_exp(r[1])))));
-    case /* Rapp */5 :
-        return string_of_res(r[0]) + (" " + string_of_res(r[1]));
-    case /* Rhole */6 :
-        return "[" + (string_of_env(r[1]) + ("]??_" + String(r[0])));
-    case /* Rpair */7 :
-        return "(" + (string_of_res(r[0]) + (", " + (string_of_res(r[1]) + ")")));
-    case /* Rfst */8 :
-        return "fst(" + (string_of_res(r[0]) + ")");
-    case /* Rsnd */9 :
-        return "snd(" + (string_of_res(r[0]) + ")");
-    
+function string_of_excons(c) {
+  if (c) {
+    return string_of_env(c[0][0]) + ("->String of example not implemented; " + string_of_excons(c[1]));
+  } else {
+    return "-";
   }
 }
 
-function string_of_env(e) {
-  if (!e) {
+function string_of_unfilled_holes(c) {
+  if (!c) {
     return "-";
   }
-  var match = e[0];
-  return String(match[0]) + ("->" + (string_of_res(match[1]) + ("; " + string_of_env(e[1]))));
+  var match = c[0];
+  return String(match[0]) + ("->" + (string_of_excons(match[1]) + ("; " + string_of_unfilled_holes(c[1]))));
+}
+
+function string_of_guess_output(c) {
+  if (c) {
+    return string_of_exp(c[0]) + ("; " + string_of_guess_output(c[1]));
+  } else {
+    return "-";
+  }
 }
 
 function string_of_exp(e) {
@@ -114,6 +118,55 @@ function string_of_exp(e) {
   }
 }
 
+function string_of_hole_fillings(c) {
+  if (!c) {
+    return "-";
+  }
+  var match = c[0];
+  return String(match[0]) + ("->" + (string_of_exp(match[1]) + ("; " + string_of_hole_fillings(c[1]))));
+}
+
+function string_of_env(e) {
+  if (!e) {
+    return "-";
+  }
+  var match = e[0];
+  return String(match[0]) + ("->" + (string_of_res(match[1]) + ("; " + string_of_env(e[1]))));
+}
+
+function string_of_res(r) {
+  if (typeof r === "number") {
+    if (r === /* Rnil */0) {
+      return "Nil";
+    } else {
+      return "()";
+    }
+  }
+  switch (r.tag | 0) {
+    case /* Rint */0 :
+        return String(r[0]);
+    case /* Rfloat */1 :
+        return r[0].toString();
+    case /* Rbool */2 :
+        return Pervasives.string_of_bool(r[0]);
+    case /* Rcons */3 :
+        return string_of_res(r[0]) + ("::" + string_of_res(r[1]));
+    case /* Rfunc */4 :
+        return "[" + (string_of_env(r[2]) + ("]\\" + (String(r[0]) + ("." + string_of_exp(r[1])))));
+    case /* Rapp */5 :
+        return string_of_res(r[0]) + (" " + string_of_res(r[1]));
+    case /* Rhole */6 :
+        return "[" + (string_of_env(r[1]) + ("]??_" + String(r[0])));
+    case /* Rpair */7 :
+        return "(" + (string_of_res(r[0]) + (", " + (string_of_res(r[1]) + ")")));
+    case /* Rfst */8 :
+        return "fst(" + (string_of_res(r[0]) + ")");
+    case /* Rsnd */9 :
+        return "snd(" + (string_of_res(r[0]) + ")");
+    
+  }
+}
+
 function string_of_identifier(prim) {
   return String(prim);
 }
@@ -126,12 +179,20 @@ function string_of_example(param) {
   return "String of example not implemented";
 }
 
+function string_of_solver_output(c) {
+  return "(" + (string_of_hole_fillings(c[0]) + (", " + (string_of_hole_context(c[1]) + ")")));
+}
+
 function string_of_constraint_(c) {
   if (c !== undefined) {
     return string_of_one_constraint_(c);
   } else {
     return "None";
   }
+}
+
+function string_of_filler_output(c) {
+  return "(" + (string_of_unevalcons(c[0]) + (", " + (string_of_hole_context(c[1]) + ")")));
 }
 
 function string_of_debug_construct(c) {
@@ -148,6 +209,27 @@ function string_of_debug_construct(c) {
         return "String of example not implemented";
     case /* Constraint_ */5 :
         return string_of_constraint_(c[0]);
+    case /* Context */6 :
+        return string_of_context(c[0]);
+    case /* Hole_Context */7 :
+        return string_of_hole_context(c[0]);
+    case /* Guess_Output */9 :
+        return string_of_guess_output(c[0]);
+    case /* Solver_Output */10 :
+        return string_of_solver_output(c[0]);
+    case /* Filler_Output */11 :
+        return string_of_filler_output(c[0]);
+    case /* Hole_Fillings */12 :
+        return string_of_hole_fillings(c[0]);
+    case /* Unfilled_Holes */13 :
+        return string_of_unfilled_holes(c[0]);
+    case /* DB_Int */8 :
+    case /* Hole_Identifier */14 :
+        return String(c[0]);
+    case /* Excons */15 :
+        return string_of_excons(c[0]);
+    case /* Unevalcons */16 :
+        return string_of_unevalcons(c[0]);
     
   }
 }
@@ -162,4 +244,13 @@ exports.string_of_type_ = string_of_type_;
 exports.string_of_example = string_of_example;
 exports.string_of_one_constraint_ = string_of_one_constraint_;
 exports.string_of_constraint_ = string_of_constraint_;
+exports.string_of_context = string_of_context;
+exports.string_of_hole_context = string_of_hole_context;
+exports.string_of_guess_output = string_of_guess_output;
+exports.string_of_solver_output = string_of_solver_output;
+exports.string_of_filler_output = string_of_filler_output;
+exports.string_of_hole_fillings = string_of_hole_fillings;
+exports.string_of_unfilled_holes = string_of_unfilled_holes;
+exports.string_of_excons = string_of_excons;
+exports.string_of_unevalcons = string_of_unevalcons;
 /* No side effect */

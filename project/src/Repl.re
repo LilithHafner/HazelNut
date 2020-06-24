@@ -38,6 +38,24 @@ let process(inp:list(char), stack:list(debug_construct), command:string):(list(c
     | "example" =>
         let (v, inp) = parse_example(inp);
         (inp, [Example(v),...stack])
+    | "context" =>
+        let (v, inp) = parse_context(inp);
+        (inp, [Context(v),...stack])
+    | "gamma" =>
+        let (v, inp) = parse_context(inp);
+        (inp, [Context(v),...stack])
+    | "hole_context" =>
+        let (v, inp) = parse_hole_context(inp);
+        (inp, [Hole_Context(v),...stack])
+    | "hole_fillings" =>
+        let (v, inp) = parse_hole_fillings(inp);
+        (inp, [Hole_Fillings(v),...stack])
+    | "delta" =>
+        let (v, inp) = parse_hole_context(inp);
+        (inp, [Hole_Context(v),...stack])
+    | "int" =>
+        let (v, inp) = parse_int(inp);
+        (inp, [DB_Int(v),...stack])
     | "eval" =>
         switch(stack) {
         | [Exp(v1),...stack] =>
@@ -68,6 +86,72 @@ let process(inp:list(char), stack:list(debug_construct), command:string):(list(c
         switch(stack) {
         | [Res(v0),...stack] =>
             (inp, [Constraint_(Unevaluator.unevaluate(v0, v1)), ...stack])
+        | [] => failwith("Empty stack")
+        | _ => failwith("Type error")
+        }
+        | [] => failwith("Empty stack")
+        | _ => failwith("Type error")
+        }
+    | "guess" =>
+        switch(stack) {
+        | [DB_Int(v3),...stack] =>
+        switch(stack) {
+        | [Type_(v2),...stack] =>
+        switch(stack) {
+        | [Context(v1),...stack] =>
+        switch(stack) {
+        | [Hole_Context(v0),...stack] =>
+            (inp, [Guess_Output(Guesser.guess(v0, v1, v2, v3)), ...stack])
+        | [] => failwith("Empty stack")
+        | _ => failwith("Type error")
+        }
+        | [] => failwith("Empty stack")
+        | _ => failwith("Type error")
+        }
+        | [] => failwith("Empty stack")
+        | _ => failwith("Type error")
+        }
+        | [] => failwith("Empty stack")
+        | _ => failwith("Type error")
+        }
+    | "solve" =>
+        switch(stack) {
+        | [Unevalcons(v1),...stack] =>
+        switch(stack) {
+        | [Hole_Context(v0),...stack] =>
+            (inp, [Solver_Output(Solver.solve(v0,v1)), ...stack])
+        | [] => failwith("Empty stack")
+        | _ => failwith("Type error")
+        }
+        | [] => failwith("Empty stack")
+        | _ => failwith("Type error")
+        }
+    | "fill" =>
+        switch(stack) {
+        | [Excons(v5),...stack] =>
+        switch(stack) {
+        | [Type_(v4),...stack] =>
+        switch(stack) {
+        | [Hole_Identifier(v3),...stack] =>
+        switch(stack) {
+        | [Context(v2),...stack] =>
+        switch(stack) {
+        | [Hole_Fillings(v1),...stack] =>
+        switch(stack) {
+        | [Hole_Context(v0),...stack] =>
+            (inp, [Filler_Output(Filler.fill(v0,v1,v2,v3,v4,v5)), ...stack])
+        | [] => failwith("Empty stack")
+        | _ => failwith("Type error")
+        }
+        | [] => failwith("Empty stack")
+        | _ => failwith("Type error")
+        }
+        | [] => failwith("Empty stack")
+        | _ => failwith("Type error")
+        }
+        | [] => failwith("Empty stack")
+        | _ => failwith("Type error")
+        }
         | [] => failwith("Empty stack")
         | _ => failwith("Type error")
         }

@@ -118,6 +118,55 @@ post_replacements = [
      '''and parse_constraint_(_) = {
     failwith("parse_constraint_ Not Implemented")
 }'''),
+    ('''and parse_guess_output(x) = {
+    let(v0, x) = parse_token(x);
+    (guess_output_of_string(v0), x)
+}''',
+     '''and parse_guess_output(_) = {
+    failwith("parse_guess_output Not Implemented")
+}'''),
+    ('''and parse_context(x) = {
+    let(v0, x) = parse_token(x);
+    (context_of_string(v0), x)
+}''',
+     '''and parse_context(x) = {
+    switch(x) {
+    | [' ' | '\t' | '\n', ...x] =>
+        parse_context(x)
+    | ['0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9', ..._] =>   
+        let (v0, x) = parse_int(x);
+        let (v1, x) = parse_type_(x);
+        let (v2, x) = parse_context(x);
+        ([(v0, v1), ...v2], x)
+    | x => ([], x)
+    }
+}'''),
+    ('''and parse_hole_context(x) = {
+    let(v0, x) = parse_token(x);
+    (hole_context_of_string(v0), x)
+}''',
+     '''and parse_hole_context(x) = {
+    switch(x) {
+    | [' ' | '\t' | '\n', ...x] =>
+        parse_hole_context(x)
+    | ['0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9', ..._] =>   
+        let (v0, x) = parse_int(x);
+        let (v1, x) = parse_context(x);
+        let (v2, x) = parse_type_(x);
+        let (v3, x) = parse_hole_context(x);
+        ([(v0, (v1, v2)), ...v3], x)
+    | x => ([], x)
+    }
+}'''),
+
+    ('    | x => ([], x)','    | [\';\', ...x] | x => ([], x)'),
+    ('''(excons_of_string(v0), x)''','''failwith("excons_of_string Not Implemented")'''),
+    ('''(unevalcons_of_string(v0), x)''','''failwith("unevalcons_of_string Not Implemented")'''),
+    ('''(unfilled_holes_of_string(v0), x)''','''failwith("unfilled_holes_of_string Not Implemented")'''),
+    ('''(hole_fillings_of_string(v0), x)''','''failwith("hole_fillings_of_string Not Implemented")'''),
+] + [
+        ('''({}_of_string(v0), x)'''.format(x),'''failwith("{}_of_string Not Implemented")'''.format(x)) for x in
+        ['filler_output', 'solver_output']
 ]
 def post_process(out):
     for a,b in post_replacements:
@@ -130,6 +179,7 @@ mid_replacements = {
 ('e','Environment',('environment',)):('env','Environment',('environment',)),
 ('f','Function',('int','exp')):('\\\\','Function',('int','exp')),
 ('f','Rfunc',('int','exp', 'environment')):('\\\\','Rfunc',('int','exp', 'environment')),
+#('f','Efunc',('int','exp', 'environment')):('\\\\','Efunc',('int','exp', 'environment')),
 ('f','Fail_t',()):('fail','Fail_t',()),
 ('e','Example',('example',)):('ex','Example',('example',)),
     }

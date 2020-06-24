@@ -175,7 +175,7 @@ function prepFuncExs(exs, vid) {
               }), exs);
 }
 
-function refine(context, param, typ, exs) {
+function refine(context, typ, exs) {
   if (typeof typ === "number") {
     if (typ === /* Unit_t */2) {
       if (allUnit(exs)) {

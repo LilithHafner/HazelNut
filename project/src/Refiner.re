@@ -59,7 +59,7 @@ let prepFuncExs = (exs, vid) => List.map(
 //   What it does: match against type.
 //   type = ??1 : t1 -> t2 => (\x:t1  => ??2: t2)
 
-let refine = (context, _, typ, exs) => {
+let refine = (context, typ, exs) => {
     switch (typ) {
         | Unit_t when allUnit(exs) => (Unit, [])
         | Pair_t(t1, t2) when allPairs(exs) => {

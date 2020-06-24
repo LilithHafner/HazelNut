@@ -59,7 +59,7 @@ let guessAndCheck = (delta, gamma, typ, exs) => guessAndCheck_h(delta, gamma, ty
 
 let fill = (delta, holeFillings, gamma, h, typ, exs) => {
     if (Refiner.refinable(typ)) {
-        let (e, gs) = Refiner.refine(gamma, h, typ, exs);
+        let (e, gs) = Refiner.refine(gamma, typ, exs);
         let f = [(h, e), ...holeFillings];
         let delta' = updateHoleContext(delta, h, gs);
         let u = updateUnfilledHoles(gs);

@@ -73,7 +73,7 @@ function guessAndCheck(delta, gamma, typ, exs) {
 
 function fill(delta, holeFillings, gamma, h, typ, exs) {
   if (Refiner$MyNewProject.refinable(typ)) {
-    var match = Refiner$MyNewProject.refine(gamma, h, typ, exs);
+    var match = Refiner$MyNewProject.refine(gamma, typ, exs);
     var gs = match[1];
     var f_000 = /* tuple */[
       h,

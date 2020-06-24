@@ -8,6 +8,17 @@ let rec string_of_debug_construct (c:debug_construct):string =
         | Type_(x) => string_of_type_(x)
         | Example(x) => string_of_example(x)
         | Constraint_(x) => string_of_constraint_(x)
+        | Context(x) => string_of_context(x)
+        | Hole_Context(x) => string_of_hole_context(x)
+        | DB_Int(x) => string_of_int(x)
+        | Guess_Output(x) => string_of_guess_output(x)
+        | Solver_Output(x) => string_of_solver_output(x)
+        | Filler_Output(x) => string_of_filler_output(x)
+        | Hole_Fillings(x) => string_of_hole_fillings(x)
+        | Unfilled_Holes(x) => string_of_unfilled_holes(x)
+        | Hole_Identifier(x) => string_of_hole_identifier(x)
+        | Excons(x) => string_of_excons(x)
+        | Unevalcons(x) => string_of_unevalcons(x)
     }
 and string_of_exp(e:exp):string =
     switch(e) {
@@ -70,4 +81,51 @@ and string_of_constraint_(c:constraint_):string =
     switch(c) {
         | None => "None"
         | Some(c) => string_of_one_constraint_(c)
+    }
+and string_of_context(e:context):string =
+    switch(e) {
+        | [] => "-"
+        | [(identifier,type_),...ms] => string_of_identifier(identifier) ++"->"++string_of_type_(type_)++"; "++string_of_context(ms)
+    }
+and string_of_hole_context(c):string =
+    switch(c) {
+        | [] => "-"
+        | [(hole_identifier, (context, type_)),...cs] => 
+            string_of_context(context) ++": "++string_of_hole_identifier(hole_identifier)++"->"++string_of_type_(type_)++"; "++string_of_hole_context(cs)
+    }
+and string_of_guess_output(c):string =
+    switch(c) {
+        | [] => "-"
+        | [(x),...cs] => 
+            string_of_exp(x)++"; "++string_of_guess_output(cs)
+    }
+and string_of_solver_output(c):string = {
+    let (hf,hc) = c;
+    "("++string_of_hole_fillings(hf)++", "++string_of_hole_context(hc)++")"
+}
+and string_of_filler_output(c):string = {
+    let (e,hc) = c;
+    "("++string_of_unevalcons(e)++", "++string_of_hole_context(hc)++")"
+}
+and string_of_hole_fillings(c):string =
+    switch(c) {
+        | [] => "-"
+        | [(h,x),...cs] => 
+            string_of_int(h)++"->"++string_of_exp(x)++"; "++string_of_hole_fillings(cs)
+    }
+and string_of_unfilled_holes(c):string =
+    switch(c) {
+        | [] => "-"
+        | [(h,x),...cs] => 
+            string_of_int(h)++"->"++string_of_excons(x)++"; "++string_of_unfilled_holes(cs)
+    }
+and string_of_excons(c):string =
+    switch(c) {
+        | [] => "-"
+        | [(e,ex),...cs] => 
+            string_of_env(e)++"->"++string_of_example(ex)++"; "++string_of_excons(cs)
+    }
+and string_of_unevalcons(c):string = {
+        let (uf,hf) = c;
+        "("++string_of_unfilled_holes(uf)++", "++string_of_hole_fillings(hf)++")"
     }
