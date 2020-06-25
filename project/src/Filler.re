@@ -38,7 +38,7 @@ let rec guessAndCheck_h = (delta, gamma, typ, exs, i) => {
     if (i > 5) {
         failwith("Guessing timed out")
     } else {
-        let es = Guesser.guess(delta, gamma, typ, i);
+        let es: list(Types.exp) = Guesser.guess(delta, gamma, typ, i);
         let checked = List.filter(
             (e) => Unevaluator.constrainExp(e, exs) -> optionPred,
             es);
