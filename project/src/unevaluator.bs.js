@@ -126,7 +126,7 @@ function unevaluate(_res, _ex) {
                     res[0],
                     Types$MyNewProject.valToRes(ex[0])
                   ];
-                  var env$prime_001 = res[2];
+                  var env$prime_001 = res[3];
                   var env$prime = /* :: */[
                     env$prime_000,
                     env$prime_001
@@ -139,7 +139,7 @@ function unevaluate(_res, _ex) {
                     exs_000,
                     /* [] */0
                   ];
-                  return constrainExp(res[1], exs);
+                  return constrainExp(res[2], exs);
               case /* Rapp */5 :
               case /* Rhole */6 :
               case /* Rfst */8 :

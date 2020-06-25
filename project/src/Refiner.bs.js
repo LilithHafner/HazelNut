@@ -192,6 +192,7 @@ function refine(context, typ, exs) {
   }
   switch (typ.tag | 0) {
     case /* Function_t */1 :
+        var t1 = typ[0];
         if (!allFuncs(exs)) {
           return Pervasives.failwith("Goal type inconsistent with examples");
         }
@@ -200,6 +201,7 @@ function refine(context, typ, exs) {
         return /* tuple */[
                 /* Function */Block.__(4, [
                     x,
+                    t1,
                     /* Hole */Block.__(6, [h])
                   ]),
                 /* :: */[
@@ -207,7 +209,7 @@ function refine(context, typ, exs) {
                     /* :: */[
                       /* tuple */[
                         x,
-                        typ[0]
+                        t1
                       ],
                       context
                     ],

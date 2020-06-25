@@ -1,5 +1,9 @@
 // File for typechecking.
 
+// U -> hole_context
+// hole_context, env (from U) -> context
+// 
+
 open Types;
 
 let rec getType = (delta: hole_context, gamma: context, e: exp) : type_ =>
@@ -10,7 +14,8 @@ let rec getType = (delta: hole_context, gamma: context, e: exp) : type_ =>
         | Cons(e1, e2) => Cons_t(getType(delta, gamma, e1), getType(delta, gamma, e2))
         | Nil => Any_t 
         | Var(x) => Tools.lookup(x, gamma)
-        | Function(id, e') => Function_t(Tools.lookup(id, gamma), getType(delta, gamma, e'))
+        // I think this is where the problem is.
+        | Function(id, typ, e') => Function_t(typ, getType(delta, gamma, e'))
         | Application(e1, e2) => switch (getType(delta, gamma, e1)) {
             | Function_t(t1, t2) when getType(delta, gamma, e2) == t1 => t2
             | _ => failwith("Application type error")
@@ -37,7 +42,7 @@ let rec getResType = (delta, r: res) =>
         | Rint(_) => Int_t 
         | Rfloat(_) => Any_t 
         | Rbool(_) => Bool_t 
-        | Rfunc(id, e, env) => getType(delta, generateContext(delta, env), Function(id, e))
+        | Rfunc(id, typ, e, env) => getType(delta, generateContext(delta, env), Function(id, typ, e))
         | Rapp(r1, r2) => switch(getResType(delta, r1)) {
             | Function_t(t1, t) when t1 == getResType(delta, r2) => t
             | _ => failwith("Type error, failed application")
@@ -81,7 +86,7 @@ let rec getExType = (delta, ex) => {
        }
 };
 
-let getConstraintType = (delta, exs) => {
+let getConstraintType = (delta, exs: excons) => {
     let contexts = List.map(
         ((env, ex)) => (generateContext(delta, env), getExType(delta, ex)),
         exs);
@@ -89,18 +94,22 @@ let getConstraintType = (delta, exs) => {
         | [] => ([], Any_t)
         | [x, ..._] => 
             switch (List.filter((y) => x != y, contexts)) {
-                | [] => failwith("Inconsistent environment / example types")
+                | [] => x
                 | _ => x
                 }
         }
 };
 
-let rec generateHoleContextU = (us) => {
+let rec generateHoleContextU_h = (delta, us) => {
     switch (us) {
-        | [] => []
-        | [(id, exs), ...xs] => [(id, getConstraintType([], exs)), ...generateHoleContextU(xs)]
+        | [] => delta
+        | [(id, exs), ...xs] => {
+            generateHoleContextU_h([(id, getConstraintType(delta, exs)), ...delta], xs)
         }
+    }
 };
+
+let generateHoleContextU = (us) => generateHoleContextU_h([], List.rev(us));
         
 let rec generateHoleContextF = (fs) => {
     switch (fs) {

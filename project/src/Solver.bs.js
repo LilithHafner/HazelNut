@@ -4,6 +4,7 @@
 var Pervasives = require("bs-platform/lib/js/pervasives.js");
 var Tools$MyNewProject = require("./Tools.bs.js");
 var Filler$MyNewProject = require("./Filler.bs.js");
+var Typing$MyNewProject = require("./Typing.bs.js");
 var Caml_builtin_exceptions = require("bs-platform/lib/js/caml_builtin_exceptions.js");
 
 function solve_h(_hContext, _k) {
@@ -35,15 +36,16 @@ function solve_h(_hContext, _k) {
   };
 }
 
-function solve(hContext, k) {
+function solve(k) {
   if (k !== undefined) {
+    var hContext = Typing$MyNewProject.generateHoleContextU(k[0]);
     return solve_h(hContext, k);
   }
   throw [
         Caml_builtin_exceptions.match_failure,
         /* tuple */[
           "Solver.re",
-          19,
+          27,
           8
         ]
       ];

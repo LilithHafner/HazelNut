@@ -17,10 +17,10 @@ let rec eval = (_env:environment, e:exp):res => {
     switch (e) {
         | Hole(x) => Rhole(x, _env)
         | Var(x) => Tools.lookup(x, _env)
-        | Function(id, exp) => Rfunc(id, exp, _env)
+        | Function(id, typ, exp) => Rfunc(id, typ, exp, _env)
         | Application(e1, e2) => {
             switch (e1) {
-                | Function(id, exp) => eval([(id, eval(_env, e2)), ..._env], exp)
+                | Function(id, _, exp) => eval([(id, eval(_env, e2)), ..._env], exp)
                 | _ => Rapp(eval(_env, e1), eval(_env, e2))//This line seems fishy to me.
             }
         }

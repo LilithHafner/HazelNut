@@ -11,7 +11,7 @@ var Typing$MyNewProject = require("./Typing.bs.js");
 var memo = Caml_array.caml_make_vect(10, /* [] */0);
 
 function partition_h(n, m) {
-  if (n <= m) {
+  if (n < m) {
     return /* [] */0;
   } else {
     return /* :: */[
@@ -70,6 +70,7 @@ function guessApp(delta, gamma, typ, i, j) {
 }
 
 function guess(delta, gamma, typ, i) {
+  console.log(Caml_array.caml_array_get(memo, i - 1 | 0));
   if (i === 1) {
     var terms = List.filter((function (param) {
               return Caml_obj.caml_equal(param[1], typ);

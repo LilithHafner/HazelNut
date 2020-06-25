@@ -11,7 +11,7 @@ open Types;
 let memo = Array.make(10, []);
 
 let rec partition_h = (n, m) => {
-    if (n <= m) {
+    if (n < m) {
         []
     } else {
         [(n, m), ...partition_h(n - 1, m + 1)]
@@ -55,6 +55,7 @@ let guessApp = (delta, gamma: context, typ: type_, i: int, j: int): list(exp) =>
 };
 
 let guess = (delta: hole_context, gamma: context, typ: type_, i: int): list(exp) => {
+    Js.log(memo[i-1]);
     if (i == 1) {
         let terms = List.filter(((_, t)) => t == typ, gamma);
         memo[0] = List.map(((x, _)) => Var(x), terms);

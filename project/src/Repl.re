@@ -80,6 +80,18 @@ let process(inp:list(char), stack:list(debug_construct), command:string):(list(c
         | [] => failwith("Empty stack")
         | _ => failwith("Type error")
         }
+    | "constrain" =>
+        switch(stack) {
+        | [Excons(v1),...stack] =>
+        switch(stack) {
+        | [Exp(v0),...stack] =>
+            (inp, [Constraint_(Unevaluator.constrainExp(v0, v1)), ...stack])
+        | [] => failwith("Empty stack")
+        | _ => failwith("Type error")
+        }
+        | [] => failwith("Empty stack")
+        | _ => failwith("Type error")
+        }
     | "unevaluate" =>
         switch(stack) {
         | [Example(v1),...stack] =>
@@ -117,12 +129,7 @@ let process(inp:list(char), stack:list(debug_construct), command:string):(list(c
     | "solve" =>
         switch(stack) {
         | [Constraint_(v1),...stack] =>
-        switch(stack) {
-        | [Hole_Context(v0),...stack] =>
-            (inp, [Solver_Output(Solver.solve(v0,v1)), ...stack])
-        | [] => failwith("Empty stack")
-        | _ => failwith("Type error")
-        }
+            (inp, [Solver_Output(Solver.solve(v1)), ...stack])
         | [] => failwith("Empty stack")
         | _ => failwith("Type error")
         }

@@ -32,8 +32,8 @@ function getType(delta, gamma, _e) {
                   ]);
       case /* Function */4 :
           return /* Function_t */Block.__(1, [
-                    Tools$MyNewProject.lookup(e[0], gamma),
-                    getType(delta, gamma, e[1])
+                    e[1],
+                    getType(delta, gamma, e[2])
                   ]);
       case /* Application */5 :
           var match = getType(delta, gamma, e[0]);
@@ -96,9 +96,10 @@ function getResType(delta, _r) {
       case /* Rcons */3 :
           return Pervasives.failwith("Not yet implemented");
       case /* Rfunc */4 :
-          return getType(delta, generateContext(delta, r[2]), /* Function */Block.__(4, [
+          return getType(delta, generateContext(delta, r[3]), /* Function */Block.__(4, [
                         r[0],
-                        r[1]
+                        r[1],
+                        r[2]
                       ]));
       case /* Rapp */5 :
           var match = getResType(delta, r[0]);
@@ -199,28 +200,34 @@ function getConstraintType(delta, exs) {
           ];
   }
   var x = contexts[0];
-  var match = List.filter((function (y) {
+  List.filter((function (y) {
             return Caml_obj.caml_notequal(x, y);
           }))(contexts);
-  if (match) {
-    return x;
-  } else {
-    return Pervasives.failwith("Inconsistent environment / example types");
-  }
+  return x;
+}
+
+function generateHoleContextU_h(_delta, _us) {
+  while(true) {
+    var us = _us;
+    var delta = _delta;
+    if (!us) {
+      return delta;
+    }
+    var match = us[0];
+    _us = us[1];
+    _delta = /* :: */[
+      /* tuple */[
+        match[0],
+        getConstraintType(delta, match[1])
+      ],
+      delta
+    ];
+    continue ;
+  };
 }
 
 function generateHoleContextU(us) {
-  if (!us) {
-    return /* [] */0;
-  }
-  var match = us[0];
-  return /* :: */[
-          /* tuple */[
-            match[0],
-            getConstraintType(/* [] */0, match[1])
-          ],
-          generateHoleContextU(us[1])
-        ];
+  return generateHoleContextU_h(/* [] */0, List.rev(us));
 }
 
 function generateHoleContextF(fs) {
@@ -232,6 +239,7 @@ exports.getResType = getResType;
 exports.generateContext = generateContext;
 exports.getExType = getExType;
 exports.getConstraintType = getConstraintType;
+exports.generateHoleContextU_h = generateHoleContextU_h;
 exports.generateHoleContextU = generateHoleContextU;
 exports.generateHoleContextF = generateHoleContextF;
 /* No side effect */

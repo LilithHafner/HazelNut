@@ -18,11 +18,12 @@ int = parse_int(inp); DB_Int(v)
 
 eval = Environment(v0); Exp(v1); Res(Evaluator.eval(v0, v1))
 uneval = Res(v0); Example(v1); Constraint_(Unevaluator.unevaluate(v0, v1))
+constrain = Exp(v0); Excons(v1); Constraint_(Unevaluator.constrainExp(v0, v1))
 unevaluate = Res(v0); Example(v1); Constraint_(Unevaluator.unevaluate(v0, v1))
 guess = Hole_Context(v0); Context(v1); Type_(v2); DB_Int(v3); Guess_Output(Guesser.guess(v0, v1, v2, v3))
 
 let rec solve (hContext, k) > {
-solve = Hole_Context(v0); Constraint_(v1); Solver_Output(Solver.solve(v0,v1))
+solve = Constraint_(v1); Solver_Output(Solver.solve(v1))
 
 (delta, holeFillings, gamma, h, typ, exs)
 fill = Hole_Context(v0); Hole_Fillings(v1); Context(v2); Hole_Identifier(v3); Type_(v4); Excons(v5); Filler_Output(Filler.fill(v0,v1,v2,v3,v4,v5))

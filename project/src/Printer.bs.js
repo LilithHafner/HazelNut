@@ -85,6 +85,8 @@ function string_of_exp(e) {
     }
   }
   switch (e.tag | 0) {
+    case /* Int */0 :
+        return String(e[0]);
     case /* Float */1 :
         return e[0].toString();
     case /* Bool */2 :
@@ -92,14 +94,13 @@ function string_of_exp(e) {
     case /* Cons */3 :
         return string_of_exp(e[0]) + ("::" + string_of_exp(e[1]));
     case /* Function */4 :
-        return "\\" + (String(e[0]) + ("." + string_of_exp(e[1])));
+        return "\\" + (String(e[0]) + (": " + (string_of_type_(e[1]) + ("." + string_of_exp(e[2])))));
     case /* Application */5 :
         return string_of_exp(e[0]) + (" " + string_of_exp(e[1]));
     case /* Hole */6 :
         return "??_" + String(e[0]);
-    case /* Int */0 :
     case /* Var */7 :
-        return String(e[0]);
+        return "var_" + String(e[0]);
     case /* Pair */8 :
         return "(" + (string_of_exp(e[0]) + (", " + (string_of_exp(e[1]) + ")")));
     case /* Fst */9 :
@@ -144,7 +145,7 @@ function string_of_res(r) {
     case /* Rcons */3 :
         return string_of_res(r[0]) + ("::" + string_of_res(r[1]));
     case /* Rfunc */4 :
-        return "[" + (string_of_env(r[2]) + ("]\\" + (String(r[0]) + ("." + string_of_exp(r[1])))));
+        return "[" + (string_of_env(r[3]) + ("]\\" + (String(r[0]) + (": " + (string_of_type_(r[1]) + ("." + string_of_exp(r[2])))))));
     case /* Rapp */5 :
         return string_of_res(r[0]) + (" " + string_of_res(r[1]));
     case /* Rhole */6 :

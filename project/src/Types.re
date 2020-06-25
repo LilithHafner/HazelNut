@@ -14,7 +14,7 @@ type exp =
   | Bool(bool)
   | Cons(exp, exp)
   | Nil 
-  | Function(identifier, exp)
+  | Function(identifier, type_, exp)
   | Application(exp, exp)
   | Hole(hole_identifier)
   | Unit 
@@ -31,7 +31,7 @@ and res =
     | Rbool(bool)
     | Rcons(res, res)
     | Rnil 
-    | Rfunc(identifier, exp, environment)
+    | Rfunc(identifier, type_, exp, environment)
     | Rapp(res, res)//Can we limit the type of result in the applicator position?
     | Rhole(hole_identifier, environment)
     | Runit 
@@ -77,6 +77,8 @@ would that be an application expression? */
     | Efunc(value, example)
 
 and value =
+    | Vint(int)
+    | Vbool(bool)
     | Vunit 
     | Vpair(value, value);
 
@@ -128,6 +130,8 @@ type goals = list(goal);
 let rec valToExp (v:value) : exp = {
     switch (v) {
         | Vunit => Unit 
+        | Vint(x) => Int(x)
+        | Vbool(x) => Bool(x)
         | Vpair(v1, v2) => Pair(valToExp(v1), valToExp(v2))
         }
 };
@@ -135,6 +139,8 @@ let rec valToExp (v:value) : exp = {
 let rec valToRes (v: value) : res = {
     switch (v) {
         | Vunit => Runit 
+        | Vint(x) => Rint(x)
+        | Vbool(x) => Rbool(x)
         | Vpair(v1, v2) => Rpair(valToRes(v1), valToRes(v2))
         }
 };
@@ -153,6 +159,8 @@ let rec exToExp (ex:example):option(exp) = {
 
 let rec resToVal (res:res):option(value) = {
     switch (res) {
+        | Rint(x) => Some(Vint(x))
+        | Rbool(x) => Some(Vbool(x))
         | Runit => Some(Vunit)
         | Rpair(r1, r2) => 
             switch ((resToVal(r1), resToVal(r2))) {

@@ -4,24 +4,38 @@
 var Block = require("bs-platform/lib/js/block.js");
 
 function valToExp(v) {
-  if (v) {
-    return /* Pair */Block.__(8, [
-              valToExp(v[0]),
-              valToExp(v[1])
-            ]);
-  } else {
+  if (typeof v === "number") {
     return /* Unit */1;
+  }
+  switch (v.tag | 0) {
+    case /* Vint */0 :
+        return /* Int */Block.__(0, [v[0]]);
+    case /* Vbool */1 :
+        return /* Bool */Block.__(2, [v[0]]);
+    case /* Vpair */2 :
+        return /* Pair */Block.__(8, [
+                  valToExp(v[0]),
+                  valToExp(v[1])
+                ]);
+    
   }
 }
 
 function valToRes(v) {
-  if (v) {
-    return /* Rpair */Block.__(7, [
-              valToRes(v[0]),
-              valToRes(v[1])
-            ]);
-  } else {
+  if (typeof v === "number") {
     return /* Runit */1;
+  }
+  switch (v.tag | 0) {
+    case /* Vint */0 :
+        return /* Rint */Block.__(0, [v[0]]);
+    case /* Vbool */1 :
+        return /* Rbool */Block.__(2, [v[0]]);
+    case /* Vpair */2 :
+        return /* Rpair */Block.__(7, [
+                  valToRes(v[0]),
+                  valToRes(v[1])
+                ]);
+    
   }
 }
 
@@ -55,18 +69,25 @@ function resToVal(res) {
       return ;
     }
   }
-  if (res.tag !== /* Rpair */7) {
-    return ;
+  switch (res.tag | 0) {
+    case /* Rint */0 :
+        return /* Vint */Block.__(0, [res[0]]);
+    case /* Rbool */2 :
+        return /* Vbool */Block.__(1, [res[0]]);
+    case /* Rpair */7 :
+        var match = resToVal(res[0]);
+        var match$1 = resToVal(res[1]);
+        if (match !== undefined && match$1 !== undefined) {
+          return /* Vpair */Block.__(2, [
+                    match,
+                    match$1
+                  ]);
+        } else {
+          return ;
+        }
+    default:
+      return ;
   }
-  var match = resToVal(res[0]);
-  var match$1 = resToVal(res[1]);
-  if (match !== undefined && match$1 !== undefined) {
-    return /* Vpair */[
-            match,
-            match$1
-          ];
-  }
-  
 }
 
 function castable(res) {

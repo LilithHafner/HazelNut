@@ -70,7 +70,7 @@ let refine = (context, typ, exs) => {
         | Function_t(t1, t2) when allFuncs(exs) => {
             let x = IdGenerator.getId();
             let h = IdGenerator.getId();
-            (Function(x, Hole(h)), [([(x, t1), ...context], h, t2, prepFuncExs(exs, x))])
+            (Function(x, t1, Hole(h)), [([(x, t1), ...context], h, t2, prepFuncExs(exs, x))])
         }
         | Unit_t 
         | Pair_t(_, _)
