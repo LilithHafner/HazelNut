@@ -95,7 +95,7 @@ let getConstraintType = (delta, exs: excons) => {
         | [x, ..._] => 
             switch (List.filter((y) => x != y, contexts)) {
                 | [] => x
-                | _ => x
+                | _ => failwith("Contexts are not consistent for set of example constraints")
                 }
         }
 };

@@ -1,4 +1,4 @@
-let id = ref(0);
+let id = ref(100);
 
 let getId = () => {
     let i = id^;

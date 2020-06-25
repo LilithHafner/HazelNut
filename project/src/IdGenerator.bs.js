@@ -3,7 +3,7 @@
 
 
 var id = {
-  contents: 0
+  contents: 100
 };
 
 function getId(param) {

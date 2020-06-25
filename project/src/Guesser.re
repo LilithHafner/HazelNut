@@ -55,7 +55,6 @@ let guessApp = (delta, gamma: context, typ: type_, i: int, j: int): list(exp) =>
 };
 
 let guess = (delta: hole_context, gamma: context, typ: type_, i: int): list(exp) => {
-    Js.log(memo[i-1]);
     if (i == 1) {
         let terms = List.filter(((_, t)) => t == typ, gamma);
         memo[0] = List.map(((x, _)) => Var(x), terms);

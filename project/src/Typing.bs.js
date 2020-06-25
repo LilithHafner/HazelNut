@@ -200,10 +200,14 @@ function getConstraintType(delta, exs) {
           ];
   }
   var x = contexts[0];
-  List.filter((function (y) {
+  var match = List.filter((function (y) {
             return Caml_obj.caml_notequal(x, y);
           }))(contexts);
-  return x;
+  if (match) {
+    return Pervasives.failwith("Contexts are not consistent for set of example constraints");
+  } else {
+    return x;
+  }
 }
 
 function generateHoleContextU_h(_delta, _us) {

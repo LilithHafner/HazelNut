@@ -70,7 +70,6 @@ function guessApp(delta, gamma, typ, i, j) {
 }
 
 function guess(delta, gamma, typ, i) {
-  console.log(Caml_array.caml_array_get(memo, i - 1 | 0));
   if (i === 1) {
     var terms = List.filter((function (param) {
               return Caml_obj.caml_equal(param[1], typ);
