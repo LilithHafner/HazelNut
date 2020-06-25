@@ -30,18 +30,19 @@ Isn't true yet, you are stuck in the Candlenut repl.";
 let h() = 
     Js.log(help)
 
-Js.log("r() enters repl, ? for help in repl, h() for help outside of repl.")
+Js.log("? for help")
 let command = ref("env exp eval");
 let r() =
     Readline.readline((inp) => {
-        //Js.log(inp);
-        //let (construct, _) = parse_debug_construct(explode(inp));
-        //Js.log(string_of_debug_construct(construct));
-        switch(String.get(inp, 0)) {
-        | 'q' => Readline.close()
-        | '?' => h()
-        | '#' => command := implode(List.tl(explode(inp))); Js.log("Command = \""++command^ ++"\"")
-        | _ => Repl.main(inp, command^)
+        try(
+            switch(String.get(inp, 0)) {
+            | 'q' => Readline.close()
+            | '?' => h()
+            | '#' => command := implode(List.tl(explode(inp))); Js.log("Command = \""++command^ ++"\"")
+            | _ => Repl.main(inp, command^)
+            }
+        ) {
+            | Failure(e) => Js.log(e)
         }
     });
 r()
