@@ -197,7 +197,7 @@ and parse_exp(x) =
         (Cons(v0, v1), x)
     | ['n', ...x] =>
         (Nil, x)
-    | ['f', ...x] =>
+    | ['\\', ...x] =>
         let (v0, x) = parse_int(x);
         let (v1, x) = parse_type_(x);
         let (v2, x) = parse_exp(x);

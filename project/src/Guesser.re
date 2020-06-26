@@ -47,15 +47,11 @@ let guessApp = (delta, gamma: context, typ: type_, i: int, j: int): list(exp) =>
 let guess = (delta: hole_context, gamma: context, typ: type_, i: int): list(exp) => {
     if (i == 1) {
         let terms = List.filter(((_, t)) => t == typ, gamma);
-        Js.log(Printer.string_of_context(gamma));
-        Js.log(List.length(gamma));
         memo[0] = List.map(((x, _)) => Var(x), gamma);
-        Js.log(List.length(memo[0]));
         List.map(((x, _)) => Var(x), terms)
     } else {
         let pairs = partition(i);
         memo[i - 1] = List.map(((n, m)) => guessApp(delta, gamma, typ, n, m), pairs) |> List.concat;
-        Js.log(List.length(memo[i-1]));
         List.filter(
             (e) => Typing.getType(delta, gamma, e) == typ,
             memo[i - 1])
