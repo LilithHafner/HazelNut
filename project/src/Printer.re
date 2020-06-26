@@ -69,8 +69,24 @@ and string_of_type_(t:type_):string =
         | Any_t => "Any"
         | Fail_t => "Fail"
     }
-and string_of_example(_:example):string =
-    "String of example not implemented"
+and string_of_example(ex: example):string =
+    switch(ex) {
+        | Top => "T"
+        | Eunit => "()"
+        | Eint(x) => string_of_int(x)
+        | Ebool(b) => string_of_bool(b)
+        | Epair(ex1, ex2) => "("++string_of_example(ex1)++", "++string_of_example(ex2)++")"
+        | Efunc(v, ex') => "{"++string_of_value(v)++" -> "++string_of_example(ex')++"}"
+        }
+
+and string_of_value(v):string =
+    switch(v) {
+        | Vint(i) => string_of_int(i)
+        | Vbool(b) => string_of_bool(b)
+        | Vunit => "()"
+        | Vpair(v1, v2) => "("++string_of_value(v1)++", "++string_of_value(v2)++")"
+        }
+    
 and string_of_one_constraint_(c):string =
     switch(c) {
         | [] => "-"
