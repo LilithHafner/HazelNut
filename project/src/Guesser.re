@@ -20,6 +20,41 @@ let rec partition_h = (n, m, i) => {
 
 let partition = (n) => partition_h(n - 1, 1, n);
 
+let guessFst = (delta, gamma, typ, i) => {
+    Js.log(Printer.string_of_context(gamma));
+    let candidates = List.filter(
+        (e) => switch (Typing.getType(delta, gamma, e)) {
+            | Pair_t(typ, _) => {
+                Js.log("True branch");
+                Js.log(Printer.string_of_type_(typ));
+                true
+            }
+            | t => {
+                Js.log("False branch");
+                Js.log(Printer.string_of_type_(t));
+                false
+            }
+            },
+            memo[i-2]);
+    Js.log(List.length(candidates));
+    let ret = List.map((e) => Fst(e), candidates);
+    List.map((e) => {
+        Js.log(Printer.string_of_exp(e));
+        e}, 
+        ret);
+    ret
+}
+
+let guessSnd = (delta, gamma, typ, i) => {
+    let candidates = List.filter(
+        (e) => switch (Typing.getType(delta, gamma, e)) {
+            | Pair_t(_, typ) => true
+            | _ => false
+            },
+            memo[i-1]);
+    List.map((e) => Snd(e), candidates)
+}
+
 let guessApp = (delta, gamma: context, typ: type_, i: int, j: int): list(exp) => {
     let funcs = List.filter(
         (e) => switch(Typing.getType(delta, gamma, e)) {
@@ -47,11 +82,25 @@ let guessApp = (delta, gamma: context, typ: type_, i: int, j: int): list(exp) =>
 let guess = (delta: hole_context, gamma: context, typ: type_, i: int): list(exp) => {
     if (i == 1) {
         let terms = List.filter(((_, t)) => t == typ, gamma);
-        memo[0] = List.map(((x, _)) => Var(x), gamma);
+        memo[0] = List.map(
+            ((x, _)) => Var(x), 
+            gamma);
+        List.map(
+            (e) => Js.log(Printer.string_of_exp(e)),
+            memo[0]);
+        List.map(
+            (e) => Js.log(Printer.string_of_type_(Typing.getType(delta, gamma, e))),
+            memo[0]);
         List.map(((x, _)) => Var(x), terms)
     } else {
+        // Guess first
+        let firsts = guessFst(delta, gamma, typ, i);
+        // Guess second
+        let seconds = guessSnd(delta, gamma, typ, i);
+        // Guess Applications
         let pairs = partition(i);
-        memo[i - 1] = List.map(((n, m)) => guessApp(delta, gamma, typ, n, m), pairs) |> List.concat;
+        let apps = List.map(((n, m)) => guessApp(delta, gamma, typ, n, m), pairs) |> List.concat;
+        memo[i - 1] = firsts @ seconds @ apps;
         List.filter(
             (e) => Typing.getType(delta, gamma, e) == typ,
             memo[i - 1])

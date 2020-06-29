@@ -167,14 +167,42 @@ let rec resToVal (res:res):option(value) = {
                 | (Some(x), Some(y)) => Some(Vpair(x, y))
                 | _ => None
                 }
+        | Rapp(r1, r2) => 
+            switch (r1) {
+                | Rfunc(id, typ, e, env) => 
+                    eval([(id, r2), ...env], e) |> resToVal
+                | _ => None
+                }
         | _ => None
         }
-};
+}
 
 // is res -> val possible?
-let castable (res:res):bool = 
+and castable (res:res):bool = 
     switch (resToVal(res)) {
         | Some(_) => true
         | None => false
         }
 
+and eval = (_env:environment, e:exp):res => {
+    switch (e) {
+        | Hole(x) => Rhole(x, _env)
+        | Var(x) => Tools.lookup(x, _env)
+        | Function(id, typ, exp) => Rfunc(id, typ, exp, _env)
+        | Application(e1, e2) => {
+            switch (e1) {
+                | Function(id, _, exp) => eval([(id, eval(_env, e2)), ..._env], exp)
+                | _ => Rapp(eval(_env, e1), eval(_env, e2))//This line seems fishy to me.
+            }
+        }
+        | Unit => Runit 
+        | Pair(e1, e2) => Rpair(eval(_env, e1), eval(_env, e2))
+        | Fst(e1) => Rfst(eval(_env, e1))
+        | Snd(e1) => Rsnd(eval(_env, e1))
+        | Int(x) => Rint(x)
+        | Float(f) => Rfloat(f)
+        | Bool(b) => Rbool(b)
+        | Cons(e1, e2) => Rcons(eval(_env, e1), eval(_env, e2))
+        | Nil => Rnil 
+    }
+};

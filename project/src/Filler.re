@@ -35,10 +35,18 @@ let optionPred = (x) =>
         };
 
 let rec guessAndCheck_h = (delta, gamma, typ, exs, i) => {
-    if (i > 5) {
+    if (i > 8) {
         failwith("Guessing timed out")
     } else {
         let es: list(Types.exp) = Guesser.guess(delta, gamma, typ, i);
+        Js.log("Guesser returned: ");
+        Js.log(List.length(es));
+        List.map(
+            (e) => {
+                Js.log(Printer.string_of_exp(e));
+                e
+            },
+            es);
         let checked = List.filter(
             (e) => Unevaluator.constrainExp(e, exs) -> optionPred,
             es);

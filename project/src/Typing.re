@@ -26,13 +26,13 @@ let rec getType = (delta: hole_context, gamma: context, e: exp) : type_ =>
         }
         | Unit => Unit_t 
         | Pair(e1, e2) => Pair_t(getType(delta, gamma, e1), getType(delta, gamma, e2))
-        | Fst(e') => switch (e') {
-            | Pair(e1, _) => getType(delta, gamma, e1)
-            | _ => failwith("Type error, expected pair")
+        | Fst(e') => switch (getType(delta, gamma, e')) {
+            | Pair_t(t1, _) => t1
+            | _ => failwith("Type error: Expected type pair for fst")
             }
-        | Snd(e') => switch(e') {
-            | Pair(_, e2) => getType(delta, gamma, e2)
-            | _ => failwith("Type error, expected pair")
+        | Snd(e') => switch (getType(delta, gamma, e')) {
+            | Pair_t(_, t2) => t2
+            | _ => failwith("Type error: Expected type pair for snd")
             }
         | _ => failwith("Not yet implemented")
     };

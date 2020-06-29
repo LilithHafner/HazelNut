@@ -1,4 +1,3 @@
-
 open Types;
 
 // Takes an expression and returns a corresponding result by
