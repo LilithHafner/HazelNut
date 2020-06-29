@@ -55,6 +55,24 @@ let rec unevaluate = (res:res, ex:example) : option(unevalcons) => {
             let exs = [(env', ex')];
             constrainExp(exp, exs)
         }
+        | (Ector(id1, ex'), Rctor(id2, r')) when id1 == id2 => unevaluate(r', ex')
+        | (_, Rictor(id, r')) => unevaluate(r', Ector(id, ex))
+        | (_, Rcase(r', branches, env)) => {
+            let cons = List.map(
+                ((ctor_id, (id, e1))) => {
+                    let k1 = unevaluate(r', Ector(ctor_id, Top));
+                    let k2 = constrainExp(e1, [([(id, Rictor(ctor_id, r')), ...env], ex)]);
+                    switch (mergeCons(k1, k2)) {
+                        | None => None
+                        | x => x
+                        }
+                },
+                branches) |> List.filter(optionPred);
+            switch (cons) {
+                | [] => None
+                | [k, ...xs] => k
+                }
+        }
         // When none of the inference rules apply
         | _ => None // fail
     }
@@ -75,6 +93,22 @@ and constrainExp = (exp, exs) => {
                 }
         }
     }
-};
+}
+
+and mergeCons = (k1, k2) => {
+    switch (k1, k2) {
+        | (None, _) => None
+        | (_, None) => None
+        | (Some((u1, f1)), Some((u2, f2))) => 
+            Some((List.concat([u1, u2]), List.concat([f1, f2])))
+    }
+}
+    
+and optionPred = (x) =>
+    switch(x) {
+        | Some(_) => true
+        | None => false
+        };
+
 
 

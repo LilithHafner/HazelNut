@@ -5,10 +5,11 @@
 // Variable and hole names
 type identifier = int
 type hole_identifier = int
+type branches = Tools.pairlist(identifier, (identifier, exp))
 
 // Expressions in the language
 //   Very small for now
-type exp = 
+and exp = 
   | Int(int)
   | Float(float)
   | Bool(bool)
@@ -22,6 +23,8 @@ type exp =
   | Pair(exp, exp)
   | Fst(exp)
   | Snd(exp)
+  | Ctor(identifier, type_, exp)
+  | Case(exp, branches)
 
 // Results in the language
 //   Act as values that can have holes
@@ -38,9 +41,11 @@ and res =
     | Rpair(res, res)
     | Rfst(res)
     | Rsnd(res)
+    | Rctor(identifier, res)
+    | Rictor(identifier, res)
+    | Rcase(res, branches, environment)
 
 // Types in the language
-//   Currently not in much use
 and type_ =
   | Int_t 
   | Bool_t 
@@ -50,6 +55,7 @@ and type_ =
   | Pair_t(type_, type_)
   | Any_t 
   | Fail_t 
+  | D(adt)
 
 // Map from variable names to results
 and environment = Tools.pairlist(identifier, res)//parser_generator.py: ignore
@@ -58,7 +64,16 @@ and context = Tools.pairlist(identifier, type_)//parser_generator.py: ignore
 
 // Types all of the holes
 // I think we should clarify this and the type which unevaluate returns.
-type hole_context = Tools.pairlist(hole_identifier, (context, type_));//parser_generator.py: ignore
+and hole_context = Tools.pairlist(hole_identifier, (context, type_)) //parser_generator.py: ignore
+
+// Abstract datatypes. Make sure to define constructors in context below.
+// Also, I'm a hypocrite since I'm not defining them below.
+and adt = 
+    | List 
+    | Num;
+
+// Datatype context
+let sigma: Tools.pairlist(adt, Tools.pairlist(identifier, type_)) = [];
 
 // Examples
 //   Needs to be filled out more
@@ -75,12 +90,14 @@ would that be an application expression? */
 // It takes the form of an input output pair, so v would
 // be the input value and example would be the output.
     | Efunc(value, example)
+    | Ector(identifier, example)
 
 and value =
     | Vint(int)
     | Vbool(bool)
     | Vunit 
-    | Vpair(value, value);
+    | Vpair(value, value)
+    | Vctor(identifier, value);
 
 
 type hole_fillings = Tools.pairlist(hole_identifier, exp)//parser_generator.py: ignore

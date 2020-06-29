@@ -32,6 +32,16 @@ let rec eval = (_env:environment, e:exp):res => {
         | Bool(b) => Rbool(b)
         | Cons(e1, e2) => Rcons(eval(_env, e1), eval(_env, e2))
         | Nil => Rnil 
+        | Ctor(id, _, e1) => Rctor(id, eval(_env, e1))
+        // Need to come back and handle indeterminate case eventually.
+        | Case(e1, branches) =>
+            switch (eval(_env, e1)) {
+                | Rctor(id, r) => {
+                    let (var, e2) = Tools.lookup(id, branches);
+                    eval([(var, r), ..._env], e2)
+                }
+                | _ => failwith("Type error: expected a constructor within case")
+            }
     }
 };
 
