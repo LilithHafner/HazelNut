@@ -5,7 +5,7 @@
 // Variable and hole names
 type identifier = int
 type hole_identifier = int
-type branches = Tools.pairlist(identifier, (identifier, exp))
+type branches = Tools.pairlist(identifier, (identifier, exp))//parser_generator.py: ignore
 
 // Expressions in the language
 //   Very small for now
@@ -68,9 +68,11 @@ and hole_context = Tools.pairlist(hole_identifier, (context, type_)) //parser_ge
 
 // Abstract datatypes. Make sure to define constructors in context below.
 // Also, I'm a hypocrite since I'm not defining them below.
+
+/* Should list be parametarized? */
 and adt = 
     | List 
-    | Num;
+    | Num
 
 // Datatype context
 let sigma: Tools.pairlist(adt, Tools.pairlist(identifier, type_)) = [];

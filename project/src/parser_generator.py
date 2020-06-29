@@ -7,6 +7,9 @@ def p(_quit=''):
     return '\n'.join(out)
 
 whitespace = "'"+"' | '".join(['\\t','\\n']+list(' ,()<->'))+"'"
+blank_of_string_doesnt_work_and_were_okay_with_that = \
+    ['filler_output', 'solver_output', 'branches']#And many more!
+
 #print(whitespace)
 #"' ' | '\\t' | '\\n' | ',' | '(' | ')'"
 
@@ -171,7 +174,7 @@ post_replacements = [
     ('''(hole_fillings_of_string(v0), x)''','''failwith("hole_fillings_of_string Not Implemented")'''),
 ] + [
         ('''({}_of_string(v0), x)'''.format(x),'''failwith("{}_of_string Not Implemented")'''.format(x)) for x in
-        ['filler_output', 'solver_output']
+        blank_of_string_doesnt_work_and_were_okay_with_that
 ]
 def post_process(out):
     for a,b in post_replacements:
@@ -197,22 +200,101 @@ def mid_process(specs):
                 a2,b2,c2 = mid_replacements[(a,b,tuple(c))]
                 del mid_replacements[(a,b,tuple(c))]
                 specs[key][i] = [a2,b2,list(c2)]
-        specs[key].sort(key=lambda x:len(x[0]), reverse=True)
+            else:
+                specs[key][i] = [a,b,list(c)]
+                
+        
     if mid_replacements:
         print(mid_replacements)
+    sort_spec(specs)
     return specs
 
+def sort_spec(spec):
+    for key in spec:
+        spec[key].sort(key=lambda x:len(x[0]), reverse=True)
+
 def pipeline(string):
-    return post_process(build(mid_process(process(string))))
+    global pspec
+    pspec = process(string)
+    mid_process(pspec)
+    resolve_conflicts(pspec)
+    return post_process(build(pspec))
 
 def f():
     print(pipeline(p("QUIT")))
 
-spec = {'exp': [('i', 'Int', ['int']), ('f', 'Float', ['float']), ('b', 'Bool', ['bool']), ('c', 'Cons', ['exp', 'exp']), ('n', 'Nil', []), ('v', 'Variable', ['int']), ('f', 'Function', ['int', 'exp']), ('a', 'Application', ['exp', 'exp']), ('h', 'Hole', ['int']), ('u', 'Unit', []), ('v', 'Var', ['int']), ('p', 'Pair', ['exp', 'exp']), ('f', 'Fst', ['exp']), ('s', 'Snd', ['exp'])], 'res': [('i', 'Rint', ['int']), ('f', 'Rfloat', ['float']), ('b', 'Rbool', ['bool']), ('c', 'Rcons', ['res', 'res']), ('n', 'Rnil', []), ('f', 'Rfunc', ['int', 'exp', 'environment']), ('a', 'Rapp', ['res', 'res']), ('h', 'Rhole', ['int', 'environment']), ('u', 'Runit', []), ('p', 'Rpair', ['res', 'res']), ('f', 'Rfst', ['res']), ('s', 'Rsnd', ['res'])], 'type_': [('i', 'Int_t', []), ('b', 'Bool_t', []), ('c', 'Cons_t', ['type_']), ('f', 'Function_t', ['type_', 'type_']), ('u', 'Unit_t', []), ('p', 'Pair_t', ['type_', 'type_']), ('a', 'Any_t', []), ('f', 'Fail_t', [])], 'debug_construct': [('e', 'Exp', ['exp']), ('e', 'Environemnt', ['environment']), ('r', 'Res', ['res'])]}
+#spec = {'exp': [('i', 'Int', ['int']), ('f', 'Float', ['float']), ('b', 'Bool', ['bool']), ('c', 'Cons', ['exp', 'exp']), ('n', 'Nil', []), ('v', 'Variable', ['int']), ('f', 'Function', ['int', 'exp']), ('a', 'Application', ['exp', 'exp']), ('h', 'Hole', ['int']), ('u', 'Unit', []), ('v', 'Var', ['int']), ('p', 'Pair', ['exp', 'exp']), ('f', 'Fst', ['exp']), ('s', 'Snd', ['exp'])], 'res': [('i', 'Rint', ['int']), ('f', 'Rfloat', ['float']), ('b', 'Rbool', ['bool']), ('c', 'Rcons', ['res', 'res']), ('n', 'Rnil', []), ('f', 'Rfunc', ['int', 'exp', 'environment']), ('a', 'Rapp', ['res', 'res']), ('h', 'Rhole', ['int', 'environment']), ('u', 'Runit', []), ('p', 'Rpair', ['res', 'res']), ('f', 'Rfst', ['res']), ('s', 'Rsnd', ['res'])], 'type_': [('i', 'Int_t', []), ('b', 'Bool_t', []), ('c', 'Cons_t', ['type_']), ('f', 'Function_t', ['type_', 'type_']), ('u', 'Unit_t', []), ('p', 'Pair_t', ['type_', 'type_']), ('a', 'Any_t', []), ('f', 'Fail_t', [])], 'debug_construct': [('e', 'Exp', ['exp']), ('e', 'Environemnt', ['environment']), ('r', 'Res', ['res'])]}
 
 def save(out):
     open('Parser.re','w').write(out)
-    
-#print(pipeline(source))
-save(pipeline(source))
 
+
+
+    
+
+
+def pconflicts(spec):
+    out = []
+    for typ in spec:
+        out.append('\n' + str(typ) + '\n' + '='*20)
+        constructors = spec[typ]
+        dct = {}
+        for a,b,c in constructors:
+            if a in dct:
+                out.append(str(a)+ ', '+ str(dct[a][0]) + ', ' + str(dct[a][1]) + ' | ' + str(a)+ ', ' +str(b) + ', ' + str(c))
+            else:
+                dct[a] = b,c
+    print('\n'.join(out))
+def pres():
+    out = []
+    for r in conflict_resolutions:
+        out.append(' -> '.join(r))
+    print('\n'.join(out))
+
+def find_in_pspec(name):
+    for typ in pspec:
+        for constructor in pspec[typ]:
+            if constructor[1] == name:
+                return [typ,] + constructor
+
+def print_resolution(resolution):
+    print(str(find_in_pspec(resolution[0])) + ' -> ' + str(resolution[1]))
+
+conflict_resolutions = [['Case', 'case'], ['Ctor', 'ctor'], ['Rcase', 'case'], ['Rictor', 'ictor'], ['Rctor', 'ctor'], ['Hole_Context', 'hc'], ['Hole_Fillings', 'hf'], ['Hole_Identifier', 'hi'], ['Excons', 'excons'], ['Unevalcons', 'unevalcons'], ['Constraint_', 'constraint']]
+
+def resolve_conflicts(spec):
+    for c in conflict_resolutions:
+        for typ in spec:
+            for constructor in spec[typ]:
+                if constructor[1] == c[0]:
+                    constructor[0] = c[1]
+    sort_spec(spec)
+        
+
+def resolve():
+    pconflicts(pspec)
+    while True:
+        inp = input()
+        if inp in ['', 'q']:
+            print_resolutions()
+            break
+        elif inp in ['-', 'u', 'z', 'undo']:
+            print_resolution(conflict_resolutions.pop())
+        elif inp in ['p', 'print']:
+            pres()
+        else:
+            inp = inp.split()
+            if len(inp) != 2:
+                print('arity problem')
+                continue
+            if find_in_pspec(inp[0]) is None:
+                print('Sorry bud, can\'t find that constructor.')
+                continue
+            conflict_resolutions.append(inp)
+            print_resolution(conflict_resolutions[-1])
+def print_resolutions():
+    print('conflict_resolutions = '+repr(conflict_resolutions))
+
+if __name__ == '__main__':
+    #print(pipeline(source))
+    save(pipeline(source))

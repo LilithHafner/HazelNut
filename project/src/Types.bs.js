@@ -2,6 +2,8 @@
 'use strict';
 
 var Block = require("bs-platform/lib/js/block.js");
+var Tools$MyNewProject = require("./Tools.bs.js");
+var Caml_builtin_exceptions = require("bs-platform/lib/js/caml_builtin_exceptions.js");
 
 function valToExp(v) {
   if (typeof v === "number") {
@@ -17,6 +19,15 @@ function valToExp(v) {
                   valToExp(v[0]),
                   valToExp(v[1])
                 ]);
+    case /* Vctor */3 :
+        throw [
+              Caml_builtin_exceptions.match_failure,
+              /* tuple */[
+                "Types.re",
+                149,
+                35
+              ]
+            ];
     
   }
 }
@@ -35,6 +46,15 @@ function valToRes(v) {
                   valToRes(v[0]),
                   valToRes(v[1])
                 ]);
+    case /* Vctor */3 :
+        throw [
+              Caml_builtin_exceptions.match_failure,
+              /* tuple */[
+                "Types.re",
+                158,
+                36
+              ]
+            ];
     
   }
 }
@@ -61,42 +81,144 @@ function exToExp(ex) {
   
 }
 
-function resToVal(res) {
-  if (typeof res === "number") {
-    if (res === /* Runit */1) {
-      return /* Vunit */0;
-    } else {
-      return ;
+function resToVal(_res) {
+  while(true) {
+    var res = _res;
+    if (typeof res === "number") {
+      if (res === /* Runit */1) {
+        return /* Vunit */0;
+      } else {
+        return ;
+      }
     }
-  }
-  switch (res.tag | 0) {
-    case /* Rint */0 :
-        return /* Vint */Block.__(0, [res[0]]);
-    case /* Rbool */2 :
-        return /* Vbool */Block.__(1, [res[0]]);
-    case /* Rpair */7 :
-        var match = resToVal(res[0]);
-        var match$1 = resToVal(res[1]);
-        if (match !== undefined && match$1 !== undefined) {
-          return /* Vpair */Block.__(2, [
-                    match,
-                    match$1
+    switch (res.tag | 0) {
+      case /* Rint */0 :
+          return /* Vint */Block.__(0, [res[0]]);
+      case /* Rbool */2 :
+          return /* Vbool */Block.__(1, [res[0]]);
+      case /* Rapp */5 :
+          var r1 = res[0];
+          if (typeof r1 === "number") {
+            return ;
+          }
+          if (r1.tag !== /* Rfunc */4) {
+            return ;
+          }
+          _res = $$eval(/* :: */[
+                /* tuple */[
+                  r1[0],
+                  res[1]
+                ],
+                r1[3]
+              ], r1[2]);
+          continue ;
+      case /* Rpair */7 :
+          var match = resToVal(res[0]);
+          var match$1 = resToVal(res[1]);
+          if (match !== undefined && match$1 !== undefined) {
+            return /* Vpair */Block.__(2, [
+                      match,
+                      match$1
+                    ]);
+          } else {
+            return ;
+          }
+      default:
+        return ;
+    }
+  };
+}
+
+function $$eval(__env, _e) {
+  while(true) {
+    var e = _e;
+    var _env = __env;
+    if (typeof e === "number") {
+      if (e === /* Nil */0) {
+        return /* Rnil */0;
+      } else {
+        return /* Runit */1;
+      }
+    }
+    switch (e.tag | 0) {
+      case /* Int */0 :
+          return /* Rint */Block.__(0, [e[0]]);
+      case /* Float */1 :
+          return /* Rfloat */Block.__(1, [e[0]]);
+      case /* Bool */2 :
+          return /* Rbool */Block.__(2, [e[0]]);
+      case /* Cons */3 :
+          return /* Rcons */Block.__(3, [
+                    $$eval(_env, e[0]),
+                    $$eval(_env, e[1])
                   ]);
-        } else {
-          return ;
-        }
-    default:
-      return ;
-  }
+      case /* Function */4 :
+          return /* Rfunc */Block.__(4, [
+                    e[0],
+                    e[1],
+                    e[2],
+                    _env
+                  ]);
+      case /* Application */5 :
+          var e2 = e[1];
+          var e1 = e[0];
+          if (typeof e1 !== "number" && e1.tag === /* Function */4) {
+            _e = e1[2];
+            __env = /* :: */[
+              /* tuple */[
+                e1[0],
+                $$eval(_env, e2)
+              ],
+              _env
+            ];
+            continue ;
+          }
+          return /* Rapp */Block.__(5, [
+                    $$eval(_env, e1),
+                    $$eval(_env, e2)
+                  ]);
+      case /* Hole */6 :
+          return /* Rhole */Block.__(6, [
+                    e[0],
+                    _env
+                  ]);
+      case /* Var */7 :
+          return Tools$MyNewProject.lookup(e[0], _env);
+      case /* Pair */8 :
+          return /* Rpair */Block.__(7, [
+                    $$eval(_env, e[0]),
+                    $$eval(_env, e[1])
+                  ]);
+      case /* Fst */9 :
+          return /* Rfst */Block.__(8, [$$eval(_env, e[0])]);
+      case /* Snd */10 :
+          return /* Rsnd */Block.__(9, [$$eval(_env, e[0])]);
+      case /* Ctor */11 :
+      case /* Case */12 :
+          throw [
+                Caml_builtin_exceptions.match_failure,
+                /* tuple */[
+                  "Types.re",
+                  206,
+                  44
+                ]
+              ];
+      
+    }
+  };
 }
 
 function castable(res) {
   return resToVal(res) !== undefined;
 }
 
+var sigma = /* [] */0;
+
+exports.sigma = sigma;
 exports.valToExp = valToExp;
 exports.valToRes = valToRes;
 exports.exToExp = exToExp;
 exports.resToVal = resToVal;
 exports.castable = castable;
+exports.$$eval = $$eval;
 /* No side effect */
