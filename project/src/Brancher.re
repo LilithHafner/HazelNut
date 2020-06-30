@@ -7,7 +7,7 @@ let simplifyConstructor = (res) =>
         | _ => res
         };
 
-let branch = (delta:hole_context, gamma:context, typ:type_, exs:excons) => {
+let rec branch = (delta:hole_context, gamma:context, typ:type_, exs:excons) => {
     let datatypes = List.map(
         ((id, t)) => t,
         gamma)
@@ -27,6 +27,9 @@ let branch = (delta:hole_context, gamma:context, typ:type_, exs:excons) => {
             (t1, t2) => 0,
         );
 
+    List.map(
+        (d) => branch_indiv(delta, gamma, typ, exs, d),
+        datatypes)
 }
 
 and branch_indiv = (delta, gamma, typ, exs, datatype) => {
