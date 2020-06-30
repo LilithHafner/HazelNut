@@ -7,6 +7,7 @@ let refinable = (typ) =>
         | Unit_t 
         | Pair_t(_, _)
         | Function_t(_, _) => true
+        | D(_) => true
         | _ => false
         };
 
@@ -34,6 +35,32 @@ let rec allFuncs = (exs) => {
     }
 };
 
+let allConstructs = (exs):option(int) => {
+    let c = switch (exs) {
+        | [] => None
+        | [(_, Ector(id, ex)), ...xs] => Some(id)
+        | _ => None
+        };
+    switch (c) {
+        | None => None
+        | Some(i) => {
+            let haveIdC = List.filter(
+                ((env, ex)) => {
+                    switch(ex) {
+                        | Ector(i, _) => true
+                        | _ => false
+                        }
+                },
+                exs);
+            if (List.length(haveIdC) == List.length(exs)){
+                c
+            } else {
+                None
+            }
+        }
+    }
+};
+
 let firstExs = (exs) => List.map(
     ((env, Epair(ex1, _))) => (env, ex1),
     exs);
@@ -45,6 +72,10 @@ let sndExs = (exs) => List.map(
 let prepFuncExs = (exs, vid) => List.map(
     ((env, Efunc(v, ex))) => ([(vid, Types.valToRes(v)), ...env], ex),
      exs);
+
+let prepConsExs = (exs) => List.map(
+    ((env, Ector(id, ex))) => (env, ex),
+    exs);
 
 // Takes in hole context, context, goal type, and example constraints
 // To Do:
@@ -71,6 +102,17 @@ let refine = (context, typ, exs) => {
             let x = IdGenerator.getId();
             let h = IdGenerator.getId();
             (Function(x, t1, Hole(h)), [([(x, t1), ...context], h, t2, prepFuncExs(exs, x))])
+        }
+        | D(adt) => {
+            let c = allConstructs(exs);
+            switch (c) {
+                | Some(i) => {
+                    let h = IdGenerator.getId();
+                    let t = Tools.lookup(adt, Types.sigma) |> Tools.lookup(i);
+                    (Ctor(i, typ, Hole(h)), [(context, h, t, prepConsExs(exs))]) 
+                }
+                | None => failwith("Examples inconsistent with constructor")
+            }
         }
         | Unit_t 
         | Pair_t(_, _)

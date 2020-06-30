@@ -35,7 +35,10 @@ and string_of_exp(e:exp):string =
         | Pair(exp, exp2) => "(" ++ string_of_exp(exp) ++ ", " ++ string_of_exp(exp2) ++ ")"
         | Fst(exp) => "fst(" ++ string_of_exp(exp) ++ ")"
         | Snd(exp) => "snd(" ++ string_of_exp(exp) ++ ")"
+        | Ctor(name, typ, exp) => "C" ++ string_of_int(name) ++ ": " ++ string_of_type_(typ) ++ " " ++ string_of_exp(exp) 
+        | Case(exp, branches) =>  "case " ++ string_of_exp(exp)  ++ " of {" ++ string_of_branches(branches) ++ "}"
     }
+
 and string_of_res(r:res):string =
     switch(r) {
         | Rint(int) => string_of_int(int)
@@ -50,7 +53,17 @@ and string_of_res(r:res):string =
         | Rpair(res, res2) => "(" ++ string_of_res(res) ++ ", " ++ string_of_res(res2) ++ ")"
         | Rfst(res) => "fst(" ++ string_of_res(res) ++ ")"
         | Rsnd(res) => "snd(" ++ string_of_res(res) ++ ")"
+        | Rctor(name, res) => "C" ++ string_of_int(name) ++ " " ++ string_of_res(res) 
+        | Rictor(name, res) => "Ci" ++ string_of_int(name) ++ " " ++ string_of_res(res)
+        | Rcase(res, branches, env) => "[" ++ string_of_env(env) ++"] case " string_of_res(res) ++ " of {" ++ string_of_branches(branches) ++ "}"
     }
+
+and string_of_branches(b:branches):string =
+    switch(b) {
+        | [] => ""
+        | [(name, (id, exp)), ...xs] => "C" ++ string_of_int(name) ++ " " ++ string_of_int(id) ++ " -> " ++ string_of_exp(exp) ++ "; " ++ string_of_branches(xs)
+        }
+
 and string_of_env(e:environment):string =
     switch(e) {
         | [] => "-"
