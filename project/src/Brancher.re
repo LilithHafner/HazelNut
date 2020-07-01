@@ -44,28 +44,31 @@ and branch_indiv = (delta, gamma, typ, exs, datatype) => {
             constructors),
         exs) |> List.concat;
     let unevalCons: option(unevalcons) = Unevaluator.constrainExp(e, unevalExs);
-    let newExCons = List.map(
+    let branches = List.map(
         ((id, _)) => {
             let x = IdGenerator.getId();
-            (List.mapi(
-            (j, (env, ex)) => {
-                let r = List.nth(results, j);
-                ([(x, simplifyConstructor(Rictor(id, r))), ...env], ex)
-            },
-            exs), x)
+            let h = IdGenerator.getId();
+            (id, (x, Hole(h)))
         },
         constructors);
-    let holes = List.map(
-        (_) => Hole(IdGenerator.getId()),
-        constructors);
+    let exp = Case(e, branches);
+    let newExCons = List.map(
+        ((id, (var, _))) => 
+            List.mapi(
+                (j, (env, ex)) => {
+                    let r = List.nth(results, j);
+                    ([(var, simplifyConstructor(Rictor(id, r))), ...env], ex)
+                },
+                exs), 
+        branches);
     let goals = List.mapi(
-        (i, (xs, x)) => {
+        (i, (id, (var, Hole(h)))) => {
             let (_, ti) = List.nth(constructors, i);
-            let Hole(h) = List.nth(holes, i);
-            ([(x, ti), ...gamma], h, typ, xs)
+            let xs = List.nth(newExCons, i);
+            ([(var, ti), ...gamma], h, typ, xs)
         },
-        newExCons);
-    (goals, unevalCons)
+        branches);
+    (exp, goals, unevalCons)
 };
 
 

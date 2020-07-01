@@ -6,6 +6,8 @@
 
 // gs : [(context, hole, type, ex constraints)]
 
+open Types;
+
 let rec updateHoleContext_h = (delta: Types.hole_context, gs: Types.goals) => {
     switch (gs) {
         | [] => delta
@@ -36,28 +38,28 @@ let optionPred = (x) =>
 
 let rec guessAndCheck_h = (delta, gamma, typ, exs, i) => {
     if (i > 8) {
-        failwith("Guessing timed out")
+        None
     } else {
         let es: list(Types.exp) = Guesser.guess(delta, gamma, typ, i);
-        Js.log("Guesser returned: ");
-        Js.log(List.length(es));
-        List.map(
-            (e) => {
-                Js.log(Printer.string_of_exp(e));
-                e
-            },
-            es);
         let checked = List.filter(
             (e) => Unevaluator.constrainExp(e, exs) -> optionPred,
             es);
         switch (checked) {
             | [] => guessAndCheck_h(delta, gamma, typ, exs, i + 1)
-            | [e, ..._] => e
+            | [e, ..._] => Some(e)
             }
     }
 };
 
 let guessAndCheck = (delta, gamma, typ, exs) => guessAndCheck_h(delta, gamma, typ, exs, 1);
+
+let rec allBranchesFound = (xs) => 
+    switch (xs) {
+        | [] => true
+        | [None, ..._] => false
+        | [Some(_), ...xs] => allBranchesFound(xs)
+        };
+
 
 // In returns:
 //  - K = (U, F)
@@ -65,21 +67,77 @@ let guessAndCheck = (delta, gamma, typ, exs) => guessAndCheck_h(delta, gamma, ty
 //  - F = The existing hole fillings + 1 new filled hole
 //  - delta = the existing minus the whole just filled, plus any new holes
 
-let fill = (delta, holeFillings, gamma, h, typ, exs) => {
+// Note from Sam:
+//
+// Branching is pretty basic right now.
+// All it does is guess a scrutinee of each possible type, and
+// then guesses a filling for the hole in each branch. This
+// has obvious drawbacks in that no refinement will happen for these
+// fillings and since we don't really guess refinement types it's a bit
+// rough. 
+
+let rec fill = (delta, holeFillings, gamma, h, typ, exs) => {
+    switch (fill_h(delta, holeFillings, gamma, h, typ, exs)) {
+        | Some(x) => x
+        | None => failwith("Filler could not find candidate for hole")
+        }
+}
+
+and fill_h = (delta, holeFillings, gamma, h, typ, exs) => {
     if (Refiner.refinable(typ)) {
         let (e, gs) = Refiner.refine(gamma, typ, exs);
         let f = [(h, e), ...holeFillings];
         let delta' = updateHoleContext(delta, h, gs);
         let u = updateUnfilledHoles(gs);
         let k = (u, f);
-        (k, delta')
+        Some((k, delta'))
     } else {
         let e = guessAndCheck(delta, gamma, typ, exs);
-        let f = [(h, e), ...holeFillings];
-        let delta' = List.filter(
-            ((h', _)) => h != h',
-            delta);
-        let k = ([], f);
-        (k, delta')
+        switch (e) {
+            | None => {
+                // Branch
+
+                let bs = Brancher.branch(delta, gamma, typ, exs)
+                    |> List.map(
+                        ((exp, goals, excons)) => {
+                            let es = List.map(
+                                ((gamma', h, t, xs)) => guessAndCheck(delta, gamma',  t, xs),
+                                goals);
+
+                            if (allBranchesFound(es)) {
+                                let Case(e', branches) = exp;
+                                let expBranches = List.mapi(
+                                    (i, (c, (x, _))) => {
+                                        let Some(e'') = List.nth(es, i);
+                                        (c, (x, e''))
+                                    },
+                                    branches);
+                                Some(Case(e', expBranches))
+                            } else {
+                                None
+                            }
+                        });
+                switch (List.filter(optionPred, bs)) {
+                    | [] => None
+                    | [Some(e'), ...xs] => {
+                        let f = [(h, e'), ...holeFillings];
+                        let delta' = List.filter(
+                            ((h', _)) => h != h',
+                            delta);
+                        let k = ([], f);
+                        Some((k, delta'))
+                    }
+                }
+            }
+            | Some(e') => {
+                let f = [(h, e'), ...holeFillings];
+                let delta' = List.filter(
+                    ((h', _)) => h != h',
+                    delta);
+                let k = ([], f);
+                Some((k, delta'))
+            }
+            | None => None
+        }
     }
 };
