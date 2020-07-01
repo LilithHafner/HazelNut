@@ -109,7 +109,7 @@ let refine = (context, typ, exs) => {
                 | Some(i) => {
                     let h = IdGenerator.getId();
                     let t = Tools.lookup(adt, Types.sigma) |> Tools.lookup(i);
-                    (Ctor(i, typ, Hole(h)), [(context, h, t, prepConsExs(exs))]) 
+                    (Ctor(i, adt, Hole(h)), [(context, h, t, prepConsExs(exs))]) 
                 }
                 | None => failwith("Examples inconsistent with constructor")
             }

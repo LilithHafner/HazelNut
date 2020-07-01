@@ -34,6 +34,17 @@ let rec getType = (delta: hole_context, gamma: context, e: exp) : type_ =>
             | Pair_t(_, t2) => t2
             | _ => failwith("Type error: Expected type pair for snd")
             }
+        | Ctor(id, d, e1) => {
+            if (Tools.lookup(d, sigma) |> Tools.lookup(id) == getType(delta, gamma, e1)) {
+                D(d)
+            } else {
+                failwith("Constructor did not typecheck")
+            }
+        }
+        | Case(e1, branches) => switch (branches) {
+            | [] => failwith("No branches supplied to case")
+            | [(x, (v, e1)), ..._] => getType(delta, gamma, e1)
+            }
         | _ => failwith("Not yet implemented")
     };
 

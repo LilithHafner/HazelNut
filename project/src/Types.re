@@ -23,7 +23,7 @@ and exp =
   | Pair(exp, exp)
   | Fst(exp)
   | Snd(exp)
-  | Ctor(identifier, type_, exp)
+  | Ctor(identifier, adt, exp)
   | Case(exp, branches)
 
 // Results in the language
