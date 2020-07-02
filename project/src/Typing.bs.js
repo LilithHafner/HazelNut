@@ -89,10 +89,10 @@ function getResType(delta, _r) {
   while(true) {
     var r = _r;
     if (typeof r === "number") {
-      if (r === /* Runit */1) {
-        return /* Unit_t */2;
-      } else {
+      if (r === /* Rnil */0) {
         return Pervasives.failwith("Not yet implemented");
+      } else {
+        return /* Unit_t */2;
       }
     }
     switch (r.tag | 0) {
@@ -102,6 +102,8 @@ function getResType(delta, _r) {
           return /* Any_t */3;
       case /* Rbool */2 :
           return /* Bool_t */1;
+      case /* Rcons */3 :
+          return Pervasives.failwith("Not yet implemented");
       case /* Rfunc */4 :
           return getType(delta, generateContext(delta, r[3]), /* Function */Block.__(4, [
                         r[0],
@@ -147,8 +149,55 @@ function getResType(delta, _r) {
           }
           _r = r$prime$1[1];
           continue ;
-      default:
-        return Pervasives.failwith("Not yet implemented");
+      case /* Rctor */10 :
+          var adt = r[1];
+          if (Caml_obj.caml_equal(Tools$MyNewProject.lookup(r[0], Tools$MyNewProject.lookup(adt, Types$MyNewProject.sigma)), getResType(delta, r[2]))) {
+            return /* D */Block.__(3, [adt]);
+          } else {
+            return Pervasives.failwith("Type error: Result type doesn't match constructor type");
+          }
+      case /* Rictor */11 :
+          _r = r[2];
+          continue ;
+      case /* Rcase */12 :
+          var bs = r[1];
+          var d = getResType(delta, r[0]);
+          if (typeof d === "number") {
+            throw [
+                  Caml_builtin_exceptions.match_failure,
+                  /* tuple */[
+                    "Typing.re",
+                    88,
+                    16
+                  ]
+                ];
+          }
+          if (d.tag === /* D */3) {
+            var gamma = generateContext(delta, r[2]);
+            if (!bs) {
+              return /* Any_t */3;
+            }
+            var xs = bs[1];
+            var t = Tools$MyNewProject.lookup(bs[0][0], Tools$MyNewProject.lookup(d[0], Types$MyNewProject.sigma));
+            if (Caml_obj.caml_equal(List.filter((function(gamma,t){
+                        return function (param) {
+                          return Caml_obj.caml_equal(getType(delta, gamma, param[1][1]), t);
+                        }
+                        }(gamma,t)))(xs), xs)) {
+              return t;
+            } else {
+              return Pervasives.failwith("Not all branches have the same type");
+            }
+          }
+          throw [
+                Caml_builtin_exceptions.match_failure,
+                /* tuple */[
+                  "Typing.re",
+                  88,
+                  16
+                ]
+              ];
+      
     }
   };
 }
@@ -191,14 +240,13 @@ function getExType(delta, ex) {
                   getExType(delta, ex[1])
                 ]);
     case /* Ector */4 :
-        throw [
-              Caml_builtin_exceptions.match_failure,
-              /* tuple */[
-                "Typing.re",
-                89,
-                35
-              ]
-            ];
+        var adt = ex[1];
+        var t = Tools$MyNewProject.lookup(ex[0], Tools$MyNewProject.lookup(adt, Types$MyNewProject.sigma));
+        if (Caml_obj.caml_equal(t, getExType(delta, ex[2]))) {
+          return /* D */Block.__(3, [adt]);
+        } else {
+          return Pervasives.failwith("Type error: Example doesn't have type required by example constructor");
+        }
     
   }
 }

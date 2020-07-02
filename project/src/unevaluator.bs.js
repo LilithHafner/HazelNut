@@ -4,10 +4,11 @@
 var List = require("bs-platform/lib/js/list.js");
 var Block = require("bs-platform/lib/js/block.js");
 var Types$MyNewProject = require("./Types.bs.js");
+var Typing$MyNewProject = require("./Typing.bs.js");
 var Evaluator$MyNewProject = require("./evaluator.bs.js");
 var Caml_builtin_exceptions = require("bs-platform/lib/js/caml_builtin_exceptions.js");
 
-function unevaluate(_res, _ex) {
+function unevaluate(delta, _res, _ex) {
   while(true) {
     var ex = _ex;
     var res = _res;
@@ -97,8 +98,8 @@ function unevaluate(_res, _ex) {
             }
             switch (res.tag | 0) {
               case /* Rpair */7 :
-                  var match = unevaluate(res[0], ex[0]);
-                  var match$1 = unevaluate(res[1], ex[1]);
+                  var match = unevaluate(delta, res[0], ex[0]);
+                  var match$1 = unevaluate(delta, res[1], ex[1]);
                   if (match !== undefined && match$1 !== undefined) {
                     return /* tuple */[
                             List.concat(/* :: */[
@@ -147,7 +148,7 @@ function unevaluate(_res, _ex) {
                     exs_000,
                     /* [] */0
                   ];
-                  return constrainExp(res[2], exs);
+                  return constrainExp(delta, res[2], exs);
               case /* Rapp */5 :
               case /* Rhole */6 :
               case /* Rfst */8 :
@@ -168,8 +169,8 @@ function unevaluate(_res, _ex) {
                   if (ex[0] !== res[0]) {
                     return ;
                   }
-                  _ex = ex[1];
-                  _res = res[1];
+                  _ex = ex[2];
+                  _res = res[2];
                   continue ;
               case /* Rapp */5 :
               case /* Rhole */6 :
@@ -243,9 +244,10 @@ function unevaluate(_res, _ex) {
         case /* Rictor */11 :
             _ex = /* Ector */Block.__(4, [
                 res[0],
+                res[1],
                 ex
               ]);
-            _res = res[1];
+            _res = res[2];
             continue ;
         case /* Rcase */12 :
             var env = res[2];
@@ -254,31 +256,56 @@ function unevaluate(_res, _ex) {
                     return function (param) {
                       var match = param[1];
                       var ctor_id = param[0];
-                      var k1 = unevaluate(r$prime, /* Ector */Block.__(4, [
-                              ctor_id,
-                              /* Top */0
-                            ]));
-                      var k2 = constrainExp(match[1], /* :: */[
-                            /* tuple */[
-                              /* :: */[
-                                /* tuple */[
-                                  match[0],
-                                  /* Rictor */Block.__(11, [
-                                      ctor_id,
-                                      r$prime
-                                    ])
-                                ],
-                                env
-                              ],
-                              ex
-                            ],
-                            /* [] */0
-                          ]);
-                      var x = mergeCons(k1, k2);
-                      if (x !== undefined) {
-                        return x;
+                      var t = Typing$MyNewProject.getResType(delta, r$prime);
+                      if (typeof t === "number") {
+                        throw [
+                              Caml_builtin_exceptions.match_failure,
+                              /* tuple */[
+                                "unevaluator.re",
+                                63,
+                                24
+                              ]
+                            ];
                       }
-                      
+                      if (t.tag === /* D */3) {
+                        var t$1 = t[0];
+                        var k1 = unevaluate(delta, r$prime, /* Ector */Block.__(4, [
+                                ctor_id,
+                                t$1,
+                                /* Top */0
+                              ]));
+                        var k2 = constrainExp(delta, match[1], /* :: */[
+                              /* tuple */[
+                                /* :: */[
+                                  /* tuple */[
+                                    match[0],
+                                    /* Rictor */Block.__(11, [
+                                        ctor_id,
+                                        t$1,
+                                        r$prime
+                                      ])
+                                  ],
+                                  env
+                                ],
+                                ex
+                              ],
+                              /* [] */0
+                            ]);
+                        var x = mergeCons(k1, k2);
+                        if (x !== undefined) {
+                          return x;
+                        } else {
+                          return ;
+                        }
+                      }
+                      throw [
+                            Caml_builtin_exceptions.match_failure,
+                            /* tuple */[
+                              "unevaluator.re",
+                              63,
+                              24
+                            ]
+                          ];
                     }
                     }(ex,r$prime,env)), res[1]));
             if (cons) {
@@ -293,7 +320,7 @@ function unevaluate(_res, _ex) {
   };
 }
 
-function constrainExp(exp, exs) {
+function constrainExp(delta, exp, exs) {
   if (!exs) {
     return /* tuple */[
             /* [] */0,
@@ -301,8 +328,8 @@ function constrainExp(exp, exs) {
           ];
   }
   var match = exs[0];
-  var match$1 = constrainExp(exp, exs[1]);
-  var match$2 = unevaluate(Evaluator$MyNewProject.$$eval(match[0], exp), match[1]);
+  var match$1 = constrainExp(delta, exp, exs[1]);
+  var match$2 = unevaluate(delta, Evaluator$MyNewProject.$$eval(match[0], exp), match[1]);
   if (match$1 !== undefined && match$2 !== undefined) {
     return /* tuple */[
             List.concat(/* :: */[

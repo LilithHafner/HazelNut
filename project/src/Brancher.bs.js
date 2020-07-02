@@ -19,11 +19,11 @@ function simplifyConstructor(res) {
   if (res.tag !== /* Rictor */11) {
     return res;
   }
-  var match = res[1];
+  var match = res[2];
   if (typeof match === "number" || !(match.tag === /* Rctor */10 && res[0] === match[0])) {
     return res;
   } else {
-    return match[1];
+    return match[2];
   }
 }
 
@@ -40,12 +40,13 @@ function branch_indiv(delta, gamma, typ, exs, datatype) {
                                     env,
                                     /* Ector */Block.__(4, [
                                         param[0],
+                                        datatype,
                                         /* Top */0
                                       ])
                                   ];
                           }), constructors);
             }), exs));
-  var unevalCons = Unevaluator$MyNewProject.constrainExp(e, unevalExs);
+  var unevalCons = Unevaluator$MyNewProject.constrainExp(delta, e, unevalExs);
   var branches = List.map((function (param) {
           var x = IdGenerator$MyNewProject.getId(undefined);
           var h = IdGenerator$MyNewProject.getId(undefined);
@@ -72,6 +73,7 @@ function branch_indiv(delta, gamma, typ, exs, datatype) {
                                     $$var,
                                     simplifyConstructor(/* Rictor */Block.__(11, [
                                             id,
+                                            datatype,
                                             r
                                           ]))
                                   ],

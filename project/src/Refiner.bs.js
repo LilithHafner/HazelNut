@@ -218,7 +218,7 @@ function prepConsExs(exs) {
                 if (match.tag === /* Ector */4) {
                   return /* tuple */[
                           param[0],
-                          match[1]
+                          match[2]
                         ];
                 }
                 throw [

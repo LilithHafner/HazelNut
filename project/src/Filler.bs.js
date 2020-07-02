@@ -60,7 +60,7 @@ function guessAndCheck_h(delta, gamma, typ, exs, _i) {
     }
     var es = Guesser$MyNewProject.guess(delta, gamma, typ, i);
     var checked = List.filter((function (e) {
-              return optionPred(Unevaluator$MyNewProject.constrainExp(e, exs));
+              return optionPred(Unevaluator$MyNewProject.constrainExp(delta, e, exs));
             }))(es);
     if (checked) {
       return checked[0];

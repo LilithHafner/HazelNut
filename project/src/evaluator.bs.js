@@ -72,6 +72,7 @@ function $$eval(__env, _e) {
       case /* Ctor */11 :
           return /* Rctor */Block.__(10, [
                     e[0],
+                    e[1],
                     $$eval(_env, e[2])
                   ]);
       case /* Case */12 :
@@ -87,7 +88,7 @@ function $$eval(__env, _e) {
           __env = /* :: */[
             /* tuple */[
               match$1[0],
-              match[1]
+              match[2]
             ],
             _env
           ];

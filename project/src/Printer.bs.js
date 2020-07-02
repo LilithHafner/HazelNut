@@ -223,9 +223,9 @@ function string_of_res(r) {
     case /* Rsnd */9 :
         return "snd(" + (string_of_res(r[0]) + ")");
     case /* Rctor */10 :
-        return "C" + (String(r[0]) + (" " + string_of_res(r[1])));
+        return "C" + (String(r[0]) + (" " + string_of_res(r[2])));
     case /* Rictor */11 :
-        return "Ci" + (String(r[0]) + (" " + string_of_res(r[1])));
+        return "Ci" + (String(r[0]) + (" " + string_of_res(r[2])));
     case /* Rcase */12 :
         "[" + (string_of_env(r[2]) + "] case ");
         return string_of_res(r[0]) + (" of {" + (string_of_branches(r[1]) + "}"));

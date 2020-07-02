@@ -41,7 +41,7 @@ and res =
     | Rpair(res, res)
     | Rfst(res)
     | Rsnd(res)
-    | Rctor(identifier, adt,  res)
+    | Rctor(identifier, adt, res)
     | Rictor(identifier, adt, res)
     | Rcase(res, branches, environment)
 
