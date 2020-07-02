@@ -7,11 +7,13 @@ var Caml_obj = require("bs-platform/lib/js/caml_obj.js");
 var Caml_array = require("bs-platform/lib/js/caml_array.js");
 var Pervasives = require("bs-platform/lib/js/pervasives.js");
 var Typing$MyNewProject = require("./Typing.bs.js");
+var Printer$MyNewProject = require("./Printer.bs.js");
+var Caml_builtin_exceptions = require("bs-platform/lib/js/caml_builtin_exceptions.js");
 
 var memo = Caml_array.caml_make_vect(10, /* [] */0);
 
-function partition_h(n, m) {
-  if (n < m) {
+function partition_h(n, m, i) {
+  if (m === i) {
     return /* [] */0;
   } else {
     return /* :: */[
@@ -19,53 +21,94 @@ function partition_h(n, m) {
               n,
               m
             ],
-            partition_h(n - 1 | 0, m + 1 | 0)
+            partition_h(n - 1 | 0, m + 1 | 0, i)
           ];
   }
 }
 
 function partition(n) {
-  return partition_h(n - 1 | 0, 1);
+  return partition_h(n - 1 | 0, 1, n);
+}
+
+function guessFst(delta, gamma, typ, i) {
+  console.log(Printer$MyNewProject.string_of_context(gamma));
+  var candidates = List.filter((function (e) {
+            var t = Typing$MyNewProject.getType(delta, gamma, e);
+            if (typeof t !== "number" && t.tag === /* Pair_t */2) {
+              console.log("True branch");
+              console.log(Printer$MyNewProject.string_of_type_(t[0]));
+              return true;
+            }
+            console.log("False branch");
+            console.log(Printer$MyNewProject.string_of_type_(t));
+            return false;
+          }))(Caml_array.caml_array_get(memo, i - 2 | 0));
+  console.log(List.length(candidates));
+  var ret = List.map((function (e) {
+          return /* Fst */Block.__(9, [e]);
+        }), candidates);
+  List.map((function (e) {
+          console.log(Printer$MyNewProject.string_of_exp(e));
+          return e;
+        }), ret);
+  return ret;
+}
+
+function guessSnd(delta, gamma, typ, i) {
+  var candidates = List.filter((function (e) {
+            var match = Typing$MyNewProject.getType(delta, gamma, e);
+            if (typeof match === "number" || match.tag !== /* Pair_t */2) {
+              return false;
+            } else {
+              return true;
+            }
+          }))(Caml_array.caml_array_get(memo, i - 1 | 0));
+  return List.map((function (e) {
+                return /* Snd */Block.__(10, [e]);
+              }), candidates);
 }
 
 function guessApp(delta, gamma, typ, i, j) {
   var funcs = List.filter((function (e) {
             var match = Typing$MyNewProject.getType(delta, gamma, e);
-            if (typeof match === "number" || !(match.tag === /* Function_t */1 && Caml_obj.caml_equal(match[1], typ))) {
+            if (typeof match === "number" || match.tag !== /* Function_t */1) {
               return false;
             } else {
               return true;
             }
-          }))(Caml_array.caml_array_get(memo, i));
-  var args = List.filter((function (e) {
-            return List.exists((function (x) {
-                          var t = Typing$MyNewProject.getType(delta, gamma, e);
-                          var match = Typing$MyNewProject.getType(delta, gamma, x);
-                          if (typeof match === "number" || !(match.tag === /* Function_t */1 && Caml_obj.caml_equal(t, match[0]))) {
-                            return false;
-                          } else {
-                            return true;
-                          }
-                        }), funcs);
-          }))(Caml_array.caml_array_get(memo, j));
+          }))(Caml_array.caml_array_get(memo, i - 1 | 0));
   return List.concat(List.map((function (e) {
-                    var match = Typing$MyNewProject.getType(delta, gamma, e);
-                    if (typeof match === "number") {
-                      return Pervasives.failwith("Something is wrong with guesser");
-                    }
-                    if (match.tag !== /* Function_t */1) {
-                      return Pervasives.failwith("Something is wrong with guesser");
-                    }
-                    var t1 = match[0];
-                    var corrArgs = List.filter((function (e2) {
-                              return Caml_obj.caml_equal(t1, Typing$MyNewProject.getType(delta, gamma, e2));
-                            }))(args);
-                    return List.map((function (e2) {
+                    var candidates = List.filter((function (x) {
+                              var match = Typing$MyNewProject.getType(delta, gamma, e);
+                              if (typeof match === "number") {
+                                throw [
+                                      Caml_builtin_exceptions.match_failure,
+                                      /* tuple */[
+                                        "Guesser.re",
+                                        69,
+                                        24
+                                      ]
+                                    ];
+                              }
+                              if (match.tag === /* Function_t */1) {
+                                var t = Typing$MyNewProject.getType(delta, gamma, x);
+                                return Caml_obj.caml_equal(t, match[0]);
+                              }
+                              throw [
+                                    Caml_builtin_exceptions.match_failure,
+                                    /* tuple */[
+                                      "Guesser.re",
+                                      69,
+                                      24
+                                    ]
+                                  ];
+                            }))(Caml_array.caml_array_get(memo, j - 1 | 0));
+                    return List.map((function (x) {
                                   return /* Application */Block.__(5, [
                                             e,
-                                            e2
+                                            x
                                           ]);
-                                }), corrArgs);
+                                }), candidates);
                   }), funcs));
 }
 
@@ -76,19 +119,36 @@ function guess(delta, gamma, typ, i) {
             }))(gamma);
     Caml_array.caml_array_set(memo, 0, List.map((function (param) {
                 return /* Var */Block.__(7, [param[0]]);
-              }), terms));
-    return Caml_array.caml_array_get(memo, 0);
+              }), gamma));
+    List.map((function (e) {
+            console.log(Printer$MyNewProject.string_of_exp(e));
+            
+          }), Caml_array.caml_array_get(memo, 0));
+    List.map((function (e) {
+            console.log(Printer$MyNewProject.string_of_type_(Typing$MyNewProject.getType(delta, gamma, e)));
+            
+          }), Caml_array.caml_array_get(memo, 0));
+    return List.map((function (param) {
+                  return /* Var */Block.__(7, [param[0]]);
+                }), terms);
   }
+  var firsts = guessFst(delta, gamma, typ, i);
+  var seconds = guessSnd(delta, gamma, typ, i);
   var pairs = partition(i);
-  Caml_array.caml_array_set(memo, i, List.concat(List.map((function (param) {
-                  return guessApp(delta, gamma, typ, param[0], param[1]);
-                }), pairs)));
-  return Caml_array.caml_array_get(memo, i);
+  var apps = List.concat(List.map((function (param) {
+              return guessApp(delta, gamma, typ, param[0], param[1]);
+            }), pairs));
+  Caml_array.caml_array_set(memo, i - 1 | 0, Pervasives.$at(firsts, Pervasives.$at(seconds, apps)));
+  return List.filter((function (e) {
+                  return Caml_obj.caml_equal(Typing$MyNewProject.getType(delta, gamma, e), typ);
+                }))(Caml_array.caml_array_get(memo, i - 1 | 0));
 }
 
 exports.memo = memo;
 exports.partition_h = partition_h;
 exports.partition = partition;
+exports.guessFst = guessFst;
+exports.guessSnd = guessSnd;
 exports.guessApp = guessApp;
 exports.guess = guess;
 /* No side effect */

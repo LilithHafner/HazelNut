@@ -31,7 +31,7 @@ let h() =
     Js.log(help)
 
 Js.log("? for help")
-let command = ref("env exp eval");
+let command = ref("a");
 let r() =
     Readline.readline((inp) => {
         try(
@@ -42,7 +42,7 @@ let r() =
             | _ => Repl.main(inp, command^)
             }
         ) {
-            | Failure(e) => Js.log(e)
+            | Failure(e) => Js.log("failure: "++e)
         }
     });
 r()

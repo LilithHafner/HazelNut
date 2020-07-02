@@ -136,6 +136,7 @@ type debug_construct =
     | Hole_Identifier(hole_identifier)
     | Excons(excons)
     | Unevalcons(unevalcons)
+    | Branches(branches)
 
 //marker for parser_generator.py
 

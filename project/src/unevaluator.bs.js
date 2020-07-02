@@ -33,6 +33,8 @@ function unevaluate(_res, _ex) {
         case /* Rhole */6 :
         case /* Rfst */8 :
         case /* Rsnd */9 :
+        case /* Rictor */11 :
+        case /* Rcase */12 :
             break;
         default:
           return ;
@@ -57,6 +59,8 @@ function unevaluate(_res, _ex) {
               case /* Rhole */6 :
               case /* Rfst */8 :
               case /* Rsnd */9 :
+              case /* Rictor */11 :
+              case /* Rcase */12 :
                   break;
               default:
                 return ;
@@ -80,6 +84,8 @@ function unevaluate(_res, _ex) {
               case /* Rhole */6 :
               case /* Rfst */8 :
               case /* Rsnd */9 :
+              case /* Rictor */11 :
+              case /* Rcase */12 :
                   break;
               default:
                 return ;
@@ -111,6 +117,8 @@ function unevaluate(_res, _ex) {
               case /* Rhole */6 :
               case /* Rfst */8 :
               case /* Rsnd */9 :
+              case /* Rictor */11 :
+              case /* Rcase */12 :
                   break;
               default:
                 return ;
@@ -144,6 +152,31 @@ function unevaluate(_res, _ex) {
               case /* Rhole */6 :
               case /* Rfst */8 :
               case /* Rsnd */9 :
+              case /* Rictor */11 :
+              case /* Rcase */12 :
+                  break;
+              default:
+                return ;
+            }
+            break;
+        case /* Ector */4 :
+            if (typeof res === "number") {
+              return ;
+            }
+            switch (res.tag | 0) {
+              case /* Rctor */10 :
+                  if (ex[0] !== res[0]) {
+                    return ;
+                  }
+                  _ex = ex[1];
+                  _res = res[1];
+                  continue ;
+              case /* Rapp */5 :
+              case /* Rhole */6 :
+              case /* Rfst */8 :
+              case /* Rsnd */9 :
+              case /* Rictor */11 :
+              case /* Rcase */12 :
                   break;
               default:
                 return ;
@@ -207,6 +240,52 @@ function unevaluate(_res, _ex) {
               ]);
             _res = res[0];
             continue ;
+        case /* Rictor */11 :
+            _ex = /* Ector */Block.__(4, [
+                res[0],
+                ex
+              ]);
+            _res = res[1];
+            continue ;
+        case /* Rcase */12 :
+            var env = res[2];
+            var r$prime = res[0];
+            var cons = List.filter(optionPred)(List.map((function(ex,r$prime,env){
+                    return function (param) {
+                      var match = param[1];
+                      var ctor_id = param[0];
+                      var k1 = unevaluate(r$prime, /* Ector */Block.__(4, [
+                              ctor_id,
+                              /* Top */0
+                            ]));
+                      var k2 = constrainExp(match[1], /* :: */[
+                            /* tuple */[
+                              /* :: */[
+                                /* tuple */[
+                                  match[0],
+                                  /* Rictor */Block.__(11, [
+                                      ctor_id,
+                                      r$prime
+                                    ])
+                                ],
+                                env
+                              ],
+                              ex
+                            ],
+                            /* [] */0
+                          ]);
+                      var x = mergeCons(k1, k2);
+                      if (x !== undefined) {
+                        return x;
+                      }
+                      
+                    }
+                    }(ex,r$prime,env)), res[1]));
+            if (cons) {
+              return cons[0];
+            } else {
+              return ;
+            }
         
       }
     }
@@ -239,6 +318,34 @@ function constrainExp(exp, exs) {
   
 }
 
+function mergeCons(k1, k2) {
+  if (k1 !== undefined && k2 !== undefined) {
+    return /* tuple */[
+            List.concat(/* :: */[
+                  k1[0],
+                  /* :: */[
+                    k2[0],
+                    /* [] */0
+                  ]
+                ]),
+            List.concat(/* :: */[
+                  k1[1],
+                  /* :: */[
+                    k2[1],
+                    /* [] */0
+                  ]
+                ])
+          ];
+  }
+  
+}
+
+function optionPred(x) {
+  return x !== undefined;
+}
+
 exports.unevaluate = unevaluate;
 exports.constrainExp = constrainExp;
+exports.mergeCons = mergeCons;
+exports.optionPred = optionPred;
 /* No side effect */

@@ -16,7 +16,6 @@ function lookup(key, _plst) {
       continue ;
     }
     console.log(key);
-    console.log(plst);
     return Pervasives.failwith("Key not in list");
   };
 }

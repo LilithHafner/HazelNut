@@ -6,9 +6,15 @@ def p(_quit=''):
             break
     return '\n'.join(out)
 
-whitespace = "'"+"' | '".join(['\\t','\\n']+list(' ,()<->'))+"'"
+def or_of_chars(chars):
+    return "'"+"' | '".join(chars)+"'"
+whitespace = or_of_chars(['\\t','\\n']+list(' ,()<->'))
 blank_of_string_doesnt_work_and_were_okay_with_that = \
-    ['filler_output', 'solver_output', 'branches']#And many more!
+    ['filler_output', 'solver_output']#And many more!
+lists = [
+    ('context', '1234567890', ['int', 'type_'], '(v0, v1)'),
+    ('branches', '1234567890', ['int', 'int', 'exp'], '(v0, (v1, v2))'),
+]
 
 #print(whitespace)
 #"' ' | '\\t' | '\\n' | ',' | '(' | ')'"
@@ -16,8 +22,38 @@ blank_of_string_doesnt_work_and_were_okay_with_that = \
 
 #{'exp':[('h', 'Hole', ['int']), ('var', 'Variable', ['int'])]}
 def build(types):
-    out = ["open Types;\n//This is because I couldn't find List.make or List.create\nlet make_list (n:int, f:int=>'a):list('a) = {\n    let out = ref([]);\n    for (i in n-1 downto 0) {\n        out := [f(i), ...out^]\n    }\n    out^\n}\nlet explode(str:string):list(char) = \n//This is because I couldn't find String.to_seq\n//    str |> String.to_seq |> List.of_seq \n    make_list(String.length(str), String.get(str))\nlet implode(cs:list(char)):string = \n//Because runtime doesn't matter\n    String.init(List.length(cs), List.nth(cs))\n\
-let rec parse_token(x) = {\n    let rec parse_token_r(x, y) = {\n        switch(x) {\n        | ['0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '.', ..._] => \n            parse_token_r(List.tl(x), [List.hd(x),...y])\n        | _ => (x,y)\n        };\n    }\n    let (x,y) = parse_token_r(x,[]);\n    (implode(List.rev(y)), x)\n}"]
+    out = ['''open Types;
+//This is because I couldn't find List.make or List.create
+let make_list (n:int, f:int=>'a):list('a) = {
+    let out = ref([]);
+    for (i in n-1 downto 0) {
+        out := [f(i), ...out^]
+    }
+    out^
+}
+let explode(str:string):list(char) = 
+//This is because I couldn't find String.to_seq
+//    str |> String.to_seq |> List.of_seq 
+    make_list(String.length(str), String.get(str))
+let implode(cs:list(char)):string = 
+//Because runtime doesn't matter
+    String.init(List.length(cs), List.nth(cs))
+let rec skip_whitespace(cs) =
+    switch(cs) {
+        | ['\t' | '\n' | ' ' | ',' | '(' | ')' | '<' | '-' | '>', ...cs] => skip_whitespace(cs)
+        | _ => cs
+    }
+let rec parse_token(x) = {
+    let rec parse_token_r(x, y) = {
+        switch(x) {
+        | ['0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '.', ..._] => 
+            parse_token_r(List.tl(x), [List.hd(x),...y])
+        | _ => (x,y)
+        };
+    }
+    let (x,y) = parse_token_r(skip_whitespace(x),[]);
+    (implode(List.rev(y)), x)
+}''']
     needed_parsers = set()
     for t in types:
         entry = types[t]
@@ -133,22 +169,22 @@ post_replacements = [
      '''and parse_guess_output(_) = {
     failwith("parse_guess_output Not Implemented")
 }'''),
-    ('''and parse_context(x) = {
-    let(v0, x) = parse_token(x);
-    (context_of_string(v0), x)
-}''',
-     '''and parse_context(x) = {
-    switch(x) {
-    | ['''+whitespace+''', ...x] =>
-        parse_context(x)
-    | ['0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9', ..._] =>   
-        let (v0, x) = parse_int(x);
-        let (v1, x) = parse_type_(x);
-        let (v2, x) = parse_context(x);
-        ([(v0, v1), ...v2], x)
-    | x => ([], x)
-    }
-}'''),
+##    ('''and parse_context(x) = {
+##    let(v0, x) = parse_token(x);
+##    (context_of_string(v0), x)
+##}''',
+##     '''and parse_context(x) = {
+##    switch(x) {
+##    | ['''+whitespace+''', ...x] =>
+##        parse_context(x)
+##    | ['0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9', ..._] =>   
+##        let (v0, x) = parse_int(x);
+##        let (v1, x) = parse_type_(x);
+##        let (v2, x) = parse_context(x);
+##        ([(v0, v1), ...v2], x)
+##    | x => ([], x)
+##    }
+##}'''),
     ('''and parse_hole_context(x) = {
     let(v0, x) = parse_token(x);
     (hole_context_of_string(v0), x)
@@ -175,6 +211,25 @@ post_replacements = [
 ] + [
         ('''({}_of_string(v0), x)'''.format(x),'''failwith("{}_of_string Not Implemented")'''.format(x)) for x in
         blank_of_string_doesnt_work_and_were_okay_with_that
+] + [
+    ('''and parse_{name}(x) = {{
+    let(v0, x) = parse_token(x);
+    ({name}_of_string(v0), x)
+}}'''.format(name=name),
+     '''and parse_{name}(x) = {{
+    switch(x) {{
+    | [{whitespace}, ...x] =>
+        parse_{name}(x)
+    | [{chars}, ..._] =>   
+        {declarations}
+        let (rest, x) = parse_{name}(x);
+        ([{constructor}, ...rest], x)
+    | x => ([], x)
+    }}
+}}'''.format(name=name,whitespace=whitespace,constructor=constructor,chars=or_of_chars(chars),declarations=
+    '\n'.join(' '*8+'let (v{i}, x) = parse_{t}(x);'.format(i=i,t=t) for i,t in enumerate(types))))
+
+    for name, chars, types, constructor in lists
 ]
 def post_process(out):
     for a,b in post_replacements:

@@ -2,6 +2,7 @@
 'use strict';
 
 var Block = require("bs-platform/lib/js/block.js");
+var Pervasives = require("bs-platform/lib/js/pervasives.js");
 var Tools$MyNewProject = require("./Tools.bs.js");
 
 function $$eval(__env, _e) {
@@ -68,6 +69,29 @@ function $$eval(__env, _e) {
           return /* Rfst */Block.__(8, [$$eval(_env, e[0])]);
       case /* Snd */10 :
           return /* Rsnd */Block.__(9, [$$eval(_env, e[0])]);
+      case /* Ctor */11 :
+          return /* Rctor */Block.__(10, [
+                    e[0],
+                    $$eval(_env, e[2])
+                  ]);
+      case /* Case */12 :
+          var match = $$eval(_env, e[0]);
+          if (typeof match === "number") {
+            return Pervasives.failwith("Type error: expected a constructor within case");
+          }
+          if (match.tag !== /* Rctor */10) {
+            return Pervasives.failwith("Type error: expected a constructor within case");
+          }
+          var match$1 = Tools$MyNewProject.lookup(match[0], e[1]);
+          _e = match$1[1];
+          __env = /* :: */[
+            /* tuple */[
+              match$1[0],
+              match[1]
+            ],
+            _env
+          ];
+          continue ;
       
     }
   };

@@ -7,6 +7,7 @@ var Caml_obj = require("bs-platform/lib/js/caml_obj.js");
 var Pervasives = require("bs-platform/lib/js/pervasives.js");
 var Tools$MyNewProject = require("./Tools.bs.js");
 var Types$MyNewProject = require("./Types.bs.js");
+var Caml_builtin_exceptions = require("bs-platform/lib/js/caml_builtin_exceptions.js");
 
 function getType(delta, gamma, _e) {
   while(true) {
@@ -52,24 +53,32 @@ function getType(delta, gamma, _e) {
                     getType(delta, gamma, e[1])
                   ]);
       case /* Fst */9 :
-          var e$prime = e[0];
-          if (typeof e$prime === "number") {
-            return Pervasives.failwith("Type error, expected pair");
+          var match$1 = getType(delta, gamma, e[0]);
+          if (typeof match$1 === "number" || match$1.tag !== /* Pair_t */2) {
+            return Pervasives.failwith("Type error: Expected type pair for fst");
+          } else {
+            return match$1[0];
           }
-          if (e$prime.tag !== /* Pair */8) {
-            return Pervasives.failwith("Type error, expected pair");
-          }
-          _e = e$prime[0];
-          continue ;
       case /* Snd */10 :
-          var e$prime$1 = e[0];
-          if (typeof e$prime$1 === "number") {
-            return Pervasives.failwith("Type error, expected pair");
+          var match$2 = getType(delta, gamma, e[0]);
+          if (typeof match$2 === "number" || match$2.tag !== /* Pair_t */2) {
+            return Pervasives.failwith("Type error: Expected type pair for snd");
+          } else {
+            return match$2[1];
           }
-          if (e$prime$1.tag !== /* Pair */8) {
-            return Pervasives.failwith("Type error, expected pair");
+      case /* Ctor */11 :
+          var d = e[1];
+          if (Caml_obj.caml_equal(Tools$MyNewProject.lookup(e[0], Tools$MyNewProject.lookup(d, Types$MyNewProject.sigma)), getType(delta, gamma, e[2]))) {
+            return /* D */Block.__(3, [d]);
+          } else {
+            return Pervasives.failwith("Constructor did not typecheck");
           }
-          _e = e$prime$1[1];
+      case /* Case */12 :
+          var branches = e[1];
+          if (!branches) {
+            return Pervasives.failwith("No branches supplied to case");
+          }
+          _e = branches[0][1][1];
           continue ;
       
     }
@@ -80,10 +89,10 @@ function getResType(delta, _r) {
   while(true) {
     var r = _r;
     if (typeof r === "number") {
-      if (r === /* Rnil */0) {
-        return Pervasives.failwith("Not yet implemented");
-      } else {
+      if (r === /* Runit */1) {
         return /* Unit_t */2;
+      } else {
+        return Pervasives.failwith("Not yet implemented");
       }
     }
     switch (r.tag | 0) {
@@ -93,8 +102,6 @@ function getResType(delta, _r) {
           return /* Any_t */3;
       case /* Rbool */2 :
           return /* Bool_t */1;
-      case /* Rcons */3 :
-          return Pervasives.failwith("Not yet implemented");
       case /* Rfunc */4 :
           return getType(delta, generateContext(delta, r[3]), /* Function */Block.__(4, [
                         r[0],
@@ -140,7 +147,8 @@ function getResType(delta, _r) {
           }
           _r = r$prime$1[1];
           continue ;
-      
+      default:
+        return Pervasives.failwith("Not yet implemented");
     }
   };
 }
@@ -182,6 +190,15 @@ function getExType(delta, ex) {
                   getResType(delta, Types$MyNewProject.valToRes(ex[0])),
                   getExType(delta, ex[1])
                 ]);
+    case /* Ector */4 :
+        throw [
+              Caml_builtin_exceptions.match_failure,
+              /* tuple */[
+                "Typing.re",
+                89,
+                35
+              ]
+            ];
     
   }
 }

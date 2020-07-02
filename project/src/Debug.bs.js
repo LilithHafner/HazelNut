@@ -19,7 +19,7 @@ function h(param) {
 console.log("? for help");
 
 var command = {
-  contents: "env exp eval"
+  contents: "a"
 };
 
 function r(param) {
@@ -46,7 +46,7 @@ function r(param) {
                 catch (raw_e){
                   var e = Caml_js_exceptions.internalToOCamlException(raw_e);
                   if (e[0] === Caml_builtin_exceptions.failure) {
-                    console.log(e[1]);
+                    console.log("failure: " + e[1]);
                     return ;
                   }
                   throw e;

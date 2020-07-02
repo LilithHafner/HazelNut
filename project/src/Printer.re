@@ -19,6 +19,7 @@ let rec string_of_debug_construct (c:debug_construct):string =
         | Hole_Identifier(x) => string_of_hole_identifier(x)
         | Excons(x) => string_of_excons(x)
         | Unevalcons(x) => string_of_unevalcons(x)
+        | Branches(x) => string_of_branches(x)
     }
 and string_of_exp(e:exp):string =
     switch(e) {
