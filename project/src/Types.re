@@ -72,10 +72,17 @@ and hole_context = Tools.pairlist(hole_identifier, (context, type_)) //parser_ge
 /* Should list be parametarized? */
 and adt = 
     | List 
-    | Num
+    | Num 
 
 // Datatype context
-let sigma: Tools.pairlist(adt, Tools.pairlist(identifier, type_)) = [];
+let sigma: Tools.pairlist(adt, Tools.pairlist(identifier, type_)) = [
+    (List, [
+     (0, Unit_t),
+     (1, D(List))]),
+    (Num, [
+     (2, Unit_t),
+     (3, D(Num))])
+];
 
 // Examples
 //   Needs to be filled out more
@@ -99,7 +106,7 @@ and value =
     | Vbool(bool)
     | Vunit 
     | Vpair(value, value)
-    | Vctor(identifier, value);
+    | Vctor(identifier, adt, value);
 
 
 type hole_fillings = Tools.pairlist(hole_identifier, exp)//parser_generator.py: ignore
@@ -153,6 +160,7 @@ let rec valToExp (v:value) : exp = {
         | Vint(x) => Int(x)
         | Vbool(x) => Bool(x)
         | Vpair(v1, v2) => Pair(valToExp(v1), valToExp(v2))
+        | Vctor(id, adt, v') => Ctor(id, adt, valToExp(v'))
         }
 };
 
@@ -162,6 +170,7 @@ let rec valToRes (v: value) : res = {
         | Vint(x) => Rint(x)
         | Vbool(x) => Rbool(x)
         | Vpair(v1, v2) => Rpair(valToRes(v1), valToRes(v2))
+        | Vctor(id, adt, v') => Rctor(id, adt, valToRes(v'))
         }
 };
 
@@ -173,6 +182,11 @@ let rec exToExp (ex:example):option(exp) = {
                 | _ => None
                 }
         | Eunit => Some(Unit)
+        | Ector(id, adt, ex1) => 
+            switch (exToExp(ex1)) {
+                | None => None
+                | Some(exp) => Some(Ctor(id, adt, exp))
+                }
         | _ => None
         }
 };
@@ -192,6 +206,11 @@ let rec resToVal (res:res):option(value) = {
                 | Rfunc(id, typ, e, env) => 
                     eval([(id, r2), ...env], e) |> resToVal
                 | _ => None
+                }
+        | Rctor(id, adt, r) => 
+            switch(resToVal(r)) {
+                | None => None
+                | Some(v) => Some(Vctor(id, adt, v))
                 }
         | _ => None
         }

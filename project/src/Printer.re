@@ -80,9 +80,17 @@ and string_of_type_(t:type_):string =
         | Function_t(a, b) => "("++string_of_type_(a)++"->"++string_of_type_(b)++")"
         | Unit_t => "Unit"
         | Pair_t(a, b) => "("++string_of_type_(a)++", "++string_of_type_(b)++")"
+        | D(adt) => string_of_adt(adt)
         | Any_t => "Any"
         | Fail_t => "Fail"
     }
+
+and string_of_adt(d: adt):string = 
+    switch (d) {
+        | List => "List"
+        | Num => "Num"
+        }
+
 and string_of_example(ex: example):string =
     switch(ex) {
         | Top => "T"
@@ -91,6 +99,7 @@ and string_of_example(ex: example):string =
         | Ebool(b) => string_of_bool(b)
         | Epair(ex1, ex2) => "("++string_of_example(ex1)++", "++string_of_example(ex2)++")"
         | Efunc(v, ex') => "{"++string_of_value(v)++" -> "++string_of_example(ex')++"}"
+        | Ector(id, _, ex') => "C"++string_of_int(id)++" "++string_of_example(ex')
         }
 
 and string_of_value(v):string =
