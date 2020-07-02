@@ -38,7 +38,7 @@ let rec allFuncs = (exs) => {
 let allConstructs = (exs):option(int) => {
     let c = switch (exs) {
         | [] => None
-        | [(_, Ector(id, ex)), ...xs] => Some(id)
+        | [(_, Ector(id, _, ex)), ...xs] => Some(id)
         | _ => None
         };
     switch (c) {
@@ -47,7 +47,7 @@ let allConstructs = (exs):option(int) => {
             let haveIdC = List.filter(
                 ((env, ex)) => {
                     switch(ex) {
-                        | Ector(i, _) => true
+                        | Ector(i, _, _) => true
                         | _ => false
                         }
                 },
@@ -74,7 +74,7 @@ let prepFuncExs = (exs, vid) => List.map(
      exs);
 
 let prepConsExs = (exs) => List.map(
-    ((env, Ector(id, ex))) => (env, ex),
+    ((env, Ector(id, _, ex))) => (env, ex),
     exs);
 
 // Takes in hole context, context, goal type, and example constraints

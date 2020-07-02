@@ -70,10 +70,15 @@ let process(inp:list(char), stack:list(debug_construct), command:string):(list(c
         }
     | "uneval" =>
         switch(stack) {
-        | [Example(v1),...stack] =>
+        | [Example(v2),...stack] =>
         switch(stack) {
-        | [Res(v0),...stack] =>
-            (inp, [Constraint_(Unevaluator.unevaluate(v0, v1)), ...stack])
+        | [Res(v1),...stack] =>
+        switch(stack) {
+        | [Hole_Context(v0),...stack] =>
+            (inp, [Constraint_(Unevaluator.unevaluate(v0, v1, v2)), ...stack])
+        | [] => failwith("Empty stack")
+        | _ => failwith("Type error")
+        }
         | [] => failwith("Empty stack")
         | _ => failwith("Type error")
         }
@@ -82,10 +87,15 @@ let process(inp:list(char), stack:list(debug_construct), command:string):(list(c
         }
     | "constrain" =>
         switch(stack) {
-        | [Excons(v1),...stack] =>
+        | [Excons(v2),...stack] =>
         switch(stack) {
-        | [Exp(v0),...stack] =>
-            (inp, [Constraint_(Unevaluator.constrainExp(v0, v1)), ...stack])
+        | [Exp(v1),...stack] =>
+        switch(stack) {
+        | [Hole_Context(v0),...stack] =>
+            (inp, [Constraint_(Unevaluator.constrainExp(v0, v1, v2)), ...stack])
+        | [] => failwith("Empty stack")
+        | _ => failwith("Type error")
+        }
         | [] => failwith("Empty stack")
         | _ => failwith("Type error")
         }
@@ -94,10 +104,15 @@ let process(inp:list(char), stack:list(debug_construct), command:string):(list(c
         }
     | "unevaluate" =>
         switch(stack) {
-        | [Example(v1),...stack] =>
+        | [Example(v2),...stack] =>
         switch(stack) {
-        | [Res(v0),...stack] =>
-            (inp, [Constraint_(Unevaluator.unevaluate(v0, v1)), ...stack])
+        | [Res(v1),...stack] =>
+        switch(stack) {
+        | [Hole_Context(v0),...stack] =>
+            (inp, [Constraint_(Unevaluator.unevaluate(v0, v1, v2)), ...stack])
+        | [] => failwith("Empty stack")
+        | _ => failwith("Type error")
+        }
         | [] => failwith("Empty stack")
         | _ => failwith("Type error")
         }

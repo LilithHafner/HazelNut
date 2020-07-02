@@ -54,8 +54,8 @@ and string_of_res(r:res):string =
         | Rpair(res, res2) => "(" ++ string_of_res(res) ++ ", " ++ string_of_res(res2) ++ ")"
         | Rfst(res) => "fst(" ++ string_of_res(res) ++ ")"
         | Rsnd(res) => "snd(" ++ string_of_res(res) ++ ")"
-        | Rctor(name, res) => "C" ++ string_of_int(name) ++ " " ++ string_of_res(res) 
-        | Rictor(name, res) => "Ci" ++ string_of_int(name) ++ " " ++ string_of_res(res)
+        | Rctor(name, _, res) => "C" ++ string_of_int(name) ++ " " ++ string_of_res(res) 
+        | Rictor(name, _, res) => "Ci" ++ string_of_int(name) ++ " " ++ string_of_res(res)
         | Rcase(res, branches, env) => "[" ++ string_of_env(env) ++"] case " string_of_res(res) ++ " of {" ++ string_of_branches(branches) ++ "}"
     }
 

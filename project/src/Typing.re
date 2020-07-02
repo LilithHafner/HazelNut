@@ -76,6 +76,31 @@ let rec getResType = (delta, r: res) =>
             | Rpair(_, r2) => getResType(delta, r2)
             | _ => failwith("Type error: Exppected pair")
             }
+        | Rctor(id, adt, r') => {
+            if (Tools.lookup(adt, sigma) |> Tools.lookup(id) == getResType(delta, r')) {
+                D(adt)
+            } else {
+                failwith("Type error: Result type doesn't match constructor type")
+            }
+        }
+        | Rictor(_, _, r') => getResType(delta, r')
+        | Rcase(r', bs, env) => {
+            let D(d) = getResType(delta, r');
+            let gamma = generateContext(delta, env);
+            switch (bs) {
+                | [] => Any_t
+                | [(id, (_, e)), ...xs] => {
+                    let t: type_ = Tools.lookup(d, sigma) |> Tools.lookup(id);
+                    if (List.filter(
+                            ((c, (_, e))) => getType(delta, gamma, e) == t,
+                            xs) == xs) {
+                        t
+                    } else {
+                        failwith("Not all branches have the same type")
+                    }
+                }
+            }
+        }
         | _ => failwith("Not yet implemented")
     }
 
@@ -94,6 +119,14 @@ let rec getExType = (delta, ex) => {
        | Ebool(_) => Bool_t 
        | Epair(ex1, ex2) => Pair_t(getExType(delta, ex1), getExType(delta, ex2))
        | Efunc(v, ex1) => Function_t(valToRes(v) |> getResType(delta), getExType(delta, ex1))
+       | Ector(id, adt, ex1) => {
+           let t: type_ = Tools.lookup(adt, sigma) |> Tools.lookup(id);
+           if (t == getExType(delta, ex1)) {
+               D(adt)  
+           } else {
+               failwith("Type error: Example doesn't have type required by example constructor")
+           }
+       }
        }
 };
 

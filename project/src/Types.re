@@ -41,8 +41,8 @@ and res =
     | Rpair(res, res)
     | Rfst(res)
     | Rsnd(res)
-    | Rctor(identifier, res)
-    | Rictor(identifier, res)
+    | Rctor(identifier, adt,  res)
+    | Rictor(identifier, adt, res)
     | Rcase(res, branches, environment)
 
 // Types in the language
@@ -92,7 +92,7 @@ would that be an application expression? */
 // It takes the form of an input output pair, so v would
 // be the input value and example would be the output.
     | Efunc(value, example)
-    | Ector(identifier, example)
+    | Ector(identifier, adt, example)
 
 and value =
     | Vint(int)

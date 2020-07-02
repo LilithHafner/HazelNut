@@ -17,9 +17,9 @@ int = parse_int(inp); DB_Int(v)
 #Processors
 
 eval = Environment(v0); Exp(v1); Res(Evaluator.eval(v0, v1))
-uneval = Res(v0); Example(v1); Constraint_(Unevaluator.unevaluate(v0, v1))
-constrain = Exp(v0); Excons(v1); Constraint_(Unevaluator.constrainExp(v0, v1))
-unevaluate = Res(v0); Example(v1); Constraint_(Unevaluator.unevaluate(v0, v1))
+uneval = Hole_Context(v0); Res(v1); Example(v2); Constraint_(Unevaluator.unevaluate(v0, v1, v2))
+constrain = Hole_Context(v0); Exp(v1); Excons(v2); Constraint_(Unevaluator.constrainExp(v0, v1, v2))
+unevaluate = Hole_Context(v0); Res(v1); Example(v2); Constraint_(Unevaluator.unevaluate(v0, v1, v2))
 guess = Hole_Context(v0); Context(v1); Type_(v2); DB_Int(v3); Guess_Output(Guesser.guess(v0, v1, v2, v3))
 
 let rec solve (hContext, k) > {

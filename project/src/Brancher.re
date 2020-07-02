@@ -3,7 +3,7 @@ open Types;
 
 let simplifyConstructor = (res) =>
     switch (res) {
-        | Rictor(id1, Rctor(id2, r)) when id1 == id2 => r
+        | Rictor(id1, _, Rctor(id2, _, r)) when id1 == id2 => r
         | _ => res
         };
 
@@ -40,10 +40,10 @@ and branch_indiv = (delta, gamma, typ, exs, datatype) => {
         exs);
     let unevalExs = List.map(
         ((env, _)) => List.map(
-            ((id, _)) => (env, Ector(id, Top)),
+            ((id, _)) => (env, Ector(id, datatype, Top)),
             constructors),
         exs) |> List.concat;
-    let unevalCons: option(unevalcons) = Unevaluator.constrainExp(e, unevalExs);
+    let unevalCons: option(unevalcons) = Unevaluator.constrainExp(delta, e, unevalExs);
     let branches = List.map(
         ((id, _)) => {
             let x = IdGenerator.getId();
@@ -57,7 +57,7 @@ and branch_indiv = (delta, gamma, typ, exs, datatype) => {
             List.mapi(
                 (j, (env, ex)) => {
                     let r = List.nth(results, j);
-                    ([(var, simplifyConstructor(Rictor(id, r))), ...env], ex)
+                    ([(var, simplifyConstructor(Rictor(id, datatype, r))), ...env], ex)
                 },
                 exs), 
         branches);
