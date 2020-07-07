@@ -1,0 +1,53 @@
+(* Grammar *)
+
+type hole = id
+type variable = id
+
+type exp =
+      Hole of hole
+    | Variable of variable
+    | Application of exp * exp
+    | Lambda of variable * annotation * exp
+and annotation = (exp * exp) list
+type env = (variable * qexp) list
+and qexp = QExp of env * exp * tail
+and tail = qexp list
+type assertion = qexp * qexp
+
+(* Play *)
+type node = {
+    value: float; (* When you update this, also update the parent's total trackers. *)
+    sign: float;
+    way_down: way_down;
+    parent: parent;
+}
+and way_down = 
+      Leaf of assertion option
+    | Node of non_leaf_data
+and parent = (node * int * non_leaf_data) option
+and non_leaf_data = {
+    children: node_array;
+    down_total: float;
+    child_weights: float_array;
+    link: link;
+}
+and link = 
+      Unlinked of type_1
+    | Linked of link_link
+and type_1 = {
+    up_total:float;
+}
+and link_link = {
+    id: id;
+    choices: exp list;
+    selection: int option;
+}
+type link_data = {
+    counter:int;
+    choice:exp;
+    members:(node * link_link) list;
+}
+
+type node_array = node list
+type float_array = float list
+type fillings = (id * exp) list

@@ -1,0 +1,1 @@
+git add $(ls | grep -vE "(\.c)|(\.o)|(Up_?\.ml$)|(Parser\.ml$)|(Lexer.ml$)")

@@ -1,0 +1,1 @@
+./generate-code && ./compile-run opt cmxa

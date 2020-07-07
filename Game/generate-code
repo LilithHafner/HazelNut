@@ -1,0 +1,9 @@
+./ast-pp "Grammar
+open PlayTypes
+let string_of_id = Id.to_string" < Up.mlp > Up_.ml
+sed 's/string_of_node_array obj = (((string_of_list (string_of_node))) obj)/string_of_node_array obj = (((string_of_list (string_of_node))) (Array.to_list obj))/g' Up_.ml>Up.ml
+sed 's/string_of_float_array obj = (((string_of_list (string_of_float))) obj)/string_of_float_array obj = (((string_of_list (string_of_float))) (Array.to_list obj))/g' Up.ml>Up_.ml
+sed 's/("parent = " ^ string_of_parent s.parent)/("parent = " ^ (match s.parent with None -> "None" | Some _ -> "..."))/g' Up_.ml>Up.ml
+ocamllex Lexer.mll
+ocamlyacc Parser.mly
+rm Parser.mli

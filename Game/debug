@@ -1,0 +1,1 @@
+./generate-code && rm Parser.mli && ocamlc -g Id.ml Map.ml Grammar.ml Up.ml Parameters.ml Fresh.ml InferenceRules.ml Transition.ml GameTypes.ml Links.ml Heuristic.ml Interpretation.ml Playing.ml Parser.ml Lexer.ml Main.ml && ocamldebug a.out

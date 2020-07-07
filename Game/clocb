@@ -1,0 +1,17 @@
+echo "Total"
+cloc $(ls | grep .ml | grep -vwE 'Parser.ml|Lexer.ml|Up.ml|Up_.ml')
+
+echo "Core"
+cloc Fresh.ml Grammar.ml InferenceRules.ml Transition.ml
+
+echo "Tools"
+cloc Map.ml Id.ml
+
+echo "Playing"
+cloc Parameters.ml Heuristic.ml Play.ml PlayTypes.ml
+
+echo "UI"
+cloc Main.ml Lexer.mll Parser.mly Pp.ml Up.mlp
+
+echo "Everything"
+cloc .

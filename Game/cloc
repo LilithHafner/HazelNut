@@ -1,0 +1,1 @@
+cloc $(ls | grep .ml | grep -vwE 'Parser.ml|Lexer.ml|Up.ml|Up_.ml')
