@@ -18,10 +18,12 @@ let rec updateHoleContext_h = (delta: Types.hole_context, gs: Types.goals) => {
     }
 };
 
-let updateHoleContext = (delta, h, gs) => 
+let updateHoleContext = (delta, h, gs) => {
+    Js.log("About to remove hole");
     List.filter(
         ((h', _)) => h != h',
         updateHoleContext_h(delta, gs));
+}
 
 let rec updateUnfilledHoles = (gs) => 
     switch (gs) {
@@ -84,7 +86,7 @@ let rec fill = (delta, holeFillings, gamma, h, typ, exs) => {
 }
 
 and fill_h = (delta, holeFillings, gamma, h, typ, exs) => {
-    if (Refiner.refinable(typ)) {
+    if (Refiner.refinable(typ, exs)) {
         let (e, gs) = Refiner.refine(gamma, typ, exs);
         let f = [(h, e), ...holeFillings];
         let delta' = updateHoleContext(delta, h, gs);

@@ -14,6 +14,9 @@ let rec solve_h = (hContext, k) => {
     switch (u) {
         | [] => (f, hContext)
         | [(h, x), ...us] => {
+            // IMPORTANT
+            // Change this to first check if a filling is contained in the set of fillings.
+
             let (context, t) = Tools.lookup(h, hContext);
             let (k', hContext') = Filler.fill(hContext, f, context, h, t, x);
             let (us', f') = k';

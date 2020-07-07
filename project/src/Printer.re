@@ -108,6 +108,7 @@ and string_of_value(v):string =
         | Vbool(b) => string_of_bool(b)
         | Vunit => "()"
         | Vpair(v1, v2) => "("++string_of_value(v1)++", "++string_of_value(v2)++")"
+        | Vctor(id, adt, v1) => "C" ++ string_of_int(id) ++ ": " ++string_of_adt(adt)++ " "++ string_of_value(v1)
         }
     
 and string_of_one_constraint_(c):string =

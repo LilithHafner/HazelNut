@@ -13,6 +13,10 @@ open Types;
 // call uneval on different results and examples.
 // r = ([E] ??1, ()), ex = () => ([(1, (E, ()))], -) 
 
+// IMPORTANT NEXT STEP SAM
+// Make sure all of the constraints are merged so that there is only one
+// set of constraints per hole, rather than multiple.
+
 // Generates constraints from a result and example
 // No constructors in language yet, will probably add later
 // But that means there's a bunch less cases
@@ -29,7 +33,7 @@ let rec unevaluate = (delta, res:res, ex:example) : option(unevalcons) => {
         // on their respective results
         | (Epair(ex1, ex2), Rpair(r1, r2)) => {
             switch (unevaluate(delta, r1, ex1), unevaluate(delta, r2, ex2)) {
-                | (Some((k1, _)), Some((k2, _))) => Some((List.concat([k1, k2]), []))
+                | (Some(k1), Some(k2)) => Some(merge(k1, k2))
                 | _ => None
                 }
         }
@@ -90,10 +94,24 @@ and constrainExp = (delta, exp, exs) => {
             switch (constrainExp(delta, exp, xs), unevaluate(delta, Evaluator.eval(env, exp), ex)) {
                 | (None, _) => None
                 | (_, None) => None
-                | (Some((k1, _)), Some((k2, _))) => Some((List.concat([k1, k2]), []))
+                | (Some(k1), Some(k2)) => Some(merge(k1, k2))
                 }
         }
     }
+}
+
+// Assuming k2 has no repeats this works
+and merge = (k1: unevalcons, k2: unevalcons) => {
+    let (u1, _) = k1;
+    let (u2, _) = k2;
+    (merge_h(u1, u2), [])
+}
+
+and merge_h = (u1: unfilled_holes, u2: unfilled_holes) => {
+    switch (u1) {
+        | [] => u2
+        | [h, ...xs] => merge_h(xs, Tools.add(h, u2))
+        }
 }
 
 and mergeCons = (k1, k2) => {
