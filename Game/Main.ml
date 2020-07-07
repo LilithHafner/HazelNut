@@ -99,7 +99,7 @@ let _ =
             printf "Starting assertion:\n%s\n\n"  (string_of_assertion (List.nth assertions 0)); 
 *)            
             let t2 = Sys.time() in
-            let result = solve 100 assertions in
+            let result = solve 1000 assertions in
             let t3 = Sys.time() in
             
             (match result with 

@@ -46,4 +46,4 @@ let to_string (id:t):string =
     | None -> incr output_counter; 
         let str = "_" ^ string_of_int !output_counter in
         Hashtbl.add id_to_string id str;
-        str^"_["^string_of_int id^"]"
+        str
