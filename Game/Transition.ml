@@ -70,6 +70,12 @@ let apply_inference_rules (assertion:assertion):transition =
     if Parameters.verbosity > 1 then (match out with 
     | Unlinked(assertionss) -> printf "Assertionss out: \n%s\n" 
         (string_of_list (string_of_list string_of_assertion) assertionss);
-    | Linked(_, _) -> printf "Assertionss out: \n<Linked>\n"
+    | Linked(hole, assertionss) -> printf "Linked assertionss out (hole=%s): \n%s\n"
+        (string_of_id hole)
+        (string_of_list 
+            (fun (exp, assertions) -> 
+                string_of_exp exp^" -> "
+                ^string_of_list string_of_assertion assertions) 
+            assertionss)
     );
     out

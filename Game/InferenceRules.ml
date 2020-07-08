@@ -1,4 +1,7 @@
 open Grammar
+open Up
+open Pp
+open Printf
 
 let application (env:env) (variable:variable) (annotation:(exp * exp) list) (body:exp) (applicand:qexp) (tail:tail):qexp * assertion list =
     let env = Map.add env variable applicand in
@@ -49,15 +52,10 @@ let bound_variable_filling (env:env) (q2:qexp) (rest:(exp * assertion list) list
         (Map.entries env)
 
 let rec constructor_filling (env:env) (hole:hole) (variable:variable) (tail:tail) (rest:(exp * assertion list) list):(exp * assertion list) list =
-    (* TODO: refactor to use decomposition *)
-    match tail with 
-    | [] -> (Variable(variable), [])::rest
-    | q2::[] -> 
-        let hole = Hole(Id.tag Applicator hole) in
-        (Application(Variable(variable), hole), [(QExp(env, hole, []), q2)])::rest
-    | q2::tail -> 
-        match constructor_filling env hole variable tail rest with
-            | (exp, (QExp(_, Hole(hole), []), _)::[])::rest ->
-                let hole = Hole(Id.tag Applicator hole) in
-                (Application(exp, hole), [(QExp(env, hole, []), q2)])::rest
-            | _ -> failwith "Typo in constructor_filling"
+    let _, exp, assertions = List.fold_left 
+    (fun (hole, exp, assertions) q2 -> 
+        let hole = Id.tag Id.Constructor hole in hole,
+        Application(exp, Hole(hole)),
+        (QExp(env, Hole(hole), []), q2)::assertions)
+    (hole, Variable(variable), []) tail
+    in (exp,assertions)::rest

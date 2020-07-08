@@ -1,1 +1,1 @@
-ocaml$1 -g str.$2 Id.ml Map.ml Grammar.ml PlayTypes.ml Up.ml Pp.ml Parameters.ml Fresh.ml InferenceRules.ml Transition.ml Heuristic.ml Play.ml Parser.ml Lexer.ml Main.ml && ./a.out
+ocaml$1 -g str.$2 Parameters.ml Id.ml Map.ml Grammar.ml PlayTypes.ml Up.ml Pp.ml Fresh.ml InferenceRules.ml Transition.ml Heuristic.ml Play.ml Parser.ml Lexer.ml Main.ml && ./a.out

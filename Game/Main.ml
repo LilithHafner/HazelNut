@@ -24,8 +24,10 @@ let get_fillings () =
 let rec think root passes = 
     debug "Intermediary: %s\n\n" root;
     down root;
+    let passes = passes-1 in
     if abs_float root.value < stop_thinking_threshold && passes > 0
-    then think root (passes - 1)
+    then think root passes
+    else passes
 
 type result = 
     | SAT of (hole, exp) Map.t
@@ -35,17 +37,17 @@ type result =
     (* TODO: link nodes properly! *)
     (* TODO: fix sign error on up propigation through link (on link reasignment) *)
 
-let solve (passes:int) (assertions:assertion list):result =
+let solve (passes:int) (assertions:assertion list):result * int =
     let root = antagonist_dead_end () in
-    debug "Pre-start: %s\n\n" root;
+    (* debug "Pre-start: %s\n\n" root; *)
     add_children root None (antagonist_moves assertions);
-    think root passes;
+    let passes = passes - think root passes in
     debug "Final: %s\n\n" root;
-    if root.value <= -.stop_thinking_threshold 
+    (if root.value <= -.stop_thinking_threshold 
     then UNSAT
     else if root.value >= stop_thinking_threshold 
     then SAT(get_fillings ())
-    else TIMEOUT(get_fillings ())
+    else TIMEOUT(get_fillings ())), passes
 
 let rec fill_holes (fillings:(hole, exp)Map.t) (exp:exp) = 
     let r = fill_holes fillings in
@@ -63,15 +65,47 @@ let rec fill_holes (fillings:(hole, exp)Map.t) (exp:exp) =
             r exp)
     | _ -> exp
 
+(* let Some(there_are_major_todos_left) = Some None  *)
 (* \/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/ *)
 (* /\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\ *)
 (* \/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/ *)
-(* let Some(there_are_major_todos_left) = Some None *)
-(* TODO transition function appears to be getting called in duplicate! *)
-(* TODO we don't maintain a hash of old boards! No transpositions = terrible!
+(* 
+
+TODO transition function appears to be getting called in duplicate! 
+
+TODO we don't maintain a hash of old boards! No transpositions = terrible!
 This means that we get exponential in places we shouldn't 
-(e.g. using the assertion e=e) *)
-(* Bug: ? 4 = P 4 4 generates hole fillings with wrong ids *)
+(e.g. using the assertion e=e) 
+
+Bug: ? 4 = P 4 4 generates hole fillings with wrong ids 
+Note, I think the answer is here:
+[
+  mp -> Lambda(ru_mp, Hole(ru_mp)))
+  ru_mp -> Application(Application(Variable(P), Hole(fru_mp)), Hole(ffru_mp)))
+  ffru_mp -> Variable(ru_mp))                        ^^^^^^^
+  rfru_mp -> Variable(ru_mp))
+]
+  ^^^^^^
+The discrepency is between fru_mp and rfru_mp. Prolly in fresh or something.
+                                      ^
+
+
+Feature: variable arity input
+Feature: copy printer from my first lambda synthesizer.
+
+todo: string_of_id improvements. DONE.
+
+efficiency?: the heuristic should report None on dead end 
+    and the branch should die immediatly
+
+Passing tests:
+Pair, Tripple, Quintuple, etc.
+Identity
+
+Failing tests:
+Increment using churchill encodings
+
+*)
 (* /\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\ *)
 (* \/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/ *)
 (* /\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\ *)
@@ -85,7 +119,9 @@ let _ =
             let e1 = Parser.main Lexer.token lexbuf in
             printf "%s\ne2>%!" (string_of_exp e1);
             let e2 = Parser.main Lexer.token lexbuf in
-            printf "%s\n\n" (string_of_exp e2);
+            printf "%s\neout>%!" (string_of_exp e2);
+            let eout = Parser.main Lexer.token lexbuf in
+            printf "%s\n\n" (string_of_exp eout);
             
             let assertions = (QExp(Map.empty, e1, []), QExp(Map.empty, e2, []))::[] in
             printf "Starting assertion:\n%s\n\n"  (string_of_assertion (List.nth assertions 0)); 
@@ -99,7 +135,7 @@ let _ =
             printf "Starting assertion:\n%s\n\n"  (string_of_assertion (List.nth assertions 0)); 
 *)            
             let t2 = Sys.time() in
-            let result = solve 1000 assertions in
+            let result, passes = solve 100 assertions in
             let t3 = Sys.time() in
             
             (match result with 
@@ -109,15 +145,15 @@ let _ =
                     | TIMEOUT _ -> "TIMEOUT" 
                     | _ -> failwith "???");
                 printf "Hole fillings:\n%s\n\n" (string_of_fillings fillings);
-(*                let exp = fill_holes fillings exp in
-                printf "Output:\n%s\n\n" (string_of_exp exp)*)
+                let exp = fill_holes fillings eout in
+                printf "Output:\n%s\n\n" (string_of_exp exp)
             | UNSAT ->
                 printf "Result type:\nUNSAT\n\n");
 
 			flush stdout;
             
             let t4 = Sys.time() in
-            printf "Times:\n  thinking: %f\n  IO:       %f\n%!" (t3-.t2) (t2-.t1+.t4-.t3);
+            printf "Times:\n  passes:   %i\n  thinking: %f\n  IO:       %f\n%!" passes (t3-.t2) (t2-.t1+.t4-.t3);
 		done
 	with Lexer.Eof ->
 		exit 0
