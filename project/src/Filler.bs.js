@@ -29,6 +29,7 @@ function updateHoleContext_h(delta, gs) {
 }
 
 function updateHoleContext(delta, h, gs) {
+  console.log("About to remove hole");
   return List.filter((function (param) {
                   return h !== param[0];
                 }))(updateHoleContext_h(delta, gs));
@@ -89,7 +90,7 @@ function allBranchesFound(_xs) {
 }
 
 function fill_h(delta, holeFillings, gamma, h, typ, exs) {
-  if (Refiner$MyNewProject.refinable(typ)) {
+  if (Refiner$MyNewProject.refinable(typ, exs)) {
     var match = Refiner$MyNewProject.refine(gamma, typ, exs);
     var gs = match[1];
     var f_000 = /* tuple */[
@@ -146,7 +147,7 @@ function fill_h(delta, holeFillings, gamma, h, typ, exs) {
                   Caml_builtin_exceptions.match_failure,
                   /* tuple */[
                     "Filler.re",
-                    108,
+                    110,
                     36
                   ]
                 ];
@@ -167,7 +168,7 @@ function fill_h(delta, holeFillings, gamma, h, typ, exs) {
                           Caml_builtin_exceptions.match_failure,
                           /* tuple */[
                             "Filler.re",
-                            111,
+                            113,
                             44
                           ]
                         ];
@@ -181,7 +182,7 @@ function fill_h(delta, holeFillings, gamma, h, typ, exs) {
                 Caml_builtin_exceptions.match_failure,
                 /* tuple */[
                   "Filler.re",
-                  108,
+                  110,
                   36
                 ]
               ];
@@ -216,7 +217,7 @@ function fill_h(delta, holeFillings, gamma, h, typ, exs) {
         Caml_builtin_exceptions.match_failure,
         /* tuple */[
           "Filler.re",
-          120,
+          122,
           16
         ]
       ];
