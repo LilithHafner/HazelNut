@@ -35,15 +35,11 @@ let rec branch = (delta:hole_context, gamma:context, typ:type_, exs:excons) => {
 and branch_indiv = (delta, gamma, typ, exs, datatype) => {
     let e = List.hd(Guesser.guess(delta, gamma, D(datatype), 1));
     let constructors = Tools.lookup(datatype, sigma);
-    let results = List.map(
-        ((env, _)) => Evaluator.eval(env, e),
-        exs);
-    let unevalExs = List.map(
-        ((env, _)) => List.map(
-            ((id, _)) => (env, Ector(id, datatype, Top)),
-            constructors),
-        exs) |> List.concat;
-    let unevalCons: option(unevalcons) = Unevaluator.constrainExp(delta, e, unevalExs);
+    let distributedExs = distribute(delta, exs, datatype, e, constructors);
+    let unevalCons: option(unevalcons) = List.map(
+        (exs) => Unevaluator.constrainExp(delta, e, exs),
+        distributedExs)
+        |> List.fold_left(Unevaluator.mergeCons, Some(([], [])));
     let branches = List.map(
         ((id, _)) => {
             let x = IdGenerator.getId();
@@ -52,15 +48,15 @@ and branch_indiv = (delta, gamma, typ, exs, datatype) => {
         },
         constructors);
     let exp = Case(e, branches);
-    let newExCons = List.map(
-        ((id, (var, _))) => 
-            List.mapi(
-                (j, (env, ex)) => {
-                    let r = List.nth(results, j);
-                    ([(var, simplifyConstructor(Rictor(id, datatype, r))), ...env], ex)
-                },
-                exs), 
-        branches);
+    let newExCons = List.map2(
+        (dExs, (id, (x, _))) => List.map(
+            ((env, ex)) => {
+                let r = simplifyConstructor(Rictor(id, datatype, Evaluator.eval(env, e)));
+                ([(x, r), ...env], ex)
+            },
+            dExs),
+        distributedExs, branches);
+        
     let goals = List.mapi(
         (i, (id, (var, Hole(h)))) => {
             let (_, ti) = List.nth(constructors, i);
@@ -69,6 +65,19 @@ and branch_indiv = (delta, gamma, typ, exs, datatype) => {
         },
         branches);
     (exp, goals, unevalCons)
+}
+
+and distribute = (delta, exs, adt, scrut, ctors) => {
+    List.map(
+        ((id, t)) => {
+            List.filter(
+                ((env, ex)) => {
+                    let r = Evaluator.eval(env, scrut);
+                    Unevaluator.unevaluate(delta, r, Ector(id, adt, Top))
+                        |> Unevaluator.optionPred
+                }, exs)
+        }, ctors)
 };
+
 
 

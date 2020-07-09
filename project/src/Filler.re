@@ -19,7 +19,6 @@ let rec updateHoleContext_h = (delta: Types.hole_context, gs: Types.goals) => {
 };
 
 let updateHoleContext = (delta, h, gs) => {
-    Js.log("About to remove hole");
     List.filter(
         ((h', _)) => h != h',
         updateHoleContext_h(delta, gs));
@@ -44,7 +43,9 @@ let rec guessAndCheck_h = (delta, gamma, typ, exs, i) => {
     } else {
         let es: list(Types.exp) = Guesser.guess(delta, gamma, typ, i);
         let checked = List.filter(
-            (e) => Unevaluator.constrainExp(delta, e, exs) -> optionPred,
+            (e) => {
+                Unevaluator.constrainExp(delta, e, exs) -> optionPred
+            },
             es);
         switch (checked) {
             | [] => guessAndCheck_h(delta, gamma, typ, exs, i + 1)
@@ -53,14 +54,17 @@ let rec guessAndCheck_h = (delta, gamma, typ, exs, i) => {
     }
 };
 
-let guessAndCheck = (delta, gamma, typ, exs) => guessAndCheck_h(delta, gamma, typ, exs, 1);
+let guessAndCheck = (delta, gamma, typ, exs) => {
+    guessAndCheck_h(delta, gamma, typ, exs, 1)
+};
 
-let rec allBranchesFound = (xs) => 
+let rec allBranchesFound = (xs) => {
     switch (xs) {
         | [] => true
         | [None, ..._] => false
         | [Some(_), ...xs] => allBranchesFound(xs)
-        };
+        }
+};
 
 
 // In returns:

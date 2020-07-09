@@ -27,7 +27,6 @@ let rec allUnit = (exs) => {
 };
 
 let rec allPairs = (exs) => {
-    Js.log("Pair check");
     switch (exs) {
         | [] => true
         | [(_, Epair(_, _)), ...xs] => allPairs(xs)
@@ -36,7 +35,6 @@ let rec allPairs = (exs) => {
 };
 
 let rec allFuncs = (exs) => {
-    Js.log("Func check");
     switch (exs) {
         | [] => true
         | [(_, Efunc(_, _)), ...xs] => allFuncs(xs)
@@ -45,7 +43,6 @@ let rec allFuncs = (exs) => {
 };
 
 let allConstructs = (exs):option(int) => {
-    Js.log("Con check");
     let c = switch (exs) {
         | [] => None
         | [(_, Ector(id, _, ex)), ...xs] => Some(id)
@@ -101,7 +98,6 @@ let prepConsExs = (exs) => List.map(
 //   type = ??1 : t1 -> t2 => (\x:t1  => ??2: t2)
 
 let refine = (context, typ, exs) => {
-    Js.log(Printer.string_of_type_(typ));
     switch (typ) {
         | Unit_t when allUnit(exs) => (Unit, [])
         | Pair_t(t1, t2) when allPairs(exs) => {
@@ -128,8 +124,6 @@ let refine = (context, typ, exs) => {
         | Unit_t 
         | Pair_t(_, _)
         | Function_t(_, _) => {
-            Js.log(Printer.string_of_type_(typ));
-            Js.log(Printer.string_of_excons(exs));
             failwith("Goal type inconsistent with examples")
         }
         | _ => failwith("Not a refinement type")

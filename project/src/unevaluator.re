@@ -26,7 +26,9 @@ let rec unevaluate = (delta, res:res, ex:example) : option(unevalcons) => {
         // Top adds no constraints
         | (Top, _) => Some(([], []))
         // Matching constants adds no constraints
-        | (Eunit, Runit) => Some(([], []))
+        | (Eunit, Runit) => {
+            Some(([], []))
+        }
         | (Eint(x), Rint(y)) when x == y => Some(([], []))
         | (Ebool(x), Rbool(y)) when x == y => Some(([], []))
         // A pair of examples adds the constraints of both examples
@@ -59,7 +61,9 @@ let rec unevaluate = (delta, res:res, ex:example) : option(unevalcons) => {
             let exs = [(env', ex')];
             constrainExp(delta, exp, exs)
         }
-        | (Ector(id1, _, ex'), Rctor(id2, _, r')) when id1 == id2 => unevaluate(delta, r', ex')
+        | (Ector(id1, _, ex'), Rctor(id2, _, r')) when id1 == id2 => {
+            unevaluate(delta, r', ex')
+        }
         | (_, Rictor(id, adt, r')) => unevaluate(delta, r', Ector(id, adt, ex))
         | (_, Rcase(r', branches, env)) => {
             let cons = List.map(
@@ -118,8 +122,8 @@ and mergeCons = (k1, k2) => {
     switch (k1, k2) {
         | (None, _) => None
         | (_, None) => None
-        | (Some((u1, f1)), Some((u2, f2))) => 
-            Some((List.concat([u1, u2]), List.concat([f1, f2])))
+        | (Some(k1'), Some(k2')) => 
+            Some(merge(k1', k2'))
     }
 }
     
