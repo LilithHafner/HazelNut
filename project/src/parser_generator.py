@@ -12,7 +12,7 @@ whitespace = or_of_chars(['\\t','\\n']+list(' ,()<->'))
 blank_of_string_doesnt_work_and_were_okay_with_that = \
     ['filler_output', 'solver_output']#And many more!
 lists = [
-    ('context', '1234567890', ['int', 'type_'], '(v0, v1)'),
+    ('context', '1234567890', ['int', 'type_', 'ann'], '(v0, (v1, v2))'),
     ('branches', '1234567890', ['int', 'int', 'exp'], '(v0, (v1, v2))'),
 ]
 
