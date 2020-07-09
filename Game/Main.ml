@@ -16,7 +16,7 @@ let get_fillings () =
     Seq.fold_left 
         (fun map (id, {choice=choice;_}) -> 
             if Map.mem id map
-            then map
+            then failwith "duplicate"
             else Map.add map id choice) 
         Map.empty
         (Hashtbl.to_seq links)
@@ -77,33 +77,63 @@ TODO we don't maintain a hash of old boards! No transpositions = terrible!
 This means that we get exponential in places we shouldn't 
 (e.g. using the assertion e=e) 
 
-Bug: ? 4 = P 4 4 generates hole fillings with wrong ids 
-Note, I think the answer is here:
-[
-  mp -> Lambda(ru_mp, Hole(ru_mp)))
-  ru_mp -> Application(Application(Variable(P), Hole(fru_mp)), Hole(ffru_mp)))
-  ffru_mp -> Variable(ru_mp))                        ^^^^^^^
-  rfru_mp -> Variable(ru_mp))
-]
-  ^^^^^^
-The discrepency is between fru_mp and rfru_mp. Prolly in fresh or something.
-                                      ^
 
-
-Feature: variable arity input
-Feature: copy printer from my first lambda synthesizer.
-
-todo: string_of_id improvements. DONE.
+Feature: variable arity input (via parsing)
+Feature: copy printer from my first lambda synthesizer. DONE
+Feature: automatic benchmarking and benchmark history 
+    with version control. If we ever do well on a benchmark, 
+    it should be possible to reccover that code state and reproduce
+    the success.
 
 efficiency?: the heuristic should report None on dead end 
     and the branch should die immediatly
 
+efficiency, simplicity: deal with up_total tracking in play.ml.
+
+Efficiency: Right now, bound variable substitution takes O(n) time
+    were n is the length of the bound variable's tail. 
+    
+    If we switch to an adeque, that goes to aO(1) and all the other
+    opperations stay aO(1).
+
+
+Behavior: assign a cost to syntehesizing unbound variables 
+    can be binary free-or-impossible for now
+
+    Added support for protecting some ids from being synthesized.
+
+
+
+
 Passing tests:
 Pair, Tripple, Quintuple, etc.
 Identity
+? 2 4 -> Q 2 2 4 4
 
 Failing tests:
-Increment using churchill encodings
+
+Increment using backward churchill encodings
+
+Using churchill encodings:
+    Increment
+
+
+TODO tests:
+Using churchill encodings:
+    Increment
+    Decrement
+    Addition
+    Subtraction
+    Multiplication?
+    Division???
+
+
+Unsatisfactory benchmarks:
+    ??
+
+Satisfactory benchmarks:
+    Pair, Tripple, Quintuple, etc.
+    Identity
 
 *)
 (* /\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\ *)
@@ -135,7 +165,7 @@ let _ =
             printf "Starting assertion:\n%s\n\n"  (string_of_assertion (List.nth assertions 0)); 
 *)            
             let t2 = Sys.time() in
-            let result, passes = solve 100 assertions in
+            let result, passes = solve passes assertions in
             let t3 = Sys.time() in
             
             (match result with 
@@ -144,9 +174,9 @@ let _ =
                     | SAT _ -> "SAT" 
                     | TIMEOUT _ -> "TIMEOUT" 
                     | _ -> failwith "???");
+                let output = string_of_exp (fill_holes fillings eout) in
                 printf "Hole fillings:\n%s\n\n" (string_of_fillings fillings);
-                let exp = fill_holes fillings eout in
-                printf "Output:\n%s\n\n" (string_of_exp exp)
+                printf "Output:\n%s\n\n" output
             | UNSAT ->
                 printf "Result type:\nUNSAT\n\n");
 

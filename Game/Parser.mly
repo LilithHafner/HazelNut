@@ -21,7 +21,7 @@ annotation_hint:								{ [] }
 ;
 base_exp:
 	LABELED_HOLE								{ Hole $1 }
-  | UNLABELED_HOLE								{ Hole (Id.unique ()) }
+  | UNLABELED_HOLE								{ Hole (Id.unique false) }
   | LAMBDA ID annotation_hint exp				{ Lambda($2, $3, $4) }
   | LET ID EQUALS exp IN annotation_hint exp	{ Application(Lambda($2, $6, $7), $4) }
   | ID											{ Variable $1 }

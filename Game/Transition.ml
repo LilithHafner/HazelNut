@@ -50,7 +50,9 @@ let apply_inference_rules (assertion:assertion):transition =
         
         | QExp(env2, Variable(variable), tail) ->
             bound_variable_filling env q2 @@
-            constructor_filling env hole variable tail @@
+            (if Id.protected variable 
+                then (fun x -> x) 
+                else constructor_filling env hole variable tail) @@
             application_filling env hole q2
 
         | _ -> failwith "Typo in apply_inference_rules")

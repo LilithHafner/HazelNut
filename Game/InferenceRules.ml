@@ -11,7 +11,7 @@ let application (env:env) (variable:variable) (annotation:(exp * exp) list) (bod
 
 let function_congruence ((QExp(env1, exp1, tail1), QExp(env2, exp2, tail2)):assertion):assertion =
     (* Note: as used by section 4, tail1 should always be empty *)
-    let x = QExp(Map.empty, Variable(Id.unique ()), []) in
+    let x = QExp(Map.empty, Variable(Id.unique true), []) in
     QExp(env1, exp1, tail1 @ [x]), QExp(env2, exp2, tail2 @ [x])
     
 let substitution:variable -> env -> qexp = Map.find
