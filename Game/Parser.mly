@@ -7,10 +7,12 @@ open Grammar
 %nonassoc LAMBDA			/* low precedence */
 %nonassoc APPLICATION		/* high precedence */
 %start main				/* the entry point */
-%type <exp> main
+%type <annotation * exp option> main
 %%
 main:
-	exp EOL										{ $1 }
+    annotation IN exp EOL                    { $1, Some $3 }
+  | annotation EOL                    { $1, None }
+  | exp EOL                    { [$1, $1], Some $1 }
 ;
 annotation:
 	exp EQUALS exp COMMA annotation				{ ($1, $3)::$5 }

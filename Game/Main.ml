@@ -71,15 +71,15 @@ let rec fill_holes (fillings:(hole, exp)Map.t) (exp:exp) =
 (* \/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/ *)
 (* 
 
-TODO transition function appears to be getting called in duplicate! 
+Bug? Efficiency: transition function appears to be getting called in 
+duplicate! 
 
-TODO we don't maintain a hash of old boards! No transpositions = terrible!
-This means that we get exponential in places we shouldn't 
+Efficiency: we don't maintain a hash of old boards! No transpositions = 
+terrible! This means that we get exponential in places we shouldn't 
 (e.g. using the assertion e=e) 
 
 
-Feature: variable arity input (via parsing)
-Feature: copy printer from my first lambda synthesizer. DONE
+Feature: variable arity input (via parsing) DONE.
 Feature: automatic benchmarking and benchmark history 
     with version control. If we ever do well on a benchmark, 
     it should be possible to reccover that code state and reproduce
@@ -102,21 +102,41 @@ Behavior: assign a cost to syntehesizing unbound variables
 
     Added support for protecting some ids from being synthesized.
 
+Behavior: Make a much better heuristic that takes into account much 
+    more information, including tree history.
 
+Behavior: limit the depth of the depth first search in the absence
+    of nontrivial protagonist choices to preven infinite loops
+
+Efficiency?: optimize away linked trivial protagonist choices
 
 
 Passing tests:
 Pair, Tripple, Quintuple, etc.
+    ? 3 = T 3 3 3
 Identity
-? 2 4 -> Q 2 2 4 4
+    ? 7 = 7
+? 2 4 = Q 2 2 4 4
+
+
+
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+X X X X X X X X X X X X X X X X X X X X X X X X X
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
 Failing tests:
+let f = ? in {f 3 = F 3 3 3} f
 
 Increment using backward churchill encodings
+    ?incr \f.\x.f f f f x = \f.\x.f f f f f x in ?incr
 
 Using churchill encodings:
     Increment
+    ?incr \f.\x.f (f x) = \f.\x.f (f (f x)) in ?incr
 
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+X X X X X X X X X X X X X X X X X X X X X X X X X
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 
 TODO tests:
 Using churchill encodings:
@@ -140,30 +160,32 @@ Satisfactory benchmarks:
 (* \/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/ *)
 (* /\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\ *)
 
+let rec applicand:exp -> exp = function
+| Application(exp, _) -> applicand exp
+| exp -> exp
+
 let _ =
 	try
 		let lexbuf = Lexing.from_channel stdin in
 		while true do
 			let t1 = Sys.time() in
-            printf "e1>%!";
-            let e1 = Parser.main Lexer.token lexbuf in
-            printf "%s\ne2>%!" (string_of_exp e1);
-            let e2 = Parser.main Lexer.token lexbuf in
-            printf "%s\neout>%!" (string_of_exp e2);
-            let eout = Parser.main Lexer.token lexbuf in
-            printf "%s\n\n" (string_of_exp eout);
+            printf ">%!";
+            let annotation, exp = Parser.main Lexer.token lexbuf in
+            (* printf "%s in %s\n\n" (string_of_annotation annotation) (string_of_option string_of_exp exp); *)
             
-            let assertions = (QExp(Map.empty, e1, []), QExp(Map.empty, e2, []))::[] in
-            printf "Starting assertion:\n%s\n\n"  (string_of_assertion (List.nth assertions 0)); 
-(*			
-            let exp = Parser.main Lexer.token lexbuf in
-			printf "\nInput interpretation:\n%s\n\n" (string_of_exp exp); 
-            
-            let assertions = (QExp(Map.empty, exp, []), QExp(Map.empty, exp, []))::[] in
-            (* let assertions = (QExp(Map.empty, Variable(Id.of_string "4"), []), QExp(Map.empty, Hole(Id.of_string "1"), []))::[] in *)
-            (* let assertions = (QExp(Map.empty, Variable(Id.of_string "4"), []), QExp(Map.empty, Variable(Id.of_string "5"), []))::[] in *)
-            printf "Starting assertion:\n%s\n\n"  (string_of_assertion (List.nth assertions 0)); 
-*)            
+            let exp = match annotation, exp with
+            | (e0, e1)::_, None -> (match applicand e0 with 
+                | Hole(hole) -> Some(Hole(hole))
+                | _ -> exp)
+            | _ -> exp in
+
+            let assertions = List.map 
+                (fun (e1, e2) -> (QExp(Map.empty, e1, []), QExp(Map.empty, e2, []))) 
+                annotation 
+            in
+
+            printf "\nStarting assertions:\n%s\n\n" (string_of_list string_of_assertion assertions); 
+
             let t2 = Sys.time() in
             let result, passes = solve passes assertions in
             let t3 = Sys.time() in
@@ -174,9 +196,9 @@ let _ =
                     | SAT _ -> "SAT" 
                     | TIMEOUT _ -> "TIMEOUT" 
                     | _ -> failwith "???");
-                let output = string_of_exp (fill_holes fillings eout) in
+                let output = Option.map (fun exp -> string_of_exp (fill_holes fillings exp)) exp in
                 printf "Hole fillings:\n%s\n\n" (string_of_fillings fillings);
-                printf "Output:\n%s\n\n" output
+                Option.iter (printf "Output:\n%s\n\n") output
             | UNSAT ->
                 printf "Result type:\nUNSAT\n\n");
 
