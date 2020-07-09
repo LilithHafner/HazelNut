@@ -35,4 +35,4 @@ and string_of_qexp (QExp(env, exp, tail):qexp):string =
         (fun (qexp) -> parenthasized (string_of_qexp qexp))
         tail))
 let string_of_assertion ((q1, q2):assertion) = 
-    (string_of_qexp q1)^" =\n"^(string_of_qexp q2)
+    (string_of_qexp q1)^" = "^(string_of_qexp q2)

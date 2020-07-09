@@ -69,7 +69,7 @@ let to_string (id:t):string =
         match Hashtbl.find_opt id_to_string id with
             | Some str -> str
             | None -> incr output_counter; 
-                let str = "i" ^ string_of_int !output_counter in
+                let str = "_" ^ string_of_int !output_counter in
                 Hashtbl.add id_to_string id str;
                 str
     else
