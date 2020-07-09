@@ -40,21 +40,11 @@ let best_child sign (children:node array):int = let out, _, _ = Array.fold_left
             then (i, c.value *. sign, i+1) 
             else (bi, bv, i+1))
     (-1, neg_infinity, 0) children in out
-let infer_value sign ({children;link;_}:non_leaf_data) = let out = match link with
-    | Linked {selection=Some index;_} -> (* printf "A\n"; *) children.(index).value
-    | Linked {selection=None;_} -> (* printf "B\n"; *) -. sign *. Parameters.big_number
-    | Unlinked {up_total} -> (* printf "C\n%f\n%f\n" up_total (log up_total);  *)sign *. Parameters.sigma_up *. log
+let infer_value sign ({children;link;_}:non_leaf_data) = match link with
+    | Linked {selection=Some index;_} -> children.(index).value
+    | Linked {selection=None;_} -> -. sign *. Parameters.big_number
+    | Unlinked {up_total} -> sign *. Parameters.sigma_up *. log
         (max up_total (exp (-.Parameters.big_number/.Parameters.sigma_up)))
-    in
-    if abs_float (19.4081210557-.out) < 0.001 
-    then (printf "\nHere:\n %i\n%f\n%f\n%f\n%f\n%s\n" (Array.length children) 
-        (exp (-.Parameters.big_number/.Parameters.sigma_up))
-        (sign *. Parameters.sigma_up *. log (max 0. (exp (-.Parameters.big_number/.Parameters.sigma_up))))
-        (sign *. Parameters.sigma_up *. log (exp (-.Parameters.big_number/.Parameters.sigma_up)))
-        (sign *. -.Parameters.big_number)
-        (Up.string_of_list (fun child -> string_of_float child.value) (Array.to_list children))
-        ; failwith "here")
-    else out
 let weighted_choice total weights = 
     let rec f feul index = 
         let feul = feul -. weights.(index) in
@@ -161,7 +151,7 @@ and up (live:bool) (node:node):unit =
         (match nld.link with 
         | Unlinked data -> data.up_total <- (* data.up_total
             -. up_weight_v sign old_value +. up_weight sign node *)
-            (* TODO: This is very inneficient. It is a workaround due to 
+            (* TODO: This is inneficient. It is a workaround due to 
             numerical precision issues. *)
             sum (Array.map (up_weight sign) nld.children)
         | Linked _ -> ());
