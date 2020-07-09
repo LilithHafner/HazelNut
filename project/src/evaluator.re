@@ -16,11 +16,13 @@ let rec eval = (_env:environment, e:exp):res => {
     switch (e) {
         | Hole(x) => Rhole(x, _env)
         | Var(x) => Tools.lookup(x, _env)
-        | Function(id, typ, exp) => Rfunc(id, typ, exp, _env)
+        | Function(name, id, typ, exp) => Rfunc(name, id, typ, exp, _env)
         | Application(e1, e2) => {
-            switch (e1) {
-                | Function(id, _, exp) => eval([(id, eval(_env, e2)), ..._env], exp)
-                | _ => Rapp(eval(_env, e1), eval(_env, e2))//This line seems fishy to me.
+            let r1 = eval(_env, e1);
+            let r2 = eval(_env, e2);
+            switch (r1) {
+                | Rfunc(n, id, _, exp, env) => eval([(n, r1), (id, r2), ...env], exp)
+                | _ => Rapp(r1, r2)//This line seems fishy to me.
             }
         }
         | Unit => Runit 

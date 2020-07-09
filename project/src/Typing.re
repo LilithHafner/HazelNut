@@ -13,9 +13,12 @@ let rec getType = (delta: hole_context, gamma: context, e: exp) : type_ =>
         | Bool(_) => Bool_t 
         | Cons(e1, e2) => Cons_t(getType(delta, gamma, e1), getType(delta, gamma, e2))
         | Nil => Any_t 
-        | Var(x) => Tools.lookup(x, gamma)
+        | Var(x) => {
+            let (t, _) = Tools.lookup(x, gamma);
+            t
+        }
         // I think this is where the problem is.
-        | Function(id, typ, e') => Function_t(typ, getType(delta, gamma, e'))
+        | Function(_, _, typ, e') => Function_t(typ, getType(delta, gamma, e'))
         | Application(e1, e2) => switch (getType(delta, gamma, e1)) {
             | Function_t(t1, t2) when getType(delta, gamma, e2) == t1 => t2
             | _ => failwith("Application type error")
@@ -53,7 +56,7 @@ let rec getResType = (delta, r: res) =>
         | Rint(_) => Int_t 
         | Rfloat(_) => Any_t 
         | Rbool(_) => Bool_t 
-        | Rfunc(id, typ, e, env) => getType(delta, generateContext(delta, env), Function(id, typ, e))
+        | Rfunc(n, id, typ, e, env) => getType(delta, generateContext(delta, env), Function(n, id, typ, e))
         | Rapp(r1, r2) => switch(getResType(delta, r1)) {
             | Function_t(t1, t) when t1 == getResType(delta, r2) => t
             | _ => failwith("Type error, failed application")
@@ -108,7 +111,7 @@ and generateContext = (delta, env) =>
     switch (env) {
         | [] => []
         | [(x, r), ...env'] => 
-            [(x, getResType(delta, r)), ...generateContext(delta, env')]
+            [(x, (getResType(delta, r), AnnNone)), ...generateContext(delta, env')]
     };
 
 let rec getExType = (delta, ex) => {

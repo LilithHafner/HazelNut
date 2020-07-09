@@ -56,8 +56,8 @@ let rec unevaluate = (delta, res:res, ex:example) : option(unevalcons) => {
         // Takes and input-output example and a lambda result,
         // and binds the variable of the lambda to the value,
         // and then performs bidirectional evaluation.
-        | (Efunc(v, ex'), Rfunc(id, _, exp, env)) => {
-            let env' = [(id, valToRes(v)), ...env];
+        | (Efunc(v, ex'), Rfunc(name, id, _, exp, env)) => {
+            let env' = [(name, res), (id, valToRes(v)), ...env];
             let exs = [(env', ex')];
             constrainExp(delta, exp, exs)
         }

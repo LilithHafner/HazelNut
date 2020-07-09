@@ -76,9 +76,12 @@ let sndExs = (exs) => List.map(
     ((env, Epair(_, ex2))) => (env, ex2),
     exs);
 
-let prepFuncExs = (exs, vid) => List.map(
-    ((env, Efunc(v, ex))) => ([(vid, Types.valToRes(v)), ...env], ex),
-     exs);
+let prepFuncExs = (exs, e) => {
+    let Function(n, x, t, e') = e;
+    List.map(
+    ((env, Efunc(v, ex))) => ([(n, Rfunc(n, x, t, e', env)), (x, Types.valToRes(v)), ...env], ex),
+     exs)
+};
 
 let prepConsExs = (exs) => List.map(
     ((env, Ector(id, _, ex))) => (env, ex),
@@ -106,9 +109,11 @@ let refine = (context, typ, exs) => {
             (Pair(Hole(x), Hole(y)), [(context, x, t1, firstExs(exs)), (context, y, t2, sndExs(exs))])
         }
         | Function_t(t1, t2) when allFuncs(exs) => {
+            let n = IdGenerator.getId();
             let x = IdGenerator.getId();
             let h = IdGenerator.getId();
-            (Function(x, t1, Hole(h)), [([(x, t1), ...context], h, t2, prepFuncExs(exs, x))])
+            let e = Function(n, x, t1, Hole(h));
+            (e, [([(n, Function_t(t1, t2)), (x, t1), ...context], h, t2, prepFuncExs(exs, e))])
         }
         | D(adt) => {
             let c = allConstructs(exs);

@@ -29,7 +29,7 @@ and string_of_exp(e:exp):string =
         | Cons(exp, exp2) => string_of_exp(exp) ++ "::" ++ string_of_exp(exp2)
         | Nil  => "Nil"
         | Var(identifier) => "var_" ++ string_of_identifier(identifier)
-        | Function(identifier, typ, exp) => "\\" ++ string_of_identifier(identifier) ++ ": " ++ string_of_type_(typ) ++ "." ++ string_of_exp(exp)
+        | Function(n, identifier, typ, exp) => "("++string_of_identifier(n)++"): \\" ++ string_of_identifier(identifier) ++ ": " ++ string_of_type_(typ) ++ "." ++ string_of_exp(exp)
         | Application(exp, exp2) => string_of_exp(exp) ++ " " ++ string_of_exp(exp2)
         | Hole(hole_identifier) => "??_"++string_of_hole_identifier(hole_identifier)
         | Unit  => "()"
@@ -47,7 +47,7 @@ and string_of_res(r:res):string =
         | Rbool(bool) => string_of_bool(bool)
         | Rcons(res, res2) => string_of_res(res) ++ "::" ++ string_of_res(res2)
         | Rnil  => "Nil"
-        | Rfunc(identifier, typ, exp, environment) => "["++string_of_env(environment)++"]\\" ++ string_of_identifier(identifier) ++ ": " ++ string_of_type_(typ) ++ "." ++ string_of_exp(exp)
+        | Rfunc(n, identifier, typ, exp, environment) => "["++string_of_env(environment)++"]("++string_of_identifier(n)++"): \\" ++ string_of_identifier(identifier) ++ ": " ++ string_of_type_(typ) ++ "." ++ string_of_exp(exp)
         | Rapp(res, res2) => string_of_res(res) ++ " " ++ string_of_res(res2)
         | Rhole(hole_identifier, environment) => "["++string_of_env(environment)++"]??_"++string_of_hole_identifier(hole_identifier)
         | Runit  => "()"
@@ -125,7 +125,7 @@ and string_of_constraint_(c:constraint_):string =
 and string_of_context(e:context):string =
     switch(e) {
         | [] => "-"
-        | [(identifier,type_),...ms] => string_of_identifier(identifier) ++"->"++string_of_type_(type_)++"; "++string_of_context(ms)
+        | [(identifier,(type_, _)),...ms] => string_of_identifier(identifier) ++"->"++string_of_type_(type_)++"; "++string_of_context(ms)
     }
 and string_of_hole_context(c):string =
     switch(c) {

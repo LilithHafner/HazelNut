@@ -15,7 +15,7 @@ and exp =
   | Bool(bool)
   | Cons(exp, exp)
   | Nil 
-  | Function(identifier, type_, exp)
+  | Function(identifier, identifier, type_, exp)
   | Application(exp, exp)
   | Hole(hole_identifier)
   | Unit 
@@ -34,7 +34,7 @@ and res =
     | Rbool(bool)
     | Rcons(res, res)
     | Rnil 
-    | Rfunc(identifier, type_, exp, environment)
+    | Rfunc(identifier, identifier, type_, exp, environment)
     | Rapp(res, res)//Can we limit the type of result in the applicator position?
     | Rhole(hole_identifier, environment)
     | Runit 
@@ -57,10 +57,16 @@ and type_ =
   | Fail_t 
   | D(adt)
 
+and ann = 
+    | AnnNone 
+    | AnnArg 
+    | AnnRec 
+    | AnnFunc 
+
 // Map from variable names to results
 and environment = Tools.pairlist(identifier, res)//parser_generator.py: ignore
 // Map from variable names to types
-and context = Tools.pairlist(identifier, type_)//parser_generator.py: ignore
+and context = Tools.pairlist(identifier, (type_, ann))//parser_generator.py: ignore
 
 // Types all of the holes
 // I think we should clarify this and the type which unevaluate returns.
@@ -203,8 +209,8 @@ let rec resToVal (res:res):option(value) = {
                 }
         | Rapp(r1, r2) => 
             switch (r1) {
-                | Rfunc(id, typ, e, env) => 
-                    eval([(id, r2), ...env], e) |> resToVal
+                | Rfunc(name, id, typ, e, env) => 
+                    eval([(name, r1), (id, r2), ...env], e) |> resToVal
                 | _ => None
                 }
         | Rctor(id, adt, r) => 
@@ -227,10 +233,10 @@ and eval = (_env:environment, e:exp):res => {
     switch (e) {
         | Hole(x) => Rhole(x, _env)
         | Var(x) => Tools.lookup(x, _env)
-        | Function(id, typ, exp) => Rfunc(id, typ, exp, _env)
+        | Function(name, id, typ, exp) => Rfunc(name, id, typ, exp, _env)
         | Application(e1, e2) => {
             switch (e1) {
-                | Function(id, _, exp) => eval([(id, eval(_env, e2)), ..._env], exp)
+                | Function(name, id, typ, exp) => eval([(name, Rfunc(name, id, typ, exp, _env)), (id, eval(_env, e2)), ..._env], exp)
                 | _ => Rapp(eval(_env, e1), eval(_env, e2))//This line seems fishy to me.
             }
         }
