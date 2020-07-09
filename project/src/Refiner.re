@@ -100,6 +100,8 @@ let prepConsExs = (exs) => List.map(
 //   What it does: match against type.
 //   type = ??1 : t1 -> t2 => (\x:t1  => ??2: t2)
 
+let outFunc = ref(true);
+
 let refine = (context, typ, exs) => {
     switch (typ) {
         | Unit_t when allUnit(exs) => (Unit, [])
@@ -113,7 +115,12 @@ let refine = (context, typ, exs) => {
             let x = IdGenerator.getId();
             let h = IdGenerator.getId();
             let e = Function(n, x, t1, Hole(h));
-            (e, [([(n, Function_t(t1, t2)), (x, t1), ...context], h, t2, prepFuncExs(exs, e))])
+            if (outFunc^) {
+                outFunc := false;
+                (e, [([(n, (Function_t(t1, t2), AnnFunc)), (x, (t1, AnnArg)), ...context], h, t2, prepFuncExs(exs, e))])
+            } else {
+                (e, [([(x, (t1, AnnArg)), ...context], h, t2, prepFuncExs(exs, e))])
+            }
         }
         | D(adt) => {
             let c = allConstructs(exs);

@@ -9,7 +9,7 @@ let simplifyConstructor = (res) =>
 
 let rec branch = (delta:hole_context, gamma:context, typ:type_, exs:excons) => {
     let datatypes = List.map(
-        ((id, t)) => t,
+        ((id, (t, _))) => t,
         gamma)
         |> List.filter(
             (t) => switch (t) {
@@ -63,7 +63,7 @@ and branch_indiv = (delta, gamma, typ, exs, datatype) => {
                     (i, (id, (var, Hole(h)))) => {
                         let (_, ti) = List.nth(constructors, i);
                         let xs = List.nth(newExCons, i);
-                        ([(var, ti), ...gamma], h, typ, xs)
+                        ([(var, (ti, AnnRec)), ...gamma], h, typ, xs)
                     },
                     branches);
                 (exp, goals, unevalCons)

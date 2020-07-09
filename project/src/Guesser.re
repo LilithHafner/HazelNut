@@ -10,6 +10,8 @@ open Types;
 
 let memo = Array.make(10, []);
 
+let resetMemo = () => Array.mapi((i, x) => memo[i] = [], memo);
+
 let rec partition_h = (n, m, i) => {
     if (m == i) {
         []
@@ -61,7 +63,24 @@ let guessApp = (delta, gamma: context, typ: type_, i: int, j: int): list(exp) =>
                 (x) => {
                     let Function_t(t1, t2) = Typing.getType(delta, gamma, e);
                     let t = Typing.getType(delta, gamma, x);
-                    t == t1
+                    switch (e) {
+                        | Function(n, _, _, _)
+                        | Var(n) => {
+                            let (_, ann1) = Tools.lookup(n, gamma);
+                            if (ann1 == AnnFunc) {
+                                switch (x) {
+                                    | Var(id) => {
+                                        let (_, ann2) = Tools.lookup(id, gamma);
+                                        ann2 == AnnRec && t == t1
+                                    }
+                                    | _ => false
+                                    }
+                            } else {
+                                t == t1
+                            }
+                        }
+                        | _ => t == t1
+                        }
                 },
                 memo[j - 1]);
             List.map(
@@ -74,7 +93,7 @@ let guessApp = (delta, gamma: context, typ: type_, i: int, j: int): list(exp) =>
 
 let guess = (delta: hole_context, gamma: context, typ: type_, i: int): list(exp) => {
     if (i == 1) {
-        let terms = List.filter(((_, t)) => t == typ, gamma);
+        let terms = List.filter(((_, (t, _))) => t == typ, gamma);
         memo[0] = List.map(
             ((x, _)) => Var(x), 
             gamma);

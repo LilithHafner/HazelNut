@@ -21,8 +21,10 @@ let rec getType = (delta: hole_context, gamma: context, e: exp) : type_ =>
         | Function(_, _, typ, e') => Function_t(typ, getType(delta, gamma, e'))
         | Application(e1, e2) => switch (getType(delta, gamma, e1)) {
             | Function_t(t1, t2) when getType(delta, gamma, e2) == t1 => t2
-            | _ => failwith("Application type error")
+            | x => {
+                failwith("Application type error")
             }
+        }
         | Hole(id) => {
             let (_, t) = Tools.lookup(id, delta);
             t

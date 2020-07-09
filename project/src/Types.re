@@ -84,7 +84,7 @@ and adt =
 let sigma: Tools.pairlist(adt, Tools.pairlist(identifier, type_)) = [
     (List, [
      (0, Unit_t),
-     (1, D(List))]),
+     (1, Pair_t(D(Num), D(List)))]),
     (Num, [
      (2, Unit_t),
      (3, D(Num))])
