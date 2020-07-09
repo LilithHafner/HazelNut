@@ -3,6 +3,7 @@
 
 var List = require("bs-platform/lib/js/list.js");
 var Block = require("bs-platform/lib/js/block.js");
+var Tools$MyNewProject = require("./Tools.bs.js");
 var Types$MyNewProject = require("./Types.bs.js");
 var Typing$MyNewProject = require("./Typing.bs.js");
 var Evaluator$MyNewProject = require("./evaluator.bs.js");
@@ -101,16 +102,7 @@ function unevaluate(delta, _res, _ex) {
                   var match = unevaluate(delta, res[0], ex[0]);
                   var match$1 = unevaluate(delta, res[1], ex[1]);
                   if (match !== undefined && match$1 !== undefined) {
-                    return /* tuple */[
-                            List.concat(/* :: */[
-                                  match[0],
-                                  /* :: */[
-                                    match$1[0],
-                                    /* [] */0
-                                  ]
-                                ]),
-                            /* [] */0
-                          ];
+                    return merge(match, match$1);
                   } else {
                     return ;
                   }
@@ -206,7 +198,7 @@ function unevaluate(delta, _res, _ex) {
                   Caml_builtin_exceptions.match_failure,
                   /* tuple */[
                     "unevaluator.re",
-                    45,
+                    49,
                     20
                   ]
                 ];
@@ -262,7 +254,7 @@ function unevaluate(delta, _res, _ex) {
                               Caml_builtin_exceptions.match_failure,
                               /* tuple */[
                                 "unevaluator.re",
-                                63,
+                                67,
                                 24
                               ]
                             ];
@@ -302,7 +294,7 @@ function unevaluate(delta, _res, _ex) {
                             Caml_builtin_exceptions.match_failure,
                             /* tuple */[
                               "unevaluator.re",
-                              63,
+                              67,
                               24
                             ]
                           ];
@@ -331,18 +323,29 @@ function constrainExp(delta, exp, exs) {
   var match$1 = constrainExp(delta, exp, exs[1]);
   var match$2 = unevaluate(delta, Evaluator$MyNewProject.$$eval(match[0], exp), match[1]);
   if (match$1 !== undefined && match$2 !== undefined) {
-    return /* tuple */[
-            List.concat(/* :: */[
-                  match$1[0],
-                  /* :: */[
-                    match$2[0],
-                    /* [] */0
-                  ]
-                ]),
-            /* [] */0
-          ];
+    return merge(match$1, match$2);
   }
   
+}
+
+function merge(k1, k2) {
+  return /* tuple */[
+          merge_h(k1[0], k2[0]),
+          /* [] */0
+        ];
+}
+
+function merge_h(_u1, _u2) {
+  while(true) {
+    var u2 = _u2;
+    var u1 = _u1;
+    if (!u1) {
+      return u2;
+    }
+    _u2 = Tools$MyNewProject.add(u1[0], u2);
+    _u1 = u1[1];
+    continue ;
+  };
 }
 
 function mergeCons(k1, k2) {
@@ -373,6 +376,8 @@ function optionPred(x) {
 
 exports.unevaluate = unevaluate;
 exports.constrainExp = constrainExp;
+exports.merge = merge;
+exports.merge_h = merge_h;
 exports.mergeCons = mergeCons;
 exports.optionPred = optionPred;
 /* No side effect */

@@ -20,14 +20,11 @@ function valToExp(v) {
                   valToExp(v[1])
                 ]);
     case /* Vctor */3 :
-        throw [
-              Caml_builtin_exceptions.match_failure,
-              /* tuple */[
-                "Types.re",
-                150,
-                35
-              ]
-            ];
+        return /* Ctor */Block.__(11, [
+                  v[0],
+                  v[1],
+                  valToExp(v[2])
+                ]);
     
   }
 }
@@ -47,14 +44,11 @@ function valToRes(v) {
                   valToRes(v[1])
                 ]);
     case /* Vctor */3 :
-        throw [
-              Caml_builtin_exceptions.match_failure,
-              /* tuple */[
-                "Types.re",
-                159,
-                36
-              ]
-            ];
+        return /* Rctor */Block.__(10, [
+                  v[0],
+                  v[1],
+                  valToRes(v[2])
+                ]);
     
   }
 }
@@ -67,18 +61,32 @@ function exToExp(ex) {
       return ;
     }
   }
-  if (ex.tag !== /* Epair */2) {
-    return ;
+  switch (ex.tag | 0) {
+    case /* Epair */2 :
+        var match = exToExp(ex[0]);
+        var match$1 = exToExp(ex[1]);
+        if (match !== undefined && match$1 !== undefined) {
+          return /* Pair */Block.__(8, [
+                    match,
+                    match$1
+                  ]);
+        } else {
+          return ;
+        }
+    case /* Ector */4 :
+        var exp = exToExp(ex[2]);
+        if (exp !== undefined) {
+          return /* Ctor */Block.__(11, [
+                    ex[0],
+                    ex[1],
+                    exp
+                  ]);
+        } else {
+          return ;
+        }
+    default:
+      return ;
   }
-  var match = exToExp(ex[0]);
-  var match$1 = exToExp(ex[1]);
-  if (match !== undefined && match$1 !== undefined) {
-    return /* Pair */Block.__(8, [
-              match,
-              match$1
-            ]);
-  }
-  
 }
 
 function resToVal(_res) {
@@ -119,6 +127,17 @@ function resToVal(_res) {
             return /* Vpair */Block.__(2, [
                       match,
                       match$1
+                    ]);
+          } else {
+            return ;
+          }
+      case /* Rctor */10 :
+          var v = resToVal(res[2]);
+          if (v !== undefined) {
+            return /* Vctor */Block.__(3, [
+                      res[0],
+                      res[1],
+                      v
                     ]);
           } else {
             return ;
@@ -199,7 +218,7 @@ function $$eval(__env, _e) {
                 Caml_builtin_exceptions.match_failure,
                 /* tuple */[
                   "Types.re",
-                  207,
+                  226,
                   44
                 ]
               ];
@@ -212,7 +231,43 @@ function castable(res) {
   return resToVal(res) !== undefined;
 }
 
-var sigma = /* [] */0;
+var sigma = /* :: */[
+  /* tuple */[
+    /* List */0,
+    /* :: */[
+      /* tuple */[
+        0,
+        /* Unit_t */2
+      ],
+      /* :: */[
+        /* tuple */[
+          1,
+          /* D */Block.__(3, [/* List */0])
+        ],
+        /* [] */0
+      ]
+    ]
+  ],
+  /* :: */[
+    /* tuple */[
+      /* Num */1,
+      /* :: */[
+        /* tuple */[
+          2,
+          /* Unit_t */2
+        ],
+        /* :: */[
+          /* tuple */[
+            3,
+            /* D */Block.__(3, [/* Num */1])
+          ],
+          /* [] */0
+        ]
+      ]
+    ],
+    /* [] */0
+  ]
+];
 
 exports.sigma = sigma;
 exports.valToExp = valToExp;

@@ -6,10 +6,11 @@ var Block = require("bs-platform/lib/js/block.js");
 var Pervasives = require("bs-platform/lib/js/pervasives.js");
 var Tools$MyNewProject = require("./Tools.bs.js");
 var Types$MyNewProject = require("./Types.bs.js");
+var Printer$MyNewProject = require("./Printer.bs.js");
 var Caml_builtin_exceptions = require("bs-platform/lib/js/caml_builtin_exceptions.js");
 var IdGenerator$MyNewProject = require("./IdGenerator.bs.js");
 
-function refinable(typ) {
+function refinable(typ, exs) {
   if (typeof typ === "number") {
     if (typ === /* Unit_t */2) {
       return true;
@@ -20,8 +21,44 @@ function refinable(typ) {
   switch (typ.tag | 0) {
     case /* Function_t */1 :
     case /* Pair_t */2 :
-    case /* D */3 :
         return true;
+    case /* D */3 :
+        if (!exs) {
+          return true;
+        }
+        var match = exs[0][1];
+        if (typeof match === "number") {
+          return false;
+        }
+        if (match.tag !== /* Ector */4) {
+          return false;
+        }
+        var xs = exs[1];
+        var id = match[0];
+        return List.length(List.filter((function (param) {
+                            var match = param[1];
+                            if (typeof match === "number") {
+                              throw [
+                                    Caml_builtin_exceptions.match_failure,
+                                    /* tuple */[
+                                      "Refiner.re",
+                                      14,
+                                      44
+                                    ]
+                                  ];
+                            }
+                            if (match.tag === /* Ector */4) {
+                              return id === match[0];
+                            }
+                            throw [
+                                  Caml_builtin_exceptions.match_failure,
+                                  /* tuple */[
+                                    "Refiner.re",
+                                    14,
+                                    44
+                                  ]
+                                ];
+                          }))(xs)) === List.length(xs);
     default:
       return false;
   }
@@ -48,6 +85,7 @@ function allUnit(_exs) {
 function allPairs(_exs) {
   while(true) {
     var exs = _exs;
+    console.log("Pair check");
     if (!exs) {
       return true;
     }
@@ -66,6 +104,7 @@ function allPairs(_exs) {
 function allFuncs(_exs) {
   while(true) {
     var exs = _exs;
+    console.log("Func check");
     if (!exs) {
       return true;
     }
@@ -82,6 +121,7 @@ function allFuncs(_exs) {
 }
 
 function allConstructs(exs) {
+  console.log("Con check");
   var c;
   if (exs) {
     var match = exs[0][1];
@@ -114,7 +154,7 @@ function firstExs(exs) {
                         Caml_builtin_exceptions.match_failure,
                         /* tuple */[
                           "Refiner.re",
-                          65,
+                          75,
                           4
                         ]
                       ];
@@ -129,7 +169,7 @@ function firstExs(exs) {
                       Caml_builtin_exceptions.match_failure,
                       /* tuple */[
                         "Refiner.re",
-                        65,
+                        75,
                         4
                       ]
                     ];
@@ -144,7 +184,7 @@ function sndExs(exs) {
                         Caml_builtin_exceptions.match_failure,
                         /* tuple */[
                           "Refiner.re",
-                          69,
+                          79,
                           4
                         ]
                       ];
@@ -159,7 +199,7 @@ function sndExs(exs) {
                       Caml_builtin_exceptions.match_failure,
                       /* tuple */[
                         "Refiner.re",
-                        69,
+                        79,
                         4
                       ]
                     ];
@@ -174,7 +214,7 @@ function prepFuncExs(exs, vid) {
                         Caml_builtin_exceptions.match_failure,
                         /* tuple */[
                           "Refiner.re",
-                          73,
+                          83,
                           4
                         ]
                       ];
@@ -195,7 +235,7 @@ function prepFuncExs(exs, vid) {
                       Caml_builtin_exceptions.match_failure,
                       /* tuple */[
                         "Refiner.re",
-                        73,
+                        83,
                         4
                       ]
                     ];
@@ -210,7 +250,7 @@ function prepConsExs(exs) {
                         Caml_builtin_exceptions.match_failure,
                         /* tuple */[
                           "Refiner.re",
-                          77,
+                          87,
                           4
                         ]
                       ];
@@ -225,7 +265,7 @@ function prepConsExs(exs) {
                       Caml_builtin_exceptions.match_failure,
                       /* tuple */[
                         "Refiner.re",
-                        77,
+                        87,
                         4
                       ]
                     ];
@@ -233,106 +273,109 @@ function prepConsExs(exs) {
 }
 
 function refine(context, typ, exs) {
+  console.log(Printer$MyNewProject.string_of_type_(typ));
   if (typeof typ === "number") {
-    if (typ === /* Unit_t */2) {
-      if (allUnit(exs)) {
-        return /* tuple */[
-                /* Unit */1,
-                /* [] */0
-              ];
-      } else {
-        return Pervasives.failwith("Goal type inconsistent with examples");
-      }
-    } else {
+    if (typ !== /* Unit_t */2) {
       return Pervasives.failwith("Not a refinement type");
     }
-  }
-  switch (typ.tag | 0) {
-    case /* Function_t */1 :
-        var t1 = typ[0];
-        if (!allFuncs(exs)) {
-          return Pervasives.failwith("Goal type inconsistent with examples");
-        }
-        var x = IdGenerator$MyNewProject.getId(undefined);
-        var h = IdGenerator$MyNewProject.getId(undefined);
-        return /* tuple */[
-                /* Function */Block.__(4, [
-                    x,
-                    t1,
-                    /* Hole */Block.__(6, [h])
-                  ]),
-                /* :: */[
-                  /* tuple */[
+    if (allUnit(exs)) {
+      return /* tuple */[
+              /* Unit */1,
+              /* [] */0
+            ];
+    }
+    
+  } else {
+    switch (typ.tag | 0) {
+      case /* Function_t */1 :
+          var t1 = typ[0];
+          if (allFuncs(exs)) {
+            var x = IdGenerator$MyNewProject.getId(undefined);
+            var h = IdGenerator$MyNewProject.getId(undefined);
+            return /* tuple */[
+                    /* Function */Block.__(4, [
+                        x,
+                        t1,
+                        /* Hole */Block.__(6, [h])
+                      ]),
                     /* :: */[
                       /* tuple */[
-                        x,
-                        t1
+                        /* :: */[
+                          /* tuple */[
+                            x,
+                            t1
+                          ],
+                          context
+                        ],
+                        h,
+                        typ[1],
+                        prepFuncExs(exs, x)
                       ],
-                      context
-                    ],
-                    h,
-                    typ[1],
-                    prepFuncExs(exs, x)
-                  ],
-                  /* [] */0
-                ]
-              ];
-    case /* Pair_t */2 :
-        if (!allPairs(exs)) {
-          return Pervasives.failwith("Goal type inconsistent with examples");
-        }
-        var x$1 = IdGenerator$MyNewProject.getId(undefined);
-        var y = IdGenerator$MyNewProject.getId(undefined);
-        return /* tuple */[
-                /* Pair */Block.__(8, [
-                    /* Hole */Block.__(6, [x$1]),
-                    /* Hole */Block.__(6, [y])
-                  ]),
-                /* :: */[
-                  /* tuple */[
-                    context,
-                    x$1,
-                    typ[0],
-                    firstExs(exs)
-                  ],
+                      /* [] */0
+                    ]
+                  ];
+          }
+          break;
+      case /* Pair_t */2 :
+          if (allPairs(exs)) {
+            var x$1 = IdGenerator$MyNewProject.getId(undefined);
+            var y = IdGenerator$MyNewProject.getId(undefined);
+            return /* tuple */[
+                    /* Pair */Block.__(8, [
+                        /* Hole */Block.__(6, [x$1]),
+                        /* Hole */Block.__(6, [y])
+                      ]),
+                    /* :: */[
+                      /* tuple */[
+                        context,
+                        x$1,
+                        typ[0],
+                        firstExs(exs)
+                      ],
+                      /* :: */[
+                        /* tuple */[
+                          context,
+                          y,
+                          typ[1],
+                          sndExs(exs)
+                        ],
+                        /* [] */0
+                      ]
+                    ]
+                  ];
+          }
+          break;
+      case /* D */3 :
+          var adt = typ[0];
+          var c = allConstructs(exs);
+          if (c === undefined) {
+            return Pervasives.failwith("Examples inconsistent with constructor");
+          }
+          var h$1 = IdGenerator$MyNewProject.getId(undefined);
+          var t = Tools$MyNewProject.lookup(c, Tools$MyNewProject.lookup(adt, Types$MyNewProject.sigma));
+          return /* tuple */[
+                  /* Ctor */Block.__(11, [
+                      c,
+                      adt,
+                      /* Hole */Block.__(6, [h$1])
+                    ]),
                   /* :: */[
                     /* tuple */[
                       context,
-                      y,
-                      typ[1],
-                      sndExs(exs)
+                      h$1,
+                      t,
+                      prepConsExs(exs)
                     ],
                     /* [] */0
                   ]
-                ]
-              ];
-    case /* D */3 :
-        var adt = typ[0];
-        var c = allConstructs(exs);
-        if (c === undefined) {
-          return Pervasives.failwith("Examples inconsistent with constructor");
-        }
-        var h$1 = IdGenerator$MyNewProject.getId(undefined);
-        var t = Tools$MyNewProject.lookup(c, Tools$MyNewProject.lookup(adt, Types$MyNewProject.sigma));
-        return /* tuple */[
-                /* Ctor */Block.__(11, [
-                    c,
-                    adt,
-                    /* Hole */Block.__(6, [h$1])
-                  ]),
-                /* :: */[
-                  /* tuple */[
-                    context,
-                    h$1,
-                    t,
-                    prepConsExs(exs)
-                  ],
-                  /* [] */0
-                ]
-              ];
-    default:
-      return Pervasives.failwith("Not a refinement type");
+                ];
+      default:
+        return Pervasives.failwith("Not a refinement type");
+    }
   }
+  console.log(Printer$MyNewProject.string_of_type_(typ));
+  console.log(Printer$MyNewProject.string_of_excons(exs));
+  return Pervasives.failwith("Goal type inconsistent with examples");
 }
 
 exports.refinable = refinable;

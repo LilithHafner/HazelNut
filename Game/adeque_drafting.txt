@@ -1,0 +1,56 @@
+Efficiency: Right now, bound variable substitution takes O(n) time
+    were n is the length of the bound variable's tail. 
+    
+
+    
+    I think we have qexp = env * exp * tail, and tail needs to support
+
+    pop, push, and combine
+
+    Right now, we have us a list and have O(1) pop and push, 
+    but O(n) combine.
+    
+    I think we can do better.
+    
+    
+    What if we assume an immutable O(1) deque (which totally exists!)
+        (See stackoverflow.com/a/3274355 for some deques)
+
+    'a t = 'a deque 
+    gives
+    Pop = O(1), Push = O(1), Combine = Log(min(m,n))
+    
+    Can we do better?
+
+    I'm looking to:
+        Be immutable and persistant
+        Pop, push, and peek elements from the left
+        Push ts from the right.
+
+    
+    type 'a t = 'a node deque
+    and 'a node Leaf('a) | Node('a node deque)
+
+    let _pop (top:'a t): 'a node -> 'a * 'a t = function
+    | Leaf(e) -> e
+    | Node(n) ->  let n, n = pop n
+
+
+    type 'a t = Leaf('a) | Node('a t deque)
+    let _pop n = match pop n with
+    | Leaf e, rest -> e, rest
+    | Node EmptyQueue, rest -> _pop rest
+    | Node nn, rest -> let e, nn = pop nn in _pop push e push nn rest
+
+
+
+    type 'a tree = Leaf('a) | Tree('a t deque)
+    let _pop top current = match
+
+    I think we can do all that in O(1).
+
+    'a t = Leaf of 'a | 'a t deque
+    
+    let pop = function
+    | Leaf -> None
+    | deque

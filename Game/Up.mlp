@@ -3,7 +3,7 @@
 type hole = id
 type variable = id
 
-type exp =
+(* type exp =
       Hole of hole
     | Variable of variable
     | Application of exp * exp
@@ -12,7 +12,7 @@ and annotation = (exp * exp) list
 type env = (variable * qexp) list
 and qexp = QExp of env * exp * tail
 and tail = qexp list
-type assertion = qexp * qexp
+type assertion = qexp * qexp *)
 
 (* Play *)
 type node = {

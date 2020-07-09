@@ -4,7 +4,7 @@ type node = {
     mutable value: float; (* When you update this, also update the parent's total trackers. *)
     sign: float;
     mutable way_down: way_down;
-    parent: parent;
+    mutable parent: parent;
 }
 and way_down = 
     | Leaf of assertion option

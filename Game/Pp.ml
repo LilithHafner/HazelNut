@@ -2,29 +2,19 @@ open Grammar
 open Up
 open PlayTypes
 
-let without_newlines f x =
-    String.concat
-        ""
-        (List.map
-            String.trim 
-            (String.split_on_char 
-                '\n' 
-                (f x)))
-let without_empty_list_lines f x =
-    Str.global_replace (Str.regexp "\\[\n[ ]*\n[ ]*\\]") ""
-        (Str.global_replace (Str.regexp "\\[\n[ ]*\n[ ]*\\], ") "" (f x))
+let string_of_exp = Ppp.string_of_exp
+let string_of_annotation = Ppp.string_of_annotation
+let string_of_env = Ppp.string_of_env
+let string_of_qexp = Ppp.string_of_qexp
+let string_of_assertion = Ppp.string_of_assertion
 
-let string_of_qexp = without_newlines string_of_qexp
-let string_of_exp = without_newlines string_of_exp
+
 let string_of_fillings x = 
-    string_of_fillings x |>
-    Str.global_replace (Str.regexp "\\[\n *\n *\\], ") "" |>
-    Str.global_replace (Str.regexp "    (\\([^,]+\\), \\([^;]+\\);?") "  \\1 -> \\2" 
-    
+    List.sort compare x |>
+    string_of_fillings |>
+    Str.global_replace (Str.regexp "    (\\([^,]+\\), \\([^;]+\\));?\n") "  \\1 -> \\2\n"
     
 
-let string_of_assertion ((q1, q2):assertion) = 
-    (string_of_qexp q1)^" =\n"^(string_of_qexp q2)
 
 let string_of_tree (label_and_children_of_node:'a -> string list * 'a list) (root:'a):string =
     let rec r newline node = 
@@ -74,4 +64,3 @@ let p_string_of_node node = string_of_tree (fun (tag, node) ->
     in
     tag@label, children)
     ([], node)
-

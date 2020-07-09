@@ -30,6 +30,8 @@ let apply_inference_rules (assertion:assertion):(hole * exp list) option * asser
 
 let down_weight_v sign value = exp(sign*.value/.Parameters.sigma_down)
 let up_weight_v sign value = exp(sign*.value/.Parameters.sigma_up)
+(* TODO: This is very inneficient. It is a workaround due to 
+numerical precision issues. *)
 let down_weight sign node = down_weight_v sign node.value
 let up_weight sign node = up_weight_v sign node.value
 let best_child sign (children:node array):int = let out, _, _ = Array.fold_left
@@ -41,8 +43,8 @@ let best_child sign (children:node array):int = let out, _, _ = Array.fold_left
 let infer_value sign ({children;link;_}:non_leaf_data) = match link with
     | Linked {selection=Some index;_} -> children.(index).value
     | Linked {selection=None;_} -> -. sign *. Parameters.big_number
-    | Unlinked {up_total} -> sign *. max (-.Parameters.big_number)
-        (Parameters.sigma_up *. log up_total)
+    | Unlinked {up_total} -> sign *. Parameters.sigma_up *. log
+        (max up_total (exp (-.Parameters.big_number/.Parameters.sigma_up)))
 let weighted_choice total weights = 
     let rec f feul index = 
         let feul = feul -. weights.(index) in
@@ -84,14 +86,14 @@ let rec add_children (node:node) (link:(hole * exp list) option) (children:node 
     let child_weights = Array.map (down_weight node.sign) children in
     let down_total = sum child_weights in
     let non_leaf_data = {children; down_total; child_weights; link} in
-    Array.iteri (fun i child -> children.(i) <- {child with parent = Some(node, i, non_leaf_data)}) children;
+    Array.iteri (fun i child -> child.parent <- Some(node, i, non_leaf_data)) children;
     node.way_down <- Node(non_leaf_data);
     up true node;
 
 (* Call "down node" to think about node *)
 and down (node:node):unit =
     if abs_float node.value > Parameters.stop_thinking_threshold
-    then up true node
+    then (printf "[Play] WARNING: Stopped thinking on the way down due to reaching stop_thinking_threshold, oddly. Perhaps this is on account of following a link. We shouldn't follow forced loss links. We should do a clever little probability that takes the link and discrepancy into account, but we should never end up here. Yet here we are.\n"; up true node)
     else match node.way_down with 
     | Leaf(assertion) -> 
         (* Expand *)
@@ -119,26 +121,26 @@ and up (live:bool) (node:node):unit =
     | _ -> failwith "[up] precondition violation: node.way_down must be a Node"
     in
     (* Sometimes update a linked node's choice *)
-    match nld.link with
+    (match nld.link with
     | Linked link when live && Random.float (float_of_int (counter
             (Hashtbl.find links link.id))) < Parameters.k2 ->
         let selection = best_child node.sign nld.children in
-        if Some selection <> link.selection then
+        if Some selection <> link.selection then (
             link.selection <- Some selection;
             let choice = List.nth link.choices selection in
+            (Hashtbl.find links link.id).choice <- choice;
             List.iter 
                 (fun (n, l) ->
                     let selection =  Hashtbl.find_opt l.table choice in
-                    if selection <> l.selection then
+                    if selection <> l.selection then (
                         l.selection <- selection;
-                        up false n)
-                (Hashtbl.find links link.id).members
-    | _ -> ();
-    
-    (* Recalculate node's value and... *)
-    let old_value = node.value in
-    node.value <- infer_value node.sign nld;
+                        up false n))
+                (Hashtbl.find links link.id).members)
+    | _ -> ());
 
+    (* Recalculate node's value and... *)
+    (* let old_value = node.value in *)
+    node.value <- infer_value node.sign nld;
     Option.iter (fun (n,i,nld) ->
         (* Update node.parent's non_leaf_data as needed *)
         let sign = n.sign in
@@ -147,9 +149,12 @@ and up (live:bool) (node:node):unit =
             -. nld.child_weights.(i) +. new_down_weight;
         nld.child_weights.(i) <- new_down_weight;
         (match nld.link with 
-        | Unlinked data -> data.up_total <- data.up_total
-            -. up_weight_v sign old_value +. up_weight sign node
+        | Unlinked data -> data.up_total <- (* data.up_total
+            -. up_weight_v sign old_value +. up_weight sign node *)
+            (* TODO: This is inneficient. It is a workaround due to 
+            numerical precision issues. *)
+            sum (Array.map (up_weight sign) nld.children)
         | Linked _ -> ());
         (* Update node.parent's value and ancestry as needed *)
-        up live n) 
+        up live n)
         node.parent;
