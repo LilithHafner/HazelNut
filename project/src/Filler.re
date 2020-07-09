@@ -105,24 +105,27 @@ and fill_h = (delta, holeFillings, gamma, h, typ, exs) => {
 
                 let bs = Brancher.branch(delta, gamma, typ, exs)
                     |> List.map(
-                        ((exp, goals, excons)) => {
-                            let es = List.map(
-                                ((gamma', h, t, xs)) => guessAndCheck(delta, gamma',  t, xs),
-                                goals);
+                        (xs) => {
+                            List.map(
+                                ((exp, goals, excons)) => {
+                                    let es = List.map(
+                                        ((gamma', h, t, xs)) => guessAndCheck(delta, gamma',  t, xs),
+                                        goals);
 
-                            if (allBranchesFound(es)) {
-                                let Case(e', branches) = exp;
-                                let expBranches = List.mapi(
-                                    (i, (c, (x, _))) => {
-                                        let Some(e'') = List.nth(es, i);
-                                        (c, (x, e''))
-                                    },
-                                    branches);
-                                Some(Case(e', expBranches))
-                            } else {
-                                None
-                            }
-                        });
+                                    if (allBranchesFound(es)) {
+                                        let Case(e', branches) = exp;
+                                        let expBranches = List.mapi(
+                                            (i, (c, (x, _))) => {
+                                                let Some(e'') = List.nth(es, i);
+                                                (c, (x, e''))
+                                            },
+                                            branches);
+                                        Some(Case(e', expBranches))
+                                    } else {
+                                        None
+                                    }
+                                }, xs)})
+                    |> List.concat;
                 switch (List.filter(optionPred, bs)) {
                     | [] => None
                     | [Some(e'), ...xs] => {
