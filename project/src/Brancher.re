@@ -49,6 +49,9 @@ and branch_indiv = (delta, gamma, typ, exs, datatype) => {
                             | Pair_t(t1, t2) => {
                                 let x1 = IdGenerator.getId();
                                 let x2 = IdGenerator.getId();
+                                Js.log("Generated");
+                                Js.log(x1);
+                                Js.log(x2);
                                 (id, (P(V(x1), V(x2)), Hole(h)))
                             }
                             | _ => {

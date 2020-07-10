@@ -104,12 +104,21 @@ and getPatRes = (id, p, r) =>
 
 and getPatRes_h = (id, p, r) => 
     switch (p) {
-        | V(id) => Some(r)
+        | V(x) when x == id => Some(r)
+        | V(_) => None
         | P(p1, p2) => switch (getPatRes_h(id, p1, r), getPatRes_h(id, p2, r)) {
             | (Some(r'), None) => Some(Rfst(r'))
             | (None, Some(r')) => Some(Rsnd(r'))
-            | _ => failwith("Id not found in pattern")
+            | (None, None) => failwith("Id not found in pattern")
+            | (Some(r1), Some(r2)) => {
+                Js.log("Id:");
+                Js.log(id);
+                Js.log(Printer.string_of_pat(p));
+                Js.log(Printer.string_of_res(r1));
+                Js.log(Printer.string_of_res(r2));
+                failwith("The same variable id is bound in two places in the same pattern")
             }
+        }
     }
 
 // exs = list((env, ex))
