@@ -62,7 +62,13 @@ and string_of_res(r:res):string =
 and string_of_branches(b:branches):string =
     switch(b) {
         | [] => ""
-        | [(name, (id, exp)), ...xs] => "C" ++ string_of_int(name) ++ " " ++ string_of_int(id) ++ " -> " ++ string_of_exp(exp) ++ "; " ++ string_of_branches(xs)
+        | [(name, (pat, exp)), ...xs] => "C" ++ string_of_int(name) ++ " " ++ string_of_pat(pat) ++ " -> " ++ string_of_exp(exp) ++ "; " ++ string_of_branches(xs)
+        }
+
+and string_of_pat(p:pattern):string =
+    switch(p) {
+        | V(x) => string_of_identifier(x);
+        | P(p1, p2) => "(" ++ string_of_pat(p1)++", "++string_of_pat(p2)++")"
         }
 
 and string_of_env(e:environment):string =
@@ -89,6 +95,7 @@ and string_of_adt(d: adt):string =
     switch (d) {
         | List => "List"
         | Num => "Num"
+        | Bool => "Bool"
         }
 
 and string_of_example(ex: example):string =

@@ -43,18 +43,30 @@ and branch_indiv = (delta, gamma, typ, exs, datatype) => {
                 distributedExs)
                 |> List.fold_left(Unevaluator.mergeCons, Some(([], [])));
                 let branches = List.map(
-                    ((id, _)) => {
-                        let x = IdGenerator.getId();
+                    ((id, t)) => {
                         let h = IdGenerator.getId();
-                        (id, (x, Hole(h)))
+                        switch (t) {
+                            | Pair_t(t1, t2) => {
+                                let x1 = IdGenerator.getId();
+                                let x2 = IdGenerator.getId();
+                                (id, (P(V(x1), V(x2)), Hole(h)))
+                            }
+                            | _ => {
+                                let x = IdGenerator.getId();
+                                (id, (V(x), Hole(h)))
+                            }
+                        }
                     },
                     constructors);
                 let exp = Case(e, branches);
                 let newExCons = List.map2(
-                    (dExs, (id, (x, _))) => List.map(
+                    (dExs, (id, (p, _))) => List.map(
                         ((env, ex)) => {
                             let r = simplifyConstructor(Rictor(id, datatype, Evaluator.eval(env, e)));
-                            ([(x, r), ...env], ex)
+                            let patBinds = List.map(
+                                (x) => Unevaluator.getPatRes(x, p, r),
+                                Unevaluator.getPatIds(p));
+                            (patBinds @ env, ex)
                         },
                         dExs),
                     distributedExs, branches);
@@ -63,7 +75,19 @@ and branch_indiv = (delta, gamma, typ, exs, datatype) => {
                     (i, (id, (var, Hole(h)))) => {
                         let (_, ti) = List.nth(constructors, i);
                         let xs = List.nth(newExCons, i);
-                        ([(var, (ti, AnnRec)), ...gamma], h, typ, xs)
+                        switch (ti) {
+                            | Pair_t(t1, t2) => {
+                                let v1 = IdGenerator.getId();
+                                let v2 = IdGenerator.getId();
+                                let xs = List.map(
+                                    ((env, ex)) => {
+                                        let r = Tools.lookup(var, env);
+                                        ([(v1, Rfst(r)), (v2, Rsnd(r)), ...env], ex)
+                                    }, xs);
+                                ([(var, (ti, AnnRec)), (v1, (t1, AnnRec)), (v2, (t2, AnnRec)), ...gamma], h, typ, xs)
+                            }
+                            | _ => ([(var, (ti, AnnRec)), ...gamma], h, typ, xs)
+                        }
                     },
                     branches);
                 (exp, goals, unevalCons)

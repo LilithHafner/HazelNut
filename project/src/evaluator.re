@@ -39,11 +39,18 @@ let rec eval = (_env:environment, e:exp):res => {
         | Case(e1, branches) =>
             switch (eval(_env, e1)) {
                 | Rctor(id, _, r) => {
-                    let (var, e2) = Tools.lookup(id, branches);
-                    eval([(var, r), ..._env], e2)
+                    let (pat, e2) = Tools.lookup(id, branches);
+                    eval(getPatEnv(pat, r) @ _env, e2)
                 }
                 | _ => failwith("Type error: expected a constructor within case")
             }
     }
-};
+}
+
+and getPatEnv = (pat, r) => 
+    switch (pat, r) {
+        | (V(x), _) => [(x, r)]
+        | (P(p1, p2), Rpair(r1, r2)) => getPatEnv(p1, r1) @ getPatEnv(p2, r2)
+        | _ => failwith("Result does not match constructor pattern")
+        }
 

@@ -67,10 +67,13 @@ let rec unevaluate = (delta, res:res, ex:example) : option(unevalcons) => {
         | (_, Rictor(id, adt, r')) => unevaluate(delta, r', Ector(id, adt, ex))
         | (_, Rcase(r', branches, env)) => {
             let cons = List.map(
-                ((ctor_id, (id, e1))) => {
+                ((ctor_id, (p, e1))) => {
                     let D(t) = Typing.getResType(delta, r');
                     let k1 = unevaluate(delta, r', Ector(ctor_id, t, Top));
-                    let k2 = constrainExp(delta, e1, [([(id, Rictor(ctor_id, t, r')), ...env], ex)]);
+                    let patBinds = List.map(
+                        (x) => getPatRes(x, p, Rictor(ctor_id, t, r')),
+                        getPatIds(p));
+                    let k2 = constrainExp(delta, e1, [(patBinds @ env, ex)]);
                     switch (mergeCons(k1, k2)) {
                         | None => None
                         | x => x
@@ -86,6 +89,28 @@ let rec unevaluate = (delta, res:res, ex:example) : option(unevalcons) => {
         | _ => None // fail
     }
 }
+
+and getPatIds = (p) => 
+    switch (p) {
+        | V(x) => [x]
+        | P(p1, p2) => getPatIds(p1) @ getPatIds(p2)
+        }
+
+and getPatRes = (id, p, r) => 
+    switch (getPatRes_h(id, p, r)) {
+        | Some(x) => (id, x)
+        | None => failwith("Id wasn't found in pattern")
+        }
+
+and getPatRes_h = (id, p, r) => 
+    switch (p) {
+        | V(id) => Some(r)
+        | P(p1, p2) => switch (getPatRes_h(id, p1, r), getPatRes_h(id, p2, r)) {
+            | (Some(r'), None) => Some(Rfst(r'))
+            | (None, Some(r')) => Some(Rsnd(r'))
+            | _ => failwith("Id not found in pattern")
+            }
+    }
 
 // exs = list((env, ex))
 // e -> r using env
