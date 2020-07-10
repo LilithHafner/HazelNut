@@ -407,7 +407,7 @@ and parse_branches(x) = {
         parse_branches(x)
     | ['1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '0', ..._] =>   
                 let (v0, x) = parse_int(x);
-        let (v1, x) = parse_int(x);
+        let (v1, x) = parse_pattern(x);
         let (v2, x) = parse_exp(x);
         let (rest, x) = parse_branches(x);
         ([(v0, (v1, v2)), ...rest], x)

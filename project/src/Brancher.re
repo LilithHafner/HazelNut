@@ -72,21 +72,16 @@ and branch_indiv = (delta, gamma, typ, exs, datatype) => {
                     distributedExs, branches);
 
                 let goals = List.mapi(
-                    (i, (id, (var, Hole(h)))) => {
+                    (i, (id, (pat, Hole(h)))) => {
                         let (_, ti) = List.nth(constructors, i);
                         let xs = List.nth(newExCons, i);
-                        switch (ti) {
-                            | Pair_t(t1, t2) => {
-                                let v1 = IdGenerator.getId();
-                                let v2 = IdGenerator.getId();
-                                let xs = List.map(
-                                    ((env, ex)) => {
-                                        let r = Tools.lookup(var, env);
-                                        ([(v1, Rfst(r)), (v2, Rsnd(r)), ...env], ex)
-                                    }, xs);
-                                ([(var, (ti, AnnRec)), (v1, (t1, AnnRec)), (v2, (t2, AnnRec)), ...gamma], h, typ, xs)
+                        switch (pat) {
+                            | V(var) => ([(var, (ti, AnnRec)), ...gamma], h, typ, xs)
+                            | P(V(x1), V(x2)) => {
+                                let Pair_t(t1, t2) = ti;
+                                ([(x1, (t1, AnnRec)), (x2, (t2, AnnRec)), ...gamma], h, typ, xs)
                             }
-                            | _ => ([(var, (ti, AnnRec)), ...gamma], h, typ, xs)
+                            | _ => failwith("Sam took a shortcut and this isn't implemented yet. Blame him")
                         }
                     },
                     branches);
