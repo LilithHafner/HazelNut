@@ -69,6 +69,11 @@ and branch_indiv = (delta, gamma, typ, exs, datatype) => {
                             let patBinds = List.map(
                                 (x) => Unevaluator.getPatRes(x, p, r),
                                 Unevaluator.getPatIds(p));
+                            Js.log(Printer.string_of_env(patBinds));
+                            Js.log("Context");
+                            Js.log(Printer.string_of_context(gamma));
+                            Js.log("Env");
+                            Js.log(Printer.string_of_env(env));
                             (patBinds @ env, ex)
                         },
                         dExs),
