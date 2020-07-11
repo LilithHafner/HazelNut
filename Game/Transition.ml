@@ -81,3 +81,6 @@ let apply_inference_rules (assertion:assertion):transition =
             assertionss)
     );
     out
+
+let fill_hole_with (assertion:assertion) (exp:exp) =
+    failwith "Transition: Not implemented"

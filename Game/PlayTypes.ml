@@ -11,7 +11,7 @@ and way_down =
     | Node of non_leaf_data
 and parent = (node * int * non_leaf_data) option
 and non_leaf_data = {
-    children: node array;
+    mutable children: node array;
     mutable down_total: float;
     child_weights: float array;
     link: link;
@@ -22,12 +22,13 @@ and link =
 and up_total = {mutable up_total:float}
 and link_link = {
     id: Id.t;
-    choices: exp list;
+    mutable choices: exp list;
     table: (exp, int) Hashtbl.t;
-    mutable selection: int option;
+    assertion: assertion;
+    mutable selection: int;
 }
 type link_data = {
     mutable counter:int;
     mutable choice:exp;
-    mutable members:(node * link_link) list;
+    mutable members:(node * non_leaf_data * link_link) list;
 }

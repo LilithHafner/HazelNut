@@ -110,9 +110,9 @@ Behavior: limit the depth of the depth first search in the absence
 
 NEXT:
 Critical behavior: add new link opitions when forking up
-a linked choice change.
+a linked choice change. mostly done.
 
-Simplification: Remove support for a None link selectiion.
+Simplification: Remove support for a None link selectiion. DONE
 
 Efficiency?: optimize away linked trivial protagonist choices
 

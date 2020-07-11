@@ -40,12 +40,12 @@ and type_1 = {
 and link_link = {
     id: id;
     choices: exp list;
-    selection: int option;
+    selection: int;
 }
 type link_data = {
     counter:int;
     choice:exp;
-    members:(node * link_link) list;
+    members:(node * non_leaf_data *link_link) list;
 }
 
 type node_array = node list
