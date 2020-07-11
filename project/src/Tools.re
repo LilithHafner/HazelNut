@@ -4,7 +4,7 @@ let rec lookup = (key, plst) => {
     switch (plst) {
         | [] => {
             Js.log(key);
-            failwith("Key not in list")
+            raise(Not_found)
         }
         | [(id, value), ..._] when id == key => value
         | [_, ...xs] => lookup(key, xs)

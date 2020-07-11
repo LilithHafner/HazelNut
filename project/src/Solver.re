@@ -27,6 +27,7 @@ let rec solve_h = (hContext, k) => {
 };
 
 let solve = (k) => {
+    Refiner.outFunc := true;
     let Some(k') = k;
     let (u, _) = k';
     let hContext = Typing.generateHoleContextU(u);

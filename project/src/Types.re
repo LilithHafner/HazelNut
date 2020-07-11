@@ -5,7 +5,7 @@
 // Variable and hole names
 type identifier = int
 type hole_identifier = int
-type branches = Tools.pairlist(identifier, (identifier, exp))//parser_generator.py: ignore
+type branches = Tools.pairlist(identifier, (pattern, exp))//parser_generator.py: ignore
 
 // Expressions in the language
 //   Very small for now
@@ -63,6 +63,10 @@ and ann =
     | AnnRec 
     | AnnFunc 
 
+and pattern = 
+    | V(identifier)
+    | P(pattern, pattern)
+
 // Map from variable names to results
 and environment = Tools.pairlist(identifier, res)//parser_generator.py: ignore
 // Map from variable names to types
@@ -79,15 +83,19 @@ and hole_context = Tools.pairlist(hole_identifier, (context, type_)) //parser_ge
 and adt = 
     | List 
     | Num 
+    | Bool 
 
 // Datatype context
 let sigma: Tools.pairlist(adt, Tools.pairlist(identifier, type_)) = [
     (List, [
      (0, Unit_t),
-     (1, D(List))]),
+     (1, Pair_t(D(Num), D(List)))]),
     (Num, [
-     (2, Unit_t),
-     (3, D(Num))])
+     (0, Unit_t),
+     (1, D(Num))]),
+    (Bool, [
+     (0, Unit_t),
+     (1, Unit_t)])
 ];
 
 // Examples

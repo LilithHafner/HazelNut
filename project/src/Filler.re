@@ -55,6 +55,7 @@ let rec guessAndCheck_h = (delta, gamma, typ, exs, i) => {
 };
 
 let guessAndCheck = (delta, gamma, typ, exs) => {
+    Guesser.resetMemo();
     guessAndCheck_h(delta, gamma, typ, exs, 1)
 };
 

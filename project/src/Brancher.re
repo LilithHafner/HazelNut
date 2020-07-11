@@ -9,7 +9,7 @@ let simplifyConstructor = (res) =>
 
 let rec branch = (delta:hole_context, gamma:context, typ:type_, exs:excons) => {
     let datatypes = List.map(
-        ((id, t)) => t,
+        ((id, (t, _))) => t,
         gamma)
         |> List.filter(
             (t) => switch (t) {
@@ -43,27 +43,54 @@ and branch_indiv = (delta, gamma, typ, exs, datatype) => {
                 distributedExs)
                 |> List.fold_left(Unevaluator.mergeCons, Some(([], [])));
                 let branches = List.map(
-                    ((id, _)) => {
-                        let x = IdGenerator.getId();
+                    ((id, t)) => {
                         let h = IdGenerator.getId();
-                        (id, (x, Hole(h)))
+                        switch (t) {
+                            | Pair_t(t1, t2) => {
+                                let x1 = IdGenerator.getId();
+                                let x2 = IdGenerator.getId();
+                                Js.log("Generated");
+                                Js.log(x1);
+                                Js.log(x2);
+                                (id, (P(V(x1), V(x2)), Hole(h)))
+                            }
+                            | _ => {
+                                let x = IdGenerator.getId();
+                                (id, (V(x), Hole(h)))
+                            }
+                        }
                     },
                     constructors);
                 let exp = Case(e, branches);
                 let newExCons = List.map2(
-                    (dExs, (id, (x, _))) => List.map(
+                    (dExs, (id, (p, _))) => List.map(
                         ((env, ex)) => {
                             let r = simplifyConstructor(Rictor(id, datatype, Evaluator.eval(env, e)));
-                            ([(x, r), ...env], ex)
+                            let patBinds = List.map(
+                                (x) => Unevaluator.getPatRes(x, p, r),
+                                Unevaluator.getPatIds(p));
+                            Js.log(Printer.string_of_env(patBinds));
+                            Js.log("Context");
+                            Js.log(Printer.string_of_context(gamma));
+                            Js.log("Env");
+                            Js.log(Printer.string_of_env(env));
+                            (patBinds @ env, ex)
                         },
                         dExs),
                     distributedExs, branches);
 
                 let goals = List.mapi(
-                    (i, (id, (var, Hole(h)))) => {
+                    (i, (id, (pat, Hole(h)))) => {
                         let (_, ti) = List.nth(constructors, i);
                         let xs = List.nth(newExCons, i);
-                        ([(var, ti), ...gamma], h, typ, xs)
+                        switch (pat) {
+                            | V(var) => ([(var, (ti, AnnRec)), ...gamma], h, typ, xs)
+                            | P(V(x1), V(x2)) => {
+                                let Pair_t(t1, t2) = ti;
+                                ([(x1, (t1, AnnRec)), (x2, (t2, AnnRec)), ...gamma], h, typ, xs)
+                            }
+                            | _ => failwith("Sam took a shortcut and this isn't implemented yet. Blame him")
+                        }
                     },
                     branches);
                 (exp, goals, unevalCons)
