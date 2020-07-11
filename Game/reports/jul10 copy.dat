@@ -1,0 +1,31 @@
+Identity
+? rabbit = rabbit
+2 2 2
+
+Pair
+? 3 = P 3 3
+5 7 6
+
+Tripple
+? 3 = T 3 3 3
+6 7 6
+
+Quintuple
+? 7 = Q 7 7 7 7 7
+7 10 10
+
+Pair to Quadruple
+? 2 4 = Q 2 2 4 4
+8 7 12
+
+Embedded tripple
+let f = ? in {f 3 = F 3 3 3} f
+UNSAT
+
+Increment using backward churchill encodings
+? \f.\x.f f f f x = \f.\x.f f f f f x
+TIMEOUT
+
+Increment Using churchill encodings
+? \f.\x.f (f x) = \f.\x.f (f (f x))
+TIMEOUT

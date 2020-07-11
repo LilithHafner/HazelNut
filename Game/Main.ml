@@ -108,6 +108,12 @@ Behavior: Make a much better heuristic that takes into account much
 Behavior: limit the depth of the depth first search in the absence
     of nontrivial protagonist choices to preven infinite loops
 
+NEXT:
+Critical behavior: add new link opitions when forking up
+a linked choice change.
+
+Simplification: Remove support for a None link selectiion.
+
 Efficiency?: optimize away linked trivial protagonist choices
 
 

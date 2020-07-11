@@ -37,23 +37,23 @@ let apply_inference_rules (assertion:assertion):transition =
         Linked(hole, refinement env hole (applicand::tail) q2)
         
     | QExp(env, Hole(hole), []), q2 
-    | q2, QExp(env, Hole(hole), []) -> 
-        Linked(hole, match q2 with
+    | q2, QExp(env, Hole(hole), []) -> (match q2 with
         
         | QExp(env2, Lambda(variable, assertions, body), []) ->
-            refinement env hole [] q2
+            Linked(hole, refinement env hole [] q2)
         
-        | QExp(env2, Hole(hole2), []) ->
+        | QExp(env2, Hole(hole2), []) when env == env2 -> Unlinked [[]]
+        | QExp(env2, Hole(hole2), []) -> Linked(hole, 
             (* TODO?: allow application on either side of the congruence *)
             bound_variable_filling env q2 @@
-            application_filling env hole q2
+            application_filling env hole q2)
         
-        | QExp(env2, Variable(variable), tail) ->
+        | QExp(env2, Variable(variable), tail) -> Linked(hole, 
             bound_variable_filling env q2 @@
             (if Id.protected variable 
                 then (fun x -> x) 
                 else constructor_filling env hole variable tail) @@
-            application_filling env hole q2
+            application_filling env hole q2)
 
         | _ -> failwith "Typo in apply_inference_rules")
     

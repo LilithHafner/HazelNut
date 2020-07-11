@@ -10,7 +10,7 @@ open Grammar
 %type <annotation * exp option> main
 %%
 main:
-    annotation IN exp EOL                    { $1, Some $3 }
+    LET annotation IN exp EOL                    { $2, Some $4 }
   | annotation EOL                    { $1, None }
   | exp EOL                    { [$1, $1], Some $1 }
 ;
