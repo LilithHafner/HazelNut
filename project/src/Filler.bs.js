@@ -87,32 +87,7 @@ function allBranchesFound(_xs) {
   };
 }
 
-function fill_h(delta, holeFillings, gamma, h, typ, exs) {
-  if (Refiner$MyNewProject.refinable(typ, exs)) {
-    var match = Refiner$MyNewProject.refine(gamma, typ, exs);
-    var gs = match[1];
-    var f_000 = /* tuple */[
-      h,
-      match[0]
-    ];
-    var f = /* :: */[
-      f_000,
-      holeFillings
-    ];
-    var delta$prime = updateHoleContext(delta, h, gs);
-    var u = updateUnfilledHoles(gs);
-    var k = /* tuple */[
-      u,
-      f
-    ];
-    return /* :: */[
-            /* tuple */[
-              k,
-              delta$prime
-            ],
-            /* [] */0
-          ];
-  }
+function guessAndOrBranch(delta, holeFillings, gamma, h, typ, exs) {
   var e = guessAndCheck(delta, gamma, typ, exs);
   if (e === undefined) {
     return List.map((function (param) {
@@ -152,25 +127,57 @@ function fill_h(delta, holeFillings, gamma, h, typ, exs) {
                         ];
                 }), Brancher$MyNewProject.branch(delta, gamma, typ, exs));
   }
-  var f_000$1 = /* tuple */[
+  var f_000 = /* tuple */[
     h,
     e
   ];
-  var f$1 = /* :: */[
-    f_000$1,
+  var f = /* :: */[
+    f_000,
     holeFillings
   ];
-  var delta$prime$1 = List.filter((function (param) {
+  var delta$prime = List.filter((function (param) {
             return h !== param[0];
           }))(delta);
-  var k$1 = /* tuple */[
+  var k = /* tuple */[
     /* [] */0,
-    f$1
+    f
   ];
   return /* :: */[
           /* tuple */[
-            k$1,
-            delta$prime$1
+            k,
+            delta$prime
+          ],
+          /* [] */0
+        ];
+}
+
+function fill_h(delta, holeFillings, gamma, h, typ, exs) {
+  if (!Refiner$MyNewProject.refinable(typ, exs)) {
+    return guessAndOrBranch(delta, holeFillings, gamma, h, typ, exs);
+  }
+  var match = Refiner$MyNewProject.refine(gamma, typ, exs);
+  if (match === undefined) {
+    return guessAndOrBranch(delta, holeFillings, gamma, h, typ, exs);
+  }
+  var gs = match[1];
+  var f_000 = /* tuple */[
+    h,
+    match[0]
+  ];
+  var f = /* :: */[
+    f_000,
+    holeFillings
+  ];
+  var delta$prime = updateHoleContext(delta, h, gs);
+  var u = updateUnfilledHoles(gs);
+  var k = /* tuple */[
+    u,
+    f
+  ];
+  return /* :: */[
+          /* tuple */[
+            k,
+            delta$prime
           ],
           /* [] */0
         ];
@@ -194,4 +201,5 @@ exports.guessAndCheck = guessAndCheck;
 exports.allBranchesFound = allBranchesFound;
 exports.fill = fill;
 exports.fill_h = fill_h;
+exports.guessAndOrBranch = guessAndOrBranch;
 /* No side effect */

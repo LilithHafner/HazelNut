@@ -94,44 +94,52 @@ let rec fill = (delta, holeFillings, gamma, h, typ, exs) => {
 
 and fill_h = (delta, holeFillings, gamma, h, typ, exs) => {
     if (Refiner.refinable(typ, exs)) {
-        let (e, gs) = Refiner.refine(gamma, typ, exs);
-        let f = [(h, e), ...holeFillings];
-        let delta' = updateHoleContext(delta, h, gs);
-        let u = updateUnfilledHoles(gs);
-        let k = (u, f);
-        Some([(k, delta')])
-    } else {
-        let e = guessAndCheck(delta, gamma, typ, exs);
-        switch (e) {
-            | None => {
-                // Branch
-
-                let bs = Brancher.branch(delta, gamma, typ, exs)
-                    |> List.map(
-                        ((exp, goals, unevalCons)) => {
-                            let f = [(h, exp), ...holeFillings];
-                            let u = List.map(
-                                ((gamma, h, typ, xs)) => (h, xs),
-                                goals);
-                            let delta' = List.filter(
-                                ((h', _)) => h != h',
-                                delta);
-                            let delta' = List.map(
-                                ((gamma, h, typ, _)) => (h, (gamma, typ)),
-                                goals) @ delta';
-                            ((u, f), delta')
-                        });
-                Some(bs);
-            }
-            | Some(e') => {
-                let f = [(h, e'), ...holeFillings];
-                let delta' = List.filter(
-                    ((h', _)) => h != h',
-                    delta);
-                let k = ([], f);
+        switch(Refiner.refine(gamma, typ, exs)) {
+            | Some((e, gs)) => {
+                let f = [(h, e), ...holeFillings];
+                let delta' = updateHoleContext(delta, h, gs);
+                let u = updateUnfilledHoles(gs);
+                let k = (u, f);
                 Some([(k, delta')])
             }
-            | None => None
+            | None => guessAndOrBranch(delta, holeFillings, gamma, h, typ, exs)
         }
+    } else {
+        guessAndOrBranch(delta, holeFillings, gamma, h, typ, exs)
     }
+}
+
+and guessAndOrBranch = (delta, holeFillings, gamma, h, typ, exs) => {
+    let e = guessAndCheck(delta, gamma, typ, exs);
+    switch (e) {
+        | None => {
+            // Branch
+
+            let bs = Brancher.branch(delta, gamma, typ, exs)
+                |> List.map(
+                    ((exp, goals, unevalCons)) => {
+                        let f = [(h, exp), ...holeFillings];
+                        let u = List.map(
+                            ((gamma, h, typ, xs)) => (h, xs),
+                            goals);
+                        let delta' = List.filter(
+                            ((h', _)) => h != h',
+                            delta);
+                        let delta' = List.map(
+                            ((gamma, h, typ, _)) => (h, (gamma, typ)),
+                            goals) @ delta';
+                        ((u, f), delta')
+                    });
+            Some(bs);
+        }
+        | Some(e') => {
+            let f = [(h, e'), ...holeFillings];
+            let delta' = List.filter(
+                ((h', _)) => h != h',
+                delta);
+            let k = ([], f);
+            Some([(k, delta')])
+        }
+        | None => None
+        }
 };

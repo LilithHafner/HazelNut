@@ -46,7 +46,6 @@ let rec allFuncs = (exs) => {
 
 let allConstructs = (exs):option(int) => {
     let c = switch (exs) {
-        | [] => None
         | [(_, Ector(id, _, ex)), ...xs] => Some(id)
         | _ => None
         };
@@ -105,11 +104,11 @@ let prepConsExs = (exs) => List.map(
 
 let refine = (context, typ, exs) => {
     switch (typ) {
-        | Unit_t when allUnit(exs) => (Unit, [])
+        | Unit_t when allUnit(exs) => Some((Unit, []))
         | Pair_t(t1, t2) when allPairs(exs) => {
             let x = IdGenerator.getId();
             let y = IdGenerator.getId();
-            (Pair(Hole(x), Hole(y)), [(context, x, t1, firstExs(exs)), (context, y, t2, sndExs(exs))])
+            Some((Pair(Hole(x), Hole(y)), [(context, x, t1, firstExs(exs)), (context, y, t2, sndExs(exs))]))
         }
         | Function_t(t1, t2) when allFuncs(exs) => {
             let n = IdGenerator.getId();
@@ -118,9 +117,9 @@ let refine = (context, typ, exs) => {
             let e = Function(n, x, t1, Hole(h));
             if (outFunc^) {
                 outFunc := false;
-                (e, [([(n, (Function_t(t1, t2), AnnFunc)), (x, (t1, AnnArg)), ...context], h, t2, prepFuncExs(exs, e))])
+                Some((e, [([(n, (Function_t(t1, t2), AnnFunc)), (x, (t1, AnnArg)), ...context], h, t2, prepFuncExs(exs, e))]))
             } else {
-                (e, [([(x, (t1, AnnArg)), ...context], h, t2, prepFuncExs(exs, e))])
+                Some((e, [([(x, (t1, AnnArg)), ...context], h, t2, prepFuncExs(exs, e))]))
             }
         }
         | D(adt) => {
@@ -129,15 +128,17 @@ let refine = (context, typ, exs) => {
                 | Some(i) => {
                     let h = IdGenerator.getId();
                     let t = Tools.lookup(adt, Types.sigma) |> Tools.lookup(i);
-                    (Ctor(i, adt, Hole(h)), [(context, h, t, prepConsExs(exs))]) 
+                    Some((Ctor(i, adt, Hole(h)), [(context, h, t, prepConsExs(exs))]))
                 }
-                | None => failwith("Examples inconsistent with constructor")
+                | None => {
+                    None
+                }
             }
         }
         | Unit_t 
         | Pair_t(_, _)
         | Function_t(_, _) => {
-            failwith("Goal type inconsistent with examples")
+            None
         }
         | _ => failwith("Not a refinement type")
         }

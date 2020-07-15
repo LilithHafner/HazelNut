@@ -154,7 +154,7 @@ function firstExs(exs) {
                         Caml_builtin_exceptions.match_failure,
                         /* tuple */[
                           "Refiner.re",
-                          74,
+                          73,
                           4
                         ]
                       ];
@@ -169,7 +169,7 @@ function firstExs(exs) {
                       Caml_builtin_exceptions.match_failure,
                       /* tuple */[
                         "Refiner.re",
-                        74,
+                        73,
                         4
                       ]
                     ];
@@ -184,7 +184,7 @@ function sndExs(exs) {
                         Caml_builtin_exceptions.match_failure,
                         /* tuple */[
                           "Refiner.re",
-                          78,
+                          77,
                           4
                         ]
                       ];
@@ -199,7 +199,7 @@ function sndExs(exs) {
                       Caml_builtin_exceptions.match_failure,
                       /* tuple */[
                         "Refiner.re",
-                        78,
+                        77,
                         4
                       ]
                     ];
@@ -212,7 +212,7 @@ function prepFuncExs(exs, e) {
           Caml_builtin_exceptions.match_failure,
           /* tuple */[
             "Refiner.re",
-            82,
+            81,
             8
           ]
         ];
@@ -229,7 +229,7 @@ function prepFuncExs(exs, e) {
                           Caml_builtin_exceptions.match_failure,
                           /* tuple */[
                             "Refiner.re",
-                            84,
+                            83,
                             4
                           ]
                         ];
@@ -263,7 +263,7 @@ function prepFuncExs(exs, e) {
                         Caml_builtin_exceptions.match_failure,
                         /* tuple */[
                           "Refiner.re",
-                          84,
+                          83,
                           4
                         ]
                       ];
@@ -273,7 +273,7 @@ function prepFuncExs(exs, e) {
         Caml_builtin_exceptions.match_failure,
         /* tuple */[
           "Refiner.re",
-          82,
+          81,
           8
         ]
       ];
@@ -287,7 +287,7 @@ function prepConsExs(exs) {
                         Caml_builtin_exceptions.match_failure,
                         /* tuple */[
                           "Refiner.re",
-                          89,
+                          88,
                           4
                         ]
                       ];
@@ -302,7 +302,7 @@ function prepConsExs(exs) {
                       Caml_builtin_exceptions.match_failure,
                       /* tuple */[
                         "Refiner.re",
-                        89,
+                        88,
                         4
                       ]
                     ];
@@ -318,7 +318,7 @@ function refine(context, typ, exs) {
                 /* [] */0
               ];
       } else {
-        return Pervasives.failwith("Goal type inconsistent with examples");
+        return ;
       }
     } else {
       return Pervasives.failwith("Not a refinement type");
@@ -329,7 +329,7 @@ function refine(context, typ, exs) {
         var t2 = typ[1];
         var t1 = typ[0];
         if (!allFuncs(exs)) {
-          return Pervasives.failwith("Goal type inconsistent with examples");
+          return ;
         }
         var n = IdGenerator$MyNewProject.getId(undefined);
         var x = IdGenerator$MyNewProject.getId(undefined);
@@ -401,7 +401,7 @@ function refine(context, typ, exs) {
         }
     case /* Pair_t */2 :
         if (!allPairs(exs)) {
-          return Pervasives.failwith("Goal type inconsistent with examples");
+          return ;
         }
         var x$1 = IdGenerator$MyNewProject.getId(undefined);
         var y = IdGenerator$MyNewProject.getId(undefined);
@@ -432,7 +432,7 @@ function refine(context, typ, exs) {
         var adt = typ[0];
         var c = allConstructs(exs);
         if (c === undefined) {
-          return Pervasives.failwith("Examples inconsistent with constructor");
+          return ;
         }
         var h$1 = IdGenerator$MyNewProject.getId(undefined);
         var t = Tools$MyNewProject.lookup(c, Tools$MyNewProject.lookup(adt, Types$MyNewProject.sigma));
