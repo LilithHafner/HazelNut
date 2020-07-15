@@ -148,38 +148,6 @@ let process(inp:list(char), stack:list(debug_construct), command:string):(list(c
         | [] => failwith("Empty stack")
         | _ => failwith("Type error")
         }
-    | "fill" =>
-        switch(stack) {
-        | [Excons(v5),...stack] =>
-        switch(stack) {
-        | [Type_(v4),...stack] =>
-        switch(stack) {
-        | [Hole_Identifier(v3),...stack] =>
-        switch(stack) {
-        | [Context(v2),...stack] =>
-        switch(stack) {
-        | [Hole_Fillings(v1),...stack] =>
-        switch(stack) {
-        | [Hole_Context(v0),...stack] =>
-            (inp, [Filler_Output(Filler.fill(v0,v1,v2,v3,v4,v5)), ...stack])
-        | [] => failwith("Empty stack")
-        | _ => failwith("Type error")
-        }
-        | [] => failwith("Empty stack")
-        | _ => failwith("Type error")
-        }
-        | [] => failwith("Empty stack")
-        | _ => failwith("Type error")
-        }
-        | [] => failwith("Empty stack")
-        | _ => failwith("Type error")
-        }
-        | [] => failwith("Empty stack")
-        | _ => failwith("Type error")
-        }
-        | [] => failwith("Empty stack")
-        | _ => failwith("Type error")
-        }
     | _ => failwith("Unknown command: \""++command++"\"")
     }
 }

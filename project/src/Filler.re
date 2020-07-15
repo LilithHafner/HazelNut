@@ -83,6 +83,8 @@ let rec allBranchesFound = (xs) => {
 // fillings and since we don't really guess refinement types it's a bit
 // rough. 
 
+// Fill should return list, of form [(k, delta)].  Update that now.
+
 let rec fill = (delta, holeFillings, gamma, h, typ, exs) => {
     switch (fill_h(delta, holeFillings, gamma, h, typ, exs)) {
         | Some(x) => x
@@ -97,7 +99,7 @@ and fill_h = (delta, holeFillings, gamma, h, typ, exs) => {
         let delta' = updateHoleContext(delta, h, gs);
         let u = updateUnfilledHoles(gs);
         let k = (u, f);
-        Some((k, delta'))
+        Some([(k, delta')])
     } else {
         let e = guessAndCheck(delta, gamma, typ, exs);
         switch (e) {
@@ -106,38 +108,20 @@ and fill_h = (delta, holeFillings, gamma, h, typ, exs) => {
 
                 let bs = Brancher.branch(delta, gamma, typ, exs)
                     |> List.map(
-                        (xs) => {
-                            List.map(
-                                ((exp, goals, excons)) => {
-                                    let es = List.map(
-                                        ((gamma', h, t, xs)) => guessAndCheck(delta, gamma',  t, xs),
-                                        goals);
-
-                                    if (allBranchesFound(es)) {
-                                        let Case(e', branches) = exp;
-                                        let expBranches = List.mapi(
-                                            (i, (c, (x, _))) => {
-                                                let Some(e'') = List.nth(es, i);
-                                                (c, (x, e''))
-                                            },
-                                            branches);
-                                        Some(Case(e', expBranches))
-                                    } else {
-                                        None
-                                    }
-                                }, xs)})
-                    |> List.concat;
-                switch (List.filter(optionPred, bs)) {
-                    | [] => None
-                    | [Some(e'), ...xs] => {
-                        let f = [(h, e'), ...holeFillings];
-                        let delta' = List.filter(
-                            ((h', _)) => h != h',
-                            delta);
-                        let k = ([], f);
-                        Some((k, delta'))
-                    }
-                }
+                        ((exp, goals, unevalCons)) => {
+                            let f = [(h, exp), ...holeFillings];
+                            let u = List.map(
+                                ((gamma, h, typ, xs)) => (h, xs),
+                                goals);
+                            let delta' = List.filter(
+                                ((h', _)) => h != h',
+                                delta);
+                            let delta' = List.map(
+                                ((gamma, h, typ, _)) => (h, (gamma, typ)),
+                                goals) @ delta';
+                            ((u, f), delta')
+                        });
+                Some(bs);
             }
             | Some(e') => {
                 let f = [(h, e'), ...holeFillings];
@@ -145,7 +129,7 @@ and fill_h = (delta, holeFillings, gamma, h, typ, exs) => {
                     ((h', _)) => h != h',
                     delta);
                 let k = ([], f);
-                Some((k, delta'))
+                Some([(k, delta')])
             }
             | None => None
         }

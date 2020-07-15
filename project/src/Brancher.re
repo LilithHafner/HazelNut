@@ -30,6 +30,7 @@ let rec branch = (delta:hole_context, gamma:context, typ:type_, exs:excons) => {
     List.map(
         (d) => branch_indiv(delta, gamma, typ, exs, d),
         datatypes)
+    |> List.concat
 }
 
 and branch_indiv = (delta, gamma, typ, exs, datatype) => {
@@ -42,44 +43,36 @@ and branch_indiv = (delta, gamma, typ, exs, datatype) => {
                 (exs) => Unevaluator.constrainExp(delta, e, exs),
                 distributedExs)
                 |> List.fold_left(Unevaluator.mergeCons, Some(([], [])));
-                let branches = List.map(
-                    ((id, t)) => {
-                        let h = IdGenerator.getId();
-                        switch (t) {
-                            | Pair_t(t1, t2) => {
-                                let x1 = IdGenerator.getId();
-                                let x2 = IdGenerator.getId();
-                                Js.log("Generated");
-                                Js.log(x1);
-                                Js.log(x2);
-                                (id, (P(V(x1), V(x2)), Hole(h)))
-                            }
-                            | _ => {
-                                let x = IdGenerator.getId();
-                                (id, (V(x), Hole(h)))
-                            }
+            let branches = List.map(
+                ((id, t)) => {
+                    let h = IdGenerator.getId();
+                    switch (t) {
+                        | Pair_t(t1, t2) => {
+                            let x1 = IdGenerator.getId();
+                            let x2 = IdGenerator.getId();
+                            (id, (P(V(x1), V(x2)), Hole(h)))
                         }
-                    },
-                    constructors);
-                let exp = Case(e, branches);
-                let newExCons = List.map2(
+                        | _ => {
+                            let x = IdGenerator.getId();
+                            (id, (V(x), Hole(h)))
+                        }
+                    }
+                },
+                constructors);
+            let exp = Case(e, branches);
+            let newExCons = List.map2(
                     (dExs, (id, (p, _))) => List.map(
                         ((env, ex)) => {
                             let r = simplifyConstructor(Rictor(id, datatype, Evaluator.eval(env, e)));
                             let patBinds = List.map(
                                 (x) => Unevaluator.getPatRes(x, p, r),
                                 Unevaluator.getPatIds(p));
-                            Js.log(Printer.string_of_env(patBinds));
-                            Js.log("Context");
-                            Js.log(Printer.string_of_context(gamma));
-                            Js.log("Env");
-                            Js.log(Printer.string_of_env(env));
                             (patBinds @ env, ex)
                         },
                         dExs),
                     distributedExs, branches);
 
-                let goals = List.mapi(
+            let goals = List.mapi(
                     (i, (id, (pat, Hole(h)))) => {
                         let (_, ti) = List.nth(constructors, i);
                         let xs = List.nth(newExCons, i);
@@ -90,7 +83,7 @@ and branch_indiv = (delta, gamma, typ, exs, datatype) => {
                                 ([(x1, (t1, AnnRec)), (x2, (t2, AnnRec)), ...gamma], h, typ, xs)
                             }
                             | _ => failwith("Sam took a shortcut and this isn't implemented yet. Blame him")
-                        }
+                            }
                     },
                     branches);
                 (exp, goals, unevalCons)

@@ -112,11 +112,9 @@ let guessApp = (delta, gamma: context, typ: type_, i: int, j: int): list(exp) =>
                         | Var(n) => {
                             let (_, ann1) = Tools.lookup(n, gamma);
                             if (ann1 == AnnFunc) {
-                                Js.log("function");
                                 switch (x) {
                                     | Var(id) => {
                                         let (_, ann2) = Tools.lookup(id, gamma);
-                                        Js.log(ann2 == AnnRec);
                                         ann2 == AnnRec && t == t1
                                     }
                                     | _ => false

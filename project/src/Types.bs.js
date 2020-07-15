@@ -115,10 +115,16 @@ function resToVal(_res) {
           _res = $$eval(/* :: */[
                 /* tuple */[
                   r1[0],
-                  res[1]
+                  r1
                 ],
-                r1[3]
-              ], r1[2]);
+                /* :: */[
+                  /* tuple */[
+                    r1[1],
+                    res[1]
+                  ],
+                  r1[4]
+                ]
+              ], r1[3]);
           continue ;
       case /* Rpair */7 :
           var match = resToVal(res[0]);
@@ -176,19 +182,35 @@ function $$eval(__env, _e) {
                     e[0],
                     e[1],
                     e[2],
+                    e[3],
                     _env
                   ]);
       case /* Application */5 :
           var e2 = e[1];
           var e1 = e[0];
           if (typeof e1 !== "number" && e1.tag === /* Function */4) {
-            _e = e1[2];
+            var exp = e1[3];
+            var id = e1[1];
+            var name = e1[0];
+            _e = exp;
             __env = /* :: */[
               /* tuple */[
-                e1[0],
-                $$eval(_env, e2)
+                name,
+                /* Rfunc */Block.__(4, [
+                    name,
+                    id,
+                    e1[2],
+                    exp,
+                    _env
+                  ])
               ],
-              _env
+              /* :: */[
+                /* tuple */[
+                  id,
+                  $$eval(_env, e2)
+                ],
+                _env
+              ]
             ];
             continue ;
           }
@@ -218,7 +240,7 @@ function $$eval(__env, _e) {
                 Caml_builtin_exceptions.match_failure,
                 /* tuple */[
                   "Types.re",
-                  226,
+                  240,
                   44
                 ]
               ];
@@ -242,7 +264,10 @@ var sigma = /* :: */[
       /* :: */[
         /* tuple */[
           1,
-          /* D */Block.__(3, [/* List */0])
+          /* Pair_t */Block.__(2, [
+              /* D */Block.__(3, [/* Num */1]),
+              /* D */Block.__(3, [/* List */0])
+            ])
         ],
         /* [] */0
       ]
@@ -253,19 +278,37 @@ var sigma = /* :: */[
       /* Num */1,
       /* :: */[
         /* tuple */[
-          2,
+          0,
           /* Unit_t */2
         ],
         /* :: */[
           /* tuple */[
-            3,
+            1,
             /* D */Block.__(3, [/* Num */1])
           ],
           /* [] */0
         ]
       ]
     ],
-    /* [] */0
+    /* :: */[
+      /* tuple */[
+        /* Bool */2,
+        /* :: */[
+          /* tuple */[
+            0,
+            /* Unit_t */2
+          ],
+          /* :: */[
+            /* tuple */[
+              1,
+              /* Unit_t */2
+            ],
+            /* [] */0
+          ]
+        ]
+      ],
+      /* [] */0
+    ]
   ]
 ];
 

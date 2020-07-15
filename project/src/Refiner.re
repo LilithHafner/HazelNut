@@ -2,6 +2,8 @@
 
 open Types;
 
+let outFunc = ref(true);
+
 let refinable = (typ, exs) => 
     switch (typ) {
         | Unit_t 
@@ -100,7 +102,6 @@ let prepConsExs = (exs) => List.map(
 //   What it does: match against type.
 //   type = ??1 : t1 -> t2 => (\x:t1  => ??2: t2)
 
-let outFunc = ref(true);
 
 let refine = (context, typ, exs) => {
     switch (typ) {

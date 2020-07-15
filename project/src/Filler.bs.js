@@ -2,12 +2,10 @@
 'use strict';
 
 var List = require("bs-platform/lib/js/list.js");
-var Block = require("bs-platform/lib/js/block.js");
 var Pervasives = require("bs-platform/lib/js/pervasives.js");
 var Guesser$MyNewProject = require("./Guesser.bs.js");
 var Refiner$MyNewProject = require("./Refiner.bs.js");
 var Brancher$MyNewProject = require("./Brancher.bs.js");
-var Caml_builtin_exceptions = require("bs-platform/lib/js/caml_builtin_exceptions.js");
 var Unevaluator$MyNewProject = require("./unevaluator.bs.js");
 
 function updateHoleContext_h(delta, gs) {
@@ -29,7 +27,6 @@ function updateHoleContext_h(delta, gs) {
 }
 
 function updateHoleContext(delta, h, gs) {
-  console.log("About to remove hole");
   return List.filter((function (param) {
                   return h !== param[0];
                 }))(updateHoleContext_h(delta, gs));
@@ -72,6 +69,7 @@ function guessAndCheck_h(delta, gamma, typ, exs, _i) {
 }
 
 function guessAndCheck(delta, gamma, typ, exs) {
+  Guesser$MyNewProject.resetMemo(undefined);
   return guessAndCheck_h(delta, gamma, typ, exs, 1);
 }
 
@@ -107,120 +105,75 @@ function fill_h(delta, holeFillings, gamma, h, typ, exs) {
       u,
       f
     ];
-    return /* tuple */[
-            k,
-            delta$prime
+    return /* :: */[
+            /* tuple */[
+              k,
+              delta$prime
+            ],
+            /* [] */0
           ];
   }
   var e = guessAndCheck(delta, gamma, typ, exs);
-  if (e !== undefined) {
-    var f_000$1 = /* tuple */[
-      h,
-      e
-    ];
-    var f$1 = /* :: */[
-      f_000$1,
-      holeFillings
-    ];
-    var delta$prime$1 = List.filter((function (param) {
-              return h !== param[0];
-            }))(delta);
-    var k$1 = /* tuple */[
-      /* [] */0,
-      f$1
-    ];
-    return /* tuple */[
+  if (e === undefined) {
+    return List.map((function (param) {
+                  var goals = param[1];
+                  var f_000 = /* tuple */[
+                    h,
+                    param[0]
+                  ];
+                  var f = /* :: */[
+                    f_000,
+                    holeFillings
+                  ];
+                  var u = List.map((function (param) {
+                          return /* tuple */[
+                                  param[1],
+                                  param[3]
+                                ];
+                        }), goals);
+                  var delta$prime = List.filter((function (param) {
+                            return h !== param[0];
+                          }))(delta);
+                  var delta$prime$1 = Pervasives.$at(List.map((function (param) {
+                              return /* tuple */[
+                                      param[1],
+                                      /* tuple */[
+                                        param[0],
+                                        param[2]
+                                      ]
+                                    ];
+                            }), goals), delta$prime);
+                  return /* tuple */[
+                          /* tuple */[
+                            u,
+                            f
+                          ],
+                          delta$prime$1
+                        ];
+                }), Brancher$MyNewProject.branch(delta, gamma, typ, exs));
+  }
+  var f_000$1 = /* tuple */[
+    h,
+    e
+  ];
+  var f$1 = /* :: */[
+    f_000$1,
+    holeFillings
+  ];
+  var delta$prime$1 = List.filter((function (param) {
+            return h !== param[0];
+          }))(delta);
+  var k$1 = /* tuple */[
+    /* [] */0,
+    f$1
+  ];
+  return /* :: */[
+          /* tuple */[
             k$1,
             delta$prime$1
-          ];
-  }
-  var bs = List.map((function (param) {
-          var exp = param[0];
-          var es = List.map((function (param) {
-                  return guessAndCheck(delta, param[0], param[2], param[3]);
-                }), param[1]);
-          if (!allBranchesFound(es)) {
-            return ;
-          }
-          if (typeof exp === "number") {
-            throw [
-                  Caml_builtin_exceptions.match_failure,
-                  /* tuple */[
-                    "Filler.re",
-                    110,
-                    36
-                  ]
-                ];
-          }
-          if (exp.tag === /* Case */12) {
-            var expBranches = List.mapi((function (i, param) {
-                    var e$prime$prime = List.nth(es, i);
-                    if (e$prime$prime !== undefined) {
-                      return /* tuple */[
-                              param[0],
-                              /* tuple */[
-                                param[1][0],
-                                e$prime$prime
-                              ]
-                            ];
-                    }
-                    throw [
-                          Caml_builtin_exceptions.match_failure,
-                          /* tuple */[
-                            "Filler.re",
-                            113,
-                            44
-                          ]
-                        ];
-                  }), exp[1]);
-            return /* Case */Block.__(12, [
-                      exp[0],
-                      expBranches
-                    ]);
-          }
-          throw [
-                Caml_builtin_exceptions.match_failure,
-                /* tuple */[
-                  "Filler.re",
-                  110,
-                  36
-                ]
-              ];
-        }), Brancher$MyNewProject.branch(delta, gamma, typ, exs));
-  var match$1 = List.filter(optionPred)(bs);
-  if (!match$1) {
-    return ;
-  }
-  var e$prime = match$1[0];
-  if (e$prime !== undefined) {
-    var f_000$2 = /* tuple */[
-      h,
-      e$prime
-    ];
-    var f$2 = /* :: */[
-      f_000$2,
-      holeFillings
-    ];
-    var delta$prime$2 = List.filter((function (param) {
-              return h !== param[0];
-            }))(delta);
-    var k$2 = /* tuple */[
-      /* [] */0,
-      f$2
-    ];
-    return /* tuple */[
-            k$2,
-            delta$prime$2
-          ];
-  }
-  throw [
-        Caml_builtin_exceptions.match_failure,
-        /* tuple */[
-          "Filler.re",
-          122,
-          16
-        ]
-      ];
+          ],
+          /* [] */0
+        ];
 }
 
 function fill(delta, holeFillings, gamma, h, typ, exs) {

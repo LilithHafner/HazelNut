@@ -3,73 +3,15 @@
 
 var Pervasives = require("bs-platform/lib/js/pervasives.js");
 
-function string_of_value(v) {
-  if (typeof v === "number") {
-    return "()";
-  }
-  switch (v.tag | 0) {
-    case /* Vint */0 :
-        return String(v[0]);
-    case /* Vbool */1 :
-        return Pervasives.string_of_bool(v[0]);
-    case /* Vpair */2 :
-        return "(" + (string_of_value(v[0]) + (", " + (string_of_value(v[1]) + ")")));
-    case /* Vctor */3 :
-        return "C" + (String(v[0]) + (": " + ((
-                      v[1] ? "Num" : "List"
-                    ) + (" " + string_of_value(v[2])))));
-    
-  }
-}
-
-function string_of_unevalcons(c) {
-  return "([" + (string_of_unfilled_holes(c[0]) + ("], [" + (string_of_hole_fillings(c[1]) + "])")));
-}
-
-function string_of_exp(e) {
-  if (typeof e === "number") {
-    if (e === /* Nil */0) {
-      return "Nil";
-    } else {
-      return "()";
-    }
-  }
-  switch (e.tag | 0) {
-    case /* Int */0 :
-        return String(e[0]);
-    case /* Float */1 :
-        return e[0].toString();
+function string_of_adt(d) {
+  switch (d) {
+    case /* List */0 :
+        return "List";
+    case /* Num */1 :
+        return "Num";
     case /* Bool */2 :
-        return Pervasives.string_of_bool(e[0]);
-    case /* Cons */3 :
-        return string_of_exp(e[0]) + ("::" + string_of_exp(e[1]));
-    case /* Function */4 :
-        return "\\" + (String(e[0]) + (": " + (string_of_type_(e[1]) + ("." + string_of_exp(e[2])))));
-    case /* Application */5 :
-        return string_of_exp(e[0]) + (" " + string_of_exp(e[1]));
-    case /* Hole */6 :
-        return "??_" + String(e[0]);
-    case /* Var */7 :
-        return "var_" + String(e[0]);
-    case /* Pair */8 :
-        return "(" + (string_of_exp(e[0]) + (", " + (string_of_exp(e[1]) + ")")));
-    case /* Fst */9 :
-        return "fst(" + (string_of_exp(e[0]) + ")");
-    case /* Snd */10 :
-        return "snd(" + (string_of_exp(e[0]) + ")");
-    case /* Ctor */11 :
-        return "C" + (String(e[0]) + (": unimplemented " + string_of_exp(e[2])));
-    case /* Case */12 :
-        return "case " + (string_of_exp(e[0]) + (" of {" + (string_of_branches(e[1]) + "}")));
+        return "Bool";
     
-  }
-}
-
-function string_of_guess_output(c) {
-  if (c) {
-    return string_of_exp(c[0]) + ("; " + string_of_guess_output(c[1]));
-  } else {
-    return "-";
   }
 }
 
@@ -97,13 +39,48 @@ function string_of_type_(t) {
       case /* Pair_t */2 :
           return "(" + (string_of_type_(t[0]) + (", " + (string_of_type_(t[1]) + ")")));
       case /* D */3 :
-          if (t[0]) {
-            return "Num";
-          } else {
-            return "List";
-          }
+          return string_of_adt(t[0]);
       
     }
+  }
+}
+
+function string_of_exp(e) {
+  if (typeof e === "number") {
+    if (e === /* Nil */0) {
+      return "Nil";
+    } else {
+      return "()";
+    }
+  }
+  switch (e.tag | 0) {
+    case /* Int */0 :
+        return String(e[0]);
+    case /* Float */1 :
+        return e[0].toString();
+    case /* Bool */2 :
+        return Pervasives.string_of_bool(e[0]);
+    case /* Cons */3 :
+        return string_of_exp(e[0]) + ("::" + string_of_exp(e[1]));
+    case /* Function */4 :
+        return "(" + (String(e[0]) + ("): \\" + (String(e[1]) + (": " + (string_of_type_(e[2]) + ("." + string_of_exp(e[3])))))));
+    case /* Application */5 :
+        return string_of_exp(e[0]) + (" " + string_of_exp(e[1]));
+    case /* Hole */6 :
+        return "??_" + String(e[0]);
+    case /* Var */7 :
+        return "var_" + String(e[0]);
+    case /* Pair */8 :
+        return "(" + (string_of_exp(e[0]) + (", " + (string_of_exp(e[1]) + ")")));
+    case /* Fst */9 :
+        return "fst(" + (string_of_exp(e[0]) + ")");
+    case /* Snd */10 :
+        return "snd(" + (string_of_exp(e[0]) + ")");
+    case /* Ctor */11 :
+        return "C" + (String(e[0]) + (": unimplemented " + string_of_exp(e[2])));
+    case /* Case */12 :
+        return "case " + (string_of_exp(e[0]) + (" of {" + (string_of_branches(e[1]) + "}")));
+    
   }
 }
 
@@ -113,24 +90,36 @@ function string_of_branches(b) {
   }
   var match = b[0];
   var match$1 = match[1];
-  return "C" + (String(match[0]) + (" " + (String(match$1[0]) + (" -> " + (string_of_exp(match$1[1]) + ("; " + string_of_branches(b[1])))))));
+  return "C" + (String(match[0]) + (" " + (string_of_pat(match$1[0]) + (" -> " + (string_of_exp(match$1[1]) + ("; " + string_of_branches(b[1])))))));
 }
 
-function string_of_env(e) {
-  if (!e) {
-    return "-";
+function string_of_pat(p) {
+  if (p.tag) {
+    return "(" + (string_of_pat(p[0]) + (", " + (string_of_pat(p[1]) + ")")));
+  } else {
+    return String(p[0]);
   }
-  var match = e[0];
-  return String(match[0]) + ("->" + (string_of_res(match[1]) + ("; " + string_of_env(e[1]))));
 }
 
-function string_of_one_constraint_(c) {
-  if (!c) {
-    return "-";
+function string_of_unevalcons(c) {
+  return "([" + (string_of_unfilled_holes(c[0]) + ("], [" + (string_of_hole_fillings(c[1]) + "])")));
+}
+
+function string_of_value(v) {
+  if (typeof v === "number") {
+    return "()";
   }
-  var match = c[0];
-  var match$1 = match[1];
-  return string_of_env(match[0]) + (": " + (String(match$1[0]) + ("->" + (string_of_example(match$1[1]) + ("; " + string_of_one_constraint_(c[1]))))));
+  switch (v.tag | 0) {
+    case /* Vint */0 :
+        return String(v[0]);
+    case /* Vbool */1 :
+        return Pervasives.string_of_bool(v[0]);
+    case /* Vpair */2 :
+        return "(" + (string_of_value(v[0]) + (", " + (string_of_value(v[1]) + ")")));
+    case /* Vctor */3 :
+        return "C" + (String(v[0]) + (": " + (string_of_adt(v[1]) + (" " + string_of_value(v[2])))));
+    
+  }
 }
 
 function string_of_example(ex) {
@@ -156,29 +145,20 @@ function string_of_example(ex) {
   }
 }
 
-function string_of_hole_context(c) {
-  if (!c) {
-    return "-";
-  }
-  var match = c[0];
-  var match$1 = match[1];
-  return string_of_context(match$1[0]) + (": " + (String(match[0]) + ("->" + (string_of_type_(match$1[1]) + ("; " + string_of_hole_context(c[1]))))));
-}
-
-function string_of_hole_fillings(c) {
-  if (!c) {
-    return "-";
-  }
-  var match = c[0];
-  return String(match[0]) + ("->" + (string_of_exp(match[1]) + ("; " + string_of_hole_fillings(c[1]))));
-}
-
 function string_of_unfilled_holes(c) {
   if (!c) {
     return "-";
   }
   var match = c[0];
   return String(match[0]) + ("->[" + (string_of_excons(match[1]) + ("]; " + string_of_unfilled_holes(c[1]))));
+}
+
+function string_of_excons(c) {
+  if (!c) {
+    return "-";
+  }
+  var match = c[0];
+  return "([" + (string_of_env(match[0]) + ("], " + (string_of_example(match[1]) + ("); " + string_of_excons(c[1])))));
 }
 
 function string_of_res(r) {
@@ -199,7 +179,7 @@ function string_of_res(r) {
     case /* Rcons */3 :
         return string_of_res(r[0]) + ("::" + string_of_res(r[1]));
     case /* Rfunc */4 :
-        return "[" + (string_of_env(r[3]) + ("]\\" + (String(r[0]) + (": " + (string_of_type_(r[1]) + ("." + string_of_exp(r[2])))))));
+        return "[" + (string_of_env(r[4]) + ("](" + (String(r[0]) + ("): \\" + (String(r[1]) + (": " + (string_of_type_(r[2]) + ("." + string_of_exp(r[3])))))))));
     case /* Rapp */5 :
         return string_of_res(r[0]) + (" " + string_of_res(r[1]));
     case /* Rhole */6 :
@@ -221,12 +201,12 @@ function string_of_res(r) {
   }
 }
 
-function string_of_excons(c) {
-  if (!c) {
+function string_of_env(e) {
+  if (!e) {
     return "-";
   }
-  var match = c[0];
-  return "([" + (string_of_env(match[0]) + ("], " + (string_of_example(match[1]) + ("); " + string_of_excons(c[1])))));
+  var match = e[0];
+  return String(match[0]) + ("->" + (string_of_res(match[1]) + ("; " + string_of_env(e[1]))));
 }
 
 function string_of_context(e) {
@@ -234,19 +214,45 @@ function string_of_context(e) {
     return "-";
   }
   var match = e[0];
-  return String(match[0]) + ("->" + (string_of_type_(match[1]) + ("; " + string_of_context(e[1]))));
+  return String(match[0]) + ("->" + (string_of_type_(match[1][0]) + ("; " + string_of_context(e[1]))));
 }
 
-function string_of_adt(d) {
-  if (d) {
-    return "Num";
+function string_of_hole_fillings(c) {
+  if (!c) {
+    return "-";
+  }
+  var match = c[0];
+  return String(match[0]) + ("->" + (string_of_exp(match[1]) + ("; " + string_of_hole_fillings(c[1]))));
+}
+
+function string_of_guess_output(c) {
+  if (c) {
+    return string_of_exp(c[0]) + ("; " + string_of_guess_output(c[1]));
   } else {
-    return "List";
+    return "-";
   }
 }
 
-function string_of_solver_output(c) {
-  return "(" + (string_of_hole_fillings(c[0]) + (", " + (string_of_hole_context(c[1]) + ")")));
+function string_of_hole_context(c) {
+  if (!c) {
+    return "-";
+  }
+  var match = c[0];
+  var match$1 = match[1];
+  return string_of_context(match$1[0]) + (": " + (String(match[0]) + ("->" + (string_of_type_(match$1[1]) + ("; " + string_of_hole_context(c[1]))))));
+}
+
+function string_of_one_constraint_(c) {
+  if (!c) {
+    return "-";
+  }
+  var match = c[0];
+  var match$1 = match[1];
+  return string_of_env(match[0]) + (": " + (String(match$1[0]) + ("->" + (string_of_example(match$1[1]) + ("; " + string_of_one_constraint_(c[1]))))));
+}
+
+function string_of_identifier(prim) {
+  return String(prim);
 }
 
 function string_of_hole_identifier(prim) {
@@ -265,8 +271,8 @@ function string_of_constraint_(c) {
   }
 }
 
-function string_of_identifier(prim) {
-  return String(prim);
+function string_of_solver_output(c) {
+  return "(" + (string_of_hole_fillings(c[0]) + (", " + (string_of_hole_context(c[1]) + ")")));
 }
 
 function string_of_debug_construct(c) {
@@ -314,6 +320,7 @@ exports.string_of_debug_construct = string_of_debug_construct;
 exports.string_of_exp = string_of_exp;
 exports.string_of_res = string_of_res;
 exports.string_of_branches = string_of_branches;
+exports.string_of_pat = string_of_pat;
 exports.string_of_env = string_of_env;
 exports.string_of_identifier = string_of_identifier;
 exports.string_of_hole_identifier = string_of_hole_identifier;

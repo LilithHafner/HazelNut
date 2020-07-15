@@ -33,26 +33,39 @@ function $$eval(__env, _e) {
                     e[0],
                     e[1],
                     e[2],
+                    e[3],
                     _env
                   ]);
       case /* Application */5 :
-          var e2 = e[1];
-          var e1 = e[0];
-          if (typeof e1 !== "number" && e1.tag === /* Function */4) {
-            _e = e1[2];
-            __env = /* :: */[
-              /* tuple */[
-                e1[0],
-                $$eval(_env, e2)
-              ],
-              _env
-            ];
-            continue ;
+          var r1 = $$eval(_env, e[0]);
+          var r2 = $$eval(_env, e[1]);
+          if (typeof r1 === "number") {
+            return /* Rapp */Block.__(5, [
+                      r1,
+                      r2
+                    ]);
           }
-          return /* Rapp */Block.__(5, [
-                    $$eval(_env, e1),
-                    $$eval(_env, e2)
-                  ]);
+          if (r1.tag !== /* Rfunc */4) {
+            return /* Rapp */Block.__(5, [
+                      r1,
+                      r2
+                    ]);
+          }
+          _e = r1[3];
+          __env = /* :: */[
+            /* tuple */[
+              r1[0],
+              r1
+            ],
+            /* :: */[
+              /* tuple */[
+                r1[1],
+                r2
+              ],
+              r1[4]
+            ]
+          ];
+          continue ;
       case /* Hole */6 :
           return /* Rhole */Block.__(6, [
                     e[0],
@@ -85,18 +98,31 @@ function $$eval(__env, _e) {
           }
           var match$1 = Tools$MyNewProject.lookup(match[0], e[1]);
           _e = match$1[1];
-          __env = /* :: */[
-            /* tuple */[
-              match$1[0],
-              match[2]
-            ],
-            _env
-          ];
+          __env = Pervasives.$at(getPatEnv(match$1[0], match[2]), _env);
           continue ;
       
     }
   };
 }
 
+function getPatEnv(pat, r) {
+  if (pat.tag) {
+    if (typeof r === "number" || r.tag !== /* Rpair */7) {
+      return Pervasives.failwith("Result does not match constructor pattern");
+    } else {
+      return Pervasives.$at(getPatEnv(pat[0], r[0]), getPatEnv(pat[1], r[1]));
+    }
+  } else {
+    return /* :: */[
+            /* tuple */[
+              pat[0],
+              r
+            ],
+            /* [] */0
+          ];
+  }
+}
+
 exports.$$eval = $$eval;
+exports.getPatEnv = getPatEnv;
 /* No side effect */

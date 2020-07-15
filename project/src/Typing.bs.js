@@ -33,38 +33,38 @@ function getType(delta, gamma, _e) {
                   ]);
       case /* Function */4 :
           return /* Function_t */Block.__(1, [
-                    e[1],
-                    getType(delta, gamma, e[2])
+                    e[2],
+                    getType(delta, gamma, e[3])
                   ]);
       case /* Application */5 :
-          var match = getType(delta, gamma, e[0]);
-          if (typeof match === "number" || !(match.tag === /* Function_t */1 && Caml_obj.caml_equal(getType(delta, gamma, e[1]), match[0]))) {
+          var x = getType(delta, gamma, e[0]);
+          if (typeof x === "number" || !(x.tag === /* Function_t */1 && Caml_obj.caml_equal(getType(delta, gamma, e[1]), x[0]))) {
             return Pervasives.failwith("Application type error");
           } else {
-            return match[1];
+            return x[1];
           }
       case /* Hole */6 :
           return Tools$MyNewProject.lookup(e[0], delta)[1];
       case /* Var */7 :
-          return Tools$MyNewProject.lookup(e[0], gamma);
+          return Tools$MyNewProject.lookup(e[0], gamma)[0];
       case /* Pair */8 :
           return /* Pair_t */Block.__(2, [
                     getType(delta, gamma, e[0]),
                     getType(delta, gamma, e[1])
                   ]);
       case /* Fst */9 :
-          var match$1 = getType(delta, gamma, e[0]);
-          if (typeof match$1 === "number" || match$1.tag !== /* Pair_t */2) {
+          var match = getType(delta, gamma, e[0]);
+          if (typeof match === "number" || match.tag !== /* Pair_t */2) {
             return Pervasives.failwith("Type error: Expected type pair for fst");
           } else {
-            return match$1[0];
+            return match[0];
           }
       case /* Snd */10 :
-          var match$2 = getType(delta, gamma, e[0]);
-          if (typeof match$2 === "number" || match$2.tag !== /* Pair_t */2) {
+          var match$1 = getType(delta, gamma, e[0]);
+          if (typeof match$1 === "number" || match$1.tag !== /* Pair_t */2) {
             return Pervasives.failwith("Type error: Expected type pair for snd");
           } else {
-            return match$2[1];
+            return match$1[1];
           }
       case /* Ctor */11 :
           var d = e[1];
@@ -105,10 +105,11 @@ function getResType(delta, _r) {
       case /* Rcons */3 :
           return Pervasives.failwith("Not yet implemented");
       case /* Rfunc */4 :
-          return getType(delta, generateContext(delta, r[3]), /* Function */Block.__(4, [
+          return getType(delta, generateContext(delta, r[4]), /* Function */Block.__(4, [
                         r[0],
                         r[1],
-                        r[2]
+                        r[2],
+                        r[3]
                       ]));
       case /* Rapp */5 :
           var match = getResType(delta, r[0]);
@@ -167,7 +168,7 @@ function getResType(delta, _r) {
                   Caml_builtin_exceptions.match_failure,
                   /* tuple */[
                     "Typing.re",
-                    88,
+                    93,
                     16
                   ]
                 ];
@@ -193,7 +194,7 @@ function getResType(delta, _r) {
                 Caml_builtin_exceptions.match_failure,
                 /* tuple */[
                   "Typing.re",
-                  88,
+                  93,
                   16
                 ]
               ];
@@ -210,7 +211,10 @@ function generateContext(delta, env) {
   return /* :: */[
           /* tuple */[
             match[0],
-            getResType(delta, match[1])
+            /* tuple */[
+              getResType(delta, match[1]),
+              /* AnnNone */0
+            ]
           ],
           generateContext(delta, env[1])
         ];

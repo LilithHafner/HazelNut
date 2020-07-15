@@ -3,7 +3,7 @@
 
 var List = require("bs-platform/lib/js/list.js");
 var Caml_obj = require("bs-platform/lib/js/caml_obj.js");
-var Pervasives = require("bs-platform/lib/js/pervasives.js");
+var Caml_builtin_exceptions = require("bs-platform/lib/js/caml_builtin_exceptions.js");
 
 function lookup(key, _plst) {
   while(true) {
@@ -17,7 +17,7 @@ function lookup(key, _plst) {
       continue ;
     }
     console.log(key);
-    return Pervasives.failwith("Key not in list");
+    throw Caml_builtin_exceptions.not_found;
   };
 }
 

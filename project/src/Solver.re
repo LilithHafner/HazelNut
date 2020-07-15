@@ -12,16 +12,27 @@
 let rec solve_h = (hContext, k) => {
     let (u, f) = k;
     switch (u) {
-        | [] => (f, hContext)
+        | [] => Some((f, hContext))
         | [(h, x), ...us] => {
             // IMPORTANT
             // Change this to first check if a filling is contained in the set of fillings.
 
+            // Note, will change fill to return a list of contexts and constraints, then use map. Then
+            // check if any succeed, so we should probably change it to some / none
+
             let (context, t) = Tools.lookup(h, hContext);
-            let (k', hContext') = Filler.fill(hContext, f, context, h, t, x);
-            let (us', f') = k';
-            let k'' =  (us' @ us, f');
-            solve_h(hContext', k'');
+            let ks = Filler.fill(hContext, f, context, h, t, x);
+            let candidates = List.map(
+                ((k', hContext')) => { 
+                    let (us', f') = k';
+                    let k'' =  (us' @ us, f');
+                    solve_h(hContext', k'');
+                }, ks);
+            switch (List.filter(Filler.optionPred, candidates)) {
+                | [] => None
+                | [x, ...xs] => x
+                }
+
         }
     }
 };
@@ -31,5 +42,8 @@ let solve = (k) => {
     let Some(k') = k;
     let (u, _) = k';
     let hContext = Typing.generateHoleContextU(u);
-    solve_h(hContext, k')
+    switch (solve_h(hContext, k')) {
+        | None => failwith("Could not synthesize expression that met constraints")
+        | Some(x) => x
+        }
 };

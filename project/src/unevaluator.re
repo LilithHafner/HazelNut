@@ -110,14 +110,7 @@ and getPatRes_h = (id, p, r) =>
             | (Some(r'), None) => Some(Rfst(r'))
             | (None, Some(r')) => Some(Rsnd(r'))
             | (None, None) => failwith("Id not found in pattern")
-            | (Some(r1), Some(r2)) => {
-                Js.log("Id:");
-                Js.log(id);
-                Js.log(Printer.string_of_pat(p));
-                Js.log(Printer.string_of_res(r1));
-                Js.log(Printer.string_of_res(r2));
-                failwith("The same variable id is bound in two places in the same pattern")
-            }
+            | (Some(r1), Some(r2)) => failwith("The same variable id is bound in two places in the same pattern")
         }
     }
 
@@ -140,9 +133,9 @@ and constrainExp = (delta, exp, exs) => {
 
 // Assuming k2 has no repeats this works
 and merge = (k1: unevalcons, k2: unevalcons) => {
-    let (u1, _) = k1;
-    let (u2, _) = k2;
-    (merge_h(u1, u2), [])
+    let (u1, f1) = k1;
+    let (u2, f2) = k2;
+    (merge_h(u1, u2), f1 @ f2)
 }
 
 and merge_h = (u1: unfilled_holes, u2: unfilled_holes) => {

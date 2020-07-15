@@ -3,6 +3,7 @@
 
 var List = require("bs-platform/lib/js/list.js");
 var Block = require("bs-platform/lib/js/block.js");
+var Pervasives = require("bs-platform/lib/js/pervasives.js");
 var Tools$MyNewProject = require("./Tools.bs.js");
 var Types$MyNewProject = require("./Types.bs.js");
 var Typing$MyNewProject = require("./Typing.bs.js");
@@ -125,9 +126,15 @@ function unevaluate(delta, _res, _ex) {
               case /* Rfunc */4 :
                   var env$prime_000 = /* tuple */[
                     res[0],
-                    Types$MyNewProject.valToRes(ex[0])
+                    res
                   ];
-                  var env$prime_001 = res[3];
+                  var env$prime_001 = /* :: */[
+                    /* tuple */[
+                      res[1],
+                      Types$MyNewProject.valToRes(ex[0])
+                    ],
+                    res[4]
+                  ];
                   var env$prime = /* :: */[
                     env$prime_000,
                     env$prime_001
@@ -140,7 +147,7 @@ function unevaluate(delta, _res, _ex) {
                     exs_000,
                     /* [] */0
                   ];
-                  return constrainExp(delta, res[2], exs);
+                  return constrainExp(delta, res[3], exs);
               case /* Rapp */5 :
               case /* Rhole */6 :
               case /* Rfst */8 :
@@ -198,7 +205,7 @@ function unevaluate(delta, _res, _ex) {
                   Caml_builtin_exceptions.match_failure,
                   /* tuple */[
                     "unevaluator.re",
-                    49,
+                    51,
                     20
                   ]
                 ];
@@ -247,6 +254,7 @@ function unevaluate(delta, _res, _ex) {
             var cons = List.filter(optionPred)(List.map((function(ex,r$prime,env){
                     return function (param) {
                       var match = param[1];
+                      var p = match[0];
                       var ctor_id = param[0];
                       var t = Typing$MyNewProject.getResType(delta, r$prime);
                       if (typeof t === "number") {
@@ -254,7 +262,7 @@ function unevaluate(delta, _res, _ex) {
                               Caml_builtin_exceptions.match_failure,
                               /* tuple */[
                                 "unevaluator.re",
-                                67,
+                                71,
                                 24
                               ]
                             ];
@@ -266,19 +274,16 @@ function unevaluate(delta, _res, _ex) {
                                 t$1,
                                 /* Top */0
                               ]));
+                        var patBinds = List.map((function (x) {
+                                return getPatRes(x, p, /* Rictor */Block.__(11, [
+                                              ctor_id,
+                                              t$1,
+                                              r$prime
+                                            ]));
+                              }), getPatIds(p));
                         var k2 = constrainExp(delta, match[1], /* :: */[
                               /* tuple */[
-                                /* :: */[
-                                  /* tuple */[
-                                    match[0],
-                                    /* Rictor */Block.__(11, [
-                                        ctor_id,
-                                        t$1,
-                                        r$prime
-                                      ])
-                                  ],
-                                  env
-                                ],
+                                Pervasives.$at(patBinds, env),
                                 ex
                               ],
                               /* [] */0
@@ -294,7 +299,7 @@ function unevaluate(delta, _res, _ex) {
                             Caml_builtin_exceptions.match_failure,
                             /* tuple */[
                               "unevaluator.re",
-                              67,
+                              71,
                               24
                             ]
                           ];
@@ -310,6 +315,52 @@ function unevaluate(delta, _res, _ex) {
     }
     
   };
+}
+
+function getPatIds(p) {
+  if (p.tag) {
+    return Pervasives.$at(getPatIds(p[0]), getPatIds(p[1]));
+  } else {
+    return /* :: */[
+            p[0],
+            /* [] */0
+          ];
+  }
+}
+
+function getPatRes(id, p, r) {
+  var x = getPatRes_h(id, p, r);
+  if (x !== undefined) {
+    return /* tuple */[
+            id,
+            x
+          ];
+  } else {
+    return Pervasives.failwith("Id wasn't found in pattern");
+  }
+}
+
+function getPatRes_h(id, p, r) {
+  if (!p.tag) {
+    if (p[0] === id) {
+      return r;
+    } else {
+      return ;
+    }
+  }
+  var match = getPatRes_h(id, p[0], r);
+  var match$1 = getPatRes_h(id, p[1], r);
+  if (match !== undefined) {
+    if (match$1 !== undefined) {
+      return Pervasives.failwith("The same variable id is bound in two places in the same pattern");
+    } else {
+      return /* Rfst */Block.__(8, [match]);
+    }
+  } else if (match$1 !== undefined) {
+    return /* Rsnd */Block.__(9, [match$1]);
+  } else {
+    return Pervasives.failwith("Id not found in pattern");
+  }
 }
 
 function constrainExp(delta, exp, exs) {
@@ -331,7 +382,7 @@ function constrainExp(delta, exp, exs) {
 function merge(k1, k2) {
   return /* tuple */[
           merge_h(k1[0], k2[0]),
-          /* [] */0
+          Pervasives.$at(k1[1], k2[1])
         ];
 }
 
@@ -350,22 +401,7 @@ function merge_h(_u1, _u2) {
 
 function mergeCons(k1, k2) {
   if (k1 !== undefined && k2 !== undefined) {
-    return /* tuple */[
-            List.concat(/* :: */[
-                  k1[0],
-                  /* :: */[
-                    k2[0],
-                    /* [] */0
-                  ]
-                ]),
-            List.concat(/* :: */[
-                  k1[1],
-                  /* :: */[
-                    k2[1],
-                    /* [] */0
-                  ]
-                ])
-          ];
+    return merge(k1, k2);
   }
   
 }
@@ -375,6 +411,9 @@ function optionPred(x) {
 }
 
 exports.unevaluate = unevaluate;
+exports.getPatIds = getPatIds;
+exports.getPatRes = getPatRes;
+exports.getPatRes_h = getPatRes_h;
 exports.constrainExp = constrainExp;
 exports.merge = merge;
 exports.merge_h = merge_h;
