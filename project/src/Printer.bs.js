@@ -77,7 +77,7 @@ function string_of_exp(e) {
     case /* Snd */10 :
         return "snd(" + (string_of_exp(e[0]) + ")");
     case /* Ctor */11 :
-        return "C" + (String(e[0]) + (": unimplemented " + string_of_exp(e[2])));
+        return "C" + (String(e[0]) + (": " + (string_of_adt(e[1]) + (" " + string_of_exp(e[2])))));
     case /* Case */12 :
         return "case " + (string_of_exp(e[0]) + (" of {" + (string_of_branches(e[1]) + "}")));
     

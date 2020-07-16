@@ -47,6 +47,24 @@ let rec eval = (_env:environment, e:exp):res => {
     }
 }
 
+and fillExp = (exp, f) => {
+    switch (exp) {
+        | Hole(x) => fillExp(Tools.lookup(x, f), f)
+        | Var(x) => Var(x)
+        | Function(name, id, typ, e) => Function(name, id, typ, fillExp(e, f))
+        | Application(e1, e2) => Application(fillExp(e1, f), fillExp(e2, f))
+        | Unit => Unit 
+        | Pair(e1, e2) => Pair(fillExp(e1, f), fillExp(e2, f))
+        | Fst(e1) => Fst(fillExp(e1, f))
+        | Snd(e1) => Snd(fillExp(e1, f))
+        | Int(x) => Int(x)
+        | Float(f) => Float(f)
+        | Bool(b) => Bool(b)
+        | Ctor(id, adt, e) => Ctor(id, adt, fillExp(e, f))
+        | Case(e1, branches) => Case(fillExp(e1, f), List.map(((id, (pat, e))) => (id, (pat, fillExp(e, f))), branches))
+    }
+}
+
 and getPatEnv = (pat, r) => 
     switch (pat, r) {
         | (V(x), _) => [(x, r)]

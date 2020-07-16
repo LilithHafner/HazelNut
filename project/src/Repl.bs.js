@@ -233,13 +233,21 @@ function $$process(inp, stack, command) {
         if (!stack) {
           return Pervasives.failwith("Empty stack");
         }
-        var v1$3 = stack[0];
+        var v2$2 = stack[0];
+        if (v2$2.tag) {
+          return Pervasives.failwith("Type error");
+        }
+        var stack$7 = stack[1];
+        if (!stack$7) {
+          return Pervasives.failwith("Empty stack");
+        }
+        var v1$3 = stack$7[0];
         if (v1$3.tag === /* Constraint_ */5) {
           return /* tuple */[
                   inp,
                   /* :: */[
-                    /* Solver_Output */Block.__(10, [Solver$MyNewProject.solve(v1$3[0])]),
-                    stack[1]
+                    /* Solver_Output */Block.__(10, [Solver$MyNewProject.solve(v1$3[0], v2$2[0])]),
+                    stack$7[1]
                   ]
                 ];
         } else {
@@ -258,29 +266,29 @@ function $$process(inp, stack, command) {
         if (!stack) {
           return Pervasives.failwith("Empty stack");
         }
-        var v2$2 = stack[0];
-        if (v2$2.tag !== /* Example */4) {
+        var v2$3 = stack[0];
+        if (v2$3.tag !== /* Example */4) {
           return Pervasives.failwith("Type error");
         }
-        var stack$7 = stack[1];
-        if (!stack$7) {
-          return Pervasives.failwith("Empty stack");
-        }
-        var v1$4 = stack$7[0];
-        if (v1$4.tag !== /* Res */2) {
-          return Pervasives.failwith("Type error");
-        }
-        var stack$8 = stack$7[1];
+        var stack$8 = stack[1];
         if (!stack$8) {
           return Pervasives.failwith("Empty stack");
         }
-        var v0$3 = stack$8[0];
+        var v1$4 = stack$8[0];
+        if (v1$4.tag !== /* Res */2) {
+          return Pervasives.failwith("Type error");
+        }
+        var stack$9 = stack$8[1];
+        if (!stack$9) {
+          return Pervasives.failwith("Empty stack");
+        }
+        var v0$3 = stack$9[0];
         if (v0$3.tag === /* Hole_Context */7) {
           return /* tuple */[
                   inp,
                   /* :: */[
-                    /* Constraint_ */Block.__(5, [Unevaluator$MyNewProject.unevaluate(v0$3[0], v1$4[0], v2$2[0])]),
-                    stack$8[1]
+                    /* Constraint_ */Block.__(5, [Unevaluator$MyNewProject.unevaluate(v0$3[0], v1$4[0], v2$3[0])]),
+                    stack$9[1]
                   ]
                 ];
         } else {
@@ -290,29 +298,29 @@ function $$process(inp, stack, command) {
         if (!stack) {
           return Pervasives.failwith("Empty stack");
         }
-        var v2$3 = stack[0];
-        if (v2$3.tag !== /* Example */4) {
+        var v2$4 = stack[0];
+        if (v2$4.tag !== /* Example */4) {
           return Pervasives.failwith("Type error");
         }
-        var stack$9 = stack[1];
-        if (!stack$9) {
-          return Pervasives.failwith("Empty stack");
-        }
-        var v1$5 = stack$9[0];
-        if (v1$5.tag !== /* Res */2) {
-          return Pervasives.failwith("Type error");
-        }
-        var stack$10 = stack$9[1];
+        var stack$10 = stack[1];
         if (!stack$10) {
           return Pervasives.failwith("Empty stack");
         }
-        var v0$4 = stack$10[0];
+        var v1$5 = stack$10[0];
+        if (v1$5.tag !== /* Res */2) {
+          return Pervasives.failwith("Type error");
+        }
+        var stack$11 = stack$10[1];
+        if (!stack$11) {
+          return Pervasives.failwith("Empty stack");
+        }
+        var v0$4 = stack$11[0];
         if (v0$4.tag === /* Hole_Context */7) {
           return /* tuple */[
                   inp,
                   /* :: */[
-                    /* Constraint_ */Block.__(5, [Unevaluator$MyNewProject.unevaluate(v0$4[0], v1$5[0], v2$3[0])]),
-                    stack$10[1]
+                    /* Constraint_ */Block.__(5, [Unevaluator$MyNewProject.unevaluate(v0$4[0], v1$5[0], v2$4[0])]),
+                    stack$11[1]
                   ]
                 ];
         } else {

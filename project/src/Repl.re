@@ -143,8 +143,13 @@ let process(inp:list(char), stack:list(debug_construct), command:string):(list(c
         }
     | "solve" =>
         switch(stack) {
+        | [Exp(v2),...stack] =>
+        switch(stack) {
         | [Constraint_(v1),...stack] =>
-            (inp, [Solver_Output(Solver.solve(v1)), ...stack])
+            (inp, [Solver_Output(Solver.solve(v1, v2)), ...stack])
+        | [] => failwith("Empty stack")
+        | _ => failwith("Type error")
+        }
         | [] => failwith("Empty stack")
         | _ => failwith("Type error")
         }

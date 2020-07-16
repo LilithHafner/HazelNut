@@ -23,7 +23,7 @@ unevaluate = Hole_Context(v0); Res(v1); Example(v2); Constraint_(Unevaluator.une
 guess = Hole_Context(v0); Context(v1); Type_(v2); DB_Int(v3); Guess_Output(Guesser.guess(v0, v1, v2, v3))
 
 let rec solve (hContext, k) > {
-solve = Constraint_(v1); Solver_Output(Solver.solve(v1))
+solve = Constraint_(v1); Exp(v2); Solver_Output(Solver.solve(v1, v2))
 
 (delta, holeFillings, gamma, h, typ, exs)
 

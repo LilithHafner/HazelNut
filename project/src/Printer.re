@@ -36,7 +36,7 @@ and string_of_exp(e:exp):string =
         | Pair(exp, exp2) => "(" ++ string_of_exp(exp) ++ ", " ++ string_of_exp(exp2) ++ ")"
         | Fst(exp) => "fst(" ++ string_of_exp(exp) ++ ")"
         | Snd(exp) => "snd(" ++ string_of_exp(exp) ++ ")"
-        | Ctor(name, typ, exp) => "C" ++ string_of_int(name) ++ ": " ++ "unimplemented" /*string_of_type_(typ)*/ ++ " " ++ string_of_exp(exp) 
+        | Ctor(name, typ, exp) => "C" ++ string_of_int(name) ++ ": " ++string_of_adt(typ)++ " " ++ string_of_exp(exp) 
         | Case(exp, branches) =>  "case " ++ string_of_exp(exp)  ++ " of {" ++ string_of_branches(branches) ++ "}"
     }
 

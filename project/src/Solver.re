@@ -37,13 +37,18 @@ let rec solve_h = (hContext, k) => {
     }
 };
 
-let solve = (k) => {
+let solve = (k, e) => {
     Refiner.outFunc := true;
     let Some(k') = k;
     let (u, _) = k';
     let hContext = Typing.generateHoleContextU(u);
     switch (solve_h(hContext, k')) {
         | None => failwith("Could not synthesize expression that met constraints")
-        | Some(x) => x
+        | Some((f, delta)) => {
+            Js.log("Expression:");
+            Js.log(Printer.string_of_exp(Evaluator.fillExp(e, f)));
+            Js.log("Hole fillings:");
+            (f, delta)
         }
+    }
 };
