@@ -9,7 +9,7 @@
 // 1 gamma i;
 // We need way to generate the hole context
 
-let rec solve_h = (hContext, k) => {
+let rec solve_h = (hContext, k, depth) => {
     let (u, f) = k;
     switch (u) {
         | [] => Some((f, hContext))
@@ -21,18 +21,21 @@ let rec solve_h = (hContext, k) => {
             // check if any succeed, so we should probably change it to some / none
 
             let (context, t) = Tools.lookup(h, hContext);
-            let ks = Filler.fill(hContext, f, context, h, t, x);
-            let candidates = List.map(
-                ((k', hContext')) => { 
-                    let (us', f') = k';
-                    let k'' =  (us' @ us, f');
-                    solve_h(hContext', k'');
-                }, ks);
-            switch (List.filter(Filler.optionPred, candidates)) {
-                | [] => None
-                | [x, ...xs] => x
+            switch (Filler.fill(hContext, f, context, h, t, x, depth)) {
+                | Some((newDepth, ks)) => {
+                    let candidates = List.map(
+                        ((k', hContext')) => { 
+                            let (us', f') = k';
+                            let k'' =  (us' @ us, f');
+                            solve_h(hContext', k'', newDepth);
+                        }, ks);
+                    switch (List.filter(Filler.optionPred, candidates)) {
+                        | [] => None
+                        | [x, ...xs] => x
+                    }
                 }
-
+                | None => None
+            }
         }
     }
 };
@@ -42,7 +45,7 @@ let solve = (k, e) => {
     let Some(k') = k;
     let (u, _) = k';
     let hContext = Typing.generateHoleContextU(u);
-    switch (solve_h(hContext, k')) {
+    switch (solve_h(hContext, k', 0)) {
         | None => failwith("Could not synthesize expression that met constraints")
         | Some((f, delta)) => {
             Js.log("Expression:");

@@ -85,14 +85,14 @@ let rec allBranchesFound = (xs) => {
 
 // Fill should return list, of form [(k, delta)].  Update that now.
 
-let rec fill = (delta, holeFillings, gamma, h, typ, exs) => {
-    switch (fill_h(delta, holeFillings, gamma, h, typ, exs)) {
-        | Some(x) => x
-        | None => failwith("Filler could not find candidate for hole")
+let rec fill = (delta, holeFillings, gamma, h, typ, exs, depth) => {
+    switch (fill_h(delta, holeFillings, gamma, h, typ, exs, depth)) {
+        | Some((depth, x)) => Some((depth, x))
+        | None => None 
         }
 }
 
-and fill_h = (delta, holeFillings, gamma, h, typ, exs) => {
+and fill_h = (delta, holeFillings, gamma, h, typ, exs, depth) => {
     if (Refiner.refinable(typ, exs)) {
         switch(Refiner.refine(gamma, typ, exs)) {
             | Some((e, gs)) => {
@@ -100,19 +100,19 @@ and fill_h = (delta, holeFillings, gamma, h, typ, exs) => {
                 let delta' = updateHoleContext(delta, h, gs);
                 let u = updateUnfilledHoles(gs);
                 let k = (u, f);
-                Some([(k, delta')])
+                Some((depth, [(k, delta')]))
             }
-            | None => guessAndOrBranch(delta, holeFillings, gamma, h, typ, exs)
+            | None => guessAndOrBranch(delta, holeFillings, gamma, h, typ, exs, depth)
         }
     } else {
-        guessAndOrBranch(delta, holeFillings, gamma, h, typ, exs)
+        guessAndOrBranch(delta, holeFillings, gamma, h, typ, exs, depth)
     }
 }
 
-and guessAndOrBranch = (delta, holeFillings, gamma, h, typ, exs) => {
+and guessAndOrBranch = (delta, holeFillings, gamma, h, typ, exs, depth) => {
     let e = guessAndCheck(delta, gamma, typ, exs);
     switch (e) {
-        | None => {
+        | None when depth <= 3 => {
             // Branch
 
             let bs = Brancher.branch(delta, gamma, typ, exs)
@@ -130,7 +130,7 @@ and guessAndOrBranch = (delta, holeFillings, gamma, h, typ, exs) => {
                             goals) @ delta';
                         ((u, f), delta')
                     });
-            Some(bs);
+            Some((depth+1, bs));
         }
         | Some(e') => {
             let f = [(h, e'), ...holeFillings];
@@ -138,7 +138,7 @@ and guessAndOrBranch = (delta, holeFillings, gamma, h, typ, exs) => {
                 ((h', _)) => h != h',
                 delta);
             let k = ([], f);
-            Some([(k, delta')])
+            Some((depth, [(k, delta')]))
         }
         | None => None
         }

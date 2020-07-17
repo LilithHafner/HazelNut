@@ -87,77 +87,87 @@ function allBranchesFound(_xs) {
   };
 }
 
-function guessAndOrBranch(delta, holeFillings, gamma, h, typ, exs) {
+function guessAndOrBranch(delta, holeFillings, gamma, h, typ, exs, depth) {
   var e = guessAndCheck(delta, gamma, typ, exs);
-  if (e === undefined) {
-    return List.map((function (param) {
-                  var goals = param[1];
-                  var f_000 = /* tuple */[
-                    h,
-                    param[0]
-                  ];
-                  var f = /* :: */[
-                    f_000,
-                    holeFillings
-                  ];
-                  var u = List.map((function (param) {
-                          return /* tuple */[
-                                  param[1],
-                                  param[3]
-                                ];
-                        }), goals);
-                  var delta$prime = List.filter((function (param) {
-                            return h !== param[0];
-                          }))(delta);
-                  var delta$prime$1 = Pervasives.$at(List.map((function (param) {
-                              return /* tuple */[
-                                      param[1],
-                                      /* tuple */[
-                                        param[0],
-                                        param[2]
-                                      ]
-                                    ];
-                            }), goals), delta$prime);
-                  return /* tuple */[
-                          /* tuple */[
-                            u,
-                            f
-                          ],
-                          delta$prime$1
-                        ];
-                }), Brancher$MyNewProject.branch(delta, gamma, typ, exs));
+  if (e !== undefined) {
+    var f_000 = /* tuple */[
+      h,
+      e
+    ];
+    var f = /* :: */[
+      f_000,
+      holeFillings
+    ];
+    var delta$prime = List.filter((function (param) {
+              return h !== param[0];
+            }))(delta);
+    var k = /* tuple */[
+      /* [] */0,
+      f
+    ];
+    return /* tuple */[
+            depth,
+            /* :: */[
+              /* tuple */[
+                k,
+                delta$prime
+              ],
+              /* [] */0
+            ]
+          ];
   }
-  var f_000 = /* tuple */[
-    h,
-    e
-  ];
-  var f = /* :: */[
-    f_000,
-    holeFillings
-  ];
-  var delta$prime = List.filter((function (param) {
-            return h !== param[0];
-          }))(delta);
-  var k = /* tuple */[
-    /* [] */0,
-    f
-  ];
-  return /* :: */[
-          /* tuple */[
-            k,
-            delta$prime
-          ],
-          /* [] */0
+  if (depth > 3) {
+    return ;
+  }
+  var bs = List.map((function (param) {
+          var goals = param[1];
+          var f_000 = /* tuple */[
+            h,
+            param[0]
+          ];
+          var f = /* :: */[
+            f_000,
+            holeFillings
+          ];
+          var u = List.map((function (param) {
+                  return /* tuple */[
+                          param[1],
+                          param[3]
+                        ];
+                }), goals);
+          var delta$prime = List.filter((function (param) {
+                    return h !== param[0];
+                  }))(delta);
+          var delta$prime$1 = Pervasives.$at(List.map((function (param) {
+                      return /* tuple */[
+                              param[1],
+                              /* tuple */[
+                                param[0],
+                                param[2]
+                              ]
+                            ];
+                    }), goals), delta$prime);
+          return /* tuple */[
+                  /* tuple */[
+                    u,
+                    f
+                  ],
+                  delta$prime$1
+                ];
+        }), Brancher$MyNewProject.branch(delta, gamma, typ, exs));
+  return /* tuple */[
+          depth + 1 | 0,
+          bs
         ];
 }
 
-function fill_h(delta, holeFillings, gamma, h, typ, exs) {
+function fill_h(delta, holeFillings, gamma, h, typ, exs, depth) {
   if (!Refiner$MyNewProject.refinable(typ, exs)) {
-    return guessAndOrBranch(delta, holeFillings, gamma, h, typ, exs);
+    return guessAndOrBranch(delta, holeFillings, gamma, h, typ, exs, depth);
   }
   var match = Refiner$MyNewProject.refine(gamma, typ, exs);
   if (match === undefined) {
-    return guessAndOrBranch(delta, holeFillings, gamma, h, typ, exs);
+    return guessAndOrBranch(delta, holeFillings, gamma, h, typ, exs, depth);
   }
   var gs = match[1];
   var f_000 = /* tuple */[
@@ -174,22 +184,27 @@ function fill_h(delta, holeFillings, gamma, h, typ, exs) {
     u,
     f
   ];
-  return /* :: */[
-          /* tuple */[
-            k,
-            delta$prime
-          ],
-          /* [] */0
+  return /* tuple */[
+          depth,
+          /* :: */[
+            /* tuple */[
+              k,
+              delta$prime
+            ],
+            /* [] */0
+          ]
         ];
 }
 
-function fill(delta, holeFillings, gamma, h, typ, exs) {
-  var x = fill_h(delta, holeFillings, gamma, h, typ, exs);
-  if (x !== undefined) {
-    return x;
-  } else {
-    return Pervasives.failwith("Filler could not find candidate for hole");
+function fill(delta, holeFillings, gamma, h, typ, exs, depth) {
+  var match = fill_h(delta, holeFillings, gamma, h, typ, exs, depth);
+  if (match !== undefined) {
+    return /* tuple */[
+            match[0],
+            match[1]
+          ];
   }
+  
 }
 
 exports.updateHoleContext_h = updateHoleContext_h;

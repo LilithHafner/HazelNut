@@ -11,7 +11,7 @@ var Refiner$MyNewProject = require("./Refiner.bs.js");
 var Evaluator$MyNewProject = require("./evaluator.bs.js");
 var Caml_builtin_exceptions = require("bs-platform/lib/js/caml_builtin_exceptions.js");
 
-function solve_h(hContext, k) {
+function solve_h(hContext, k, depth) {
   var f = k[1];
   var u = k[0];
   if (!u) {
@@ -24,7 +24,11 @@ function solve_h(hContext, k) {
   var match = u[0];
   var h = match[0];
   var match$1 = Tools$MyNewProject.lookup(h, hContext);
-  var ks = Filler$MyNewProject.fill(hContext, f, match$1[0], h, match$1[1], match[1]);
+  var match$2 = Filler$MyNewProject.fill(hContext, f, match$1[0], h, match$1[1], match[1], depth);
+  if (match$2 === undefined) {
+    return ;
+  }
+  var newDepth = match$2[0];
   var candidates = List.map((function (param) {
           var k$prime = param[0];
           var k$prime$prime_000 = Pervasives.$at(k$prime[0], us);
@@ -33,11 +37,11 @@ function solve_h(hContext, k) {
             k$prime$prime_000,
             k$prime$prime_001
           ];
-          return solve_h(param[1], k$prime$prime);
-        }), ks);
-  var match$2 = List.filter(Filler$MyNewProject.optionPred)(candidates);
-  if (match$2) {
-    return match$2[0];
+          return solve_h(param[1], k$prime$prime, newDepth);
+        }), match$2[1]);
+  var match$3 = List.filter(Filler$MyNewProject.optionPred)(candidates);
+  if (match$3) {
+    return match$3[0];
   }
   
 }
@@ -46,7 +50,7 @@ function solve(k, e) {
   Refiner$MyNewProject.outFunc.contents = true;
   if (k !== undefined) {
     var hContext = Typing$MyNewProject.generateHoleContextU(k[0]);
-    var match = solve_h(hContext, k);
+    var match = solve_h(hContext, k, 0);
     if (match === undefined) {
       return Pervasives.failwith("Could not synthesize expression that met constraints");
     }
@@ -63,7 +67,7 @@ function solve(k, e) {
         Caml_builtin_exceptions.match_failure,
         /* tuple */[
           "Solver.re",
-          42,
+          45,
           8
         ]
       ];

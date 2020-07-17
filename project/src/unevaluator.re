@@ -119,6 +119,10 @@ and getPatRes_h = (id, p, r) =>
 // unevaluate(r, ex)
 
 and constrainExp = (delta, exp, exs) => {
+    Js.log("Constrain");
+    Js.log(Printer.string_of_exp(exp));
+    Js.log(Printer.string_of_excons(exs));
+    Js.log("End");
     switch (exs) {
         | [] => Some(([], []))
         | [(env, ex), ...xs] => {

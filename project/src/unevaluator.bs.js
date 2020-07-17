@@ -7,6 +7,7 @@ var Pervasives = require("bs-platform/lib/js/pervasives.js");
 var Tools$MyNewProject = require("./Tools.bs.js");
 var Types$MyNewProject = require("./Types.bs.js");
 var Typing$MyNewProject = require("./Typing.bs.js");
+var Printer$MyNewProject = require("./Printer.bs.js");
 var Evaluator$MyNewProject = require("./evaluator.bs.js");
 var Caml_builtin_exceptions = require("bs-platform/lib/js/caml_builtin_exceptions.js");
 
@@ -364,6 +365,10 @@ function getPatRes_h(id, p, r) {
 }
 
 function constrainExp(delta, exp, exs) {
+  console.log("Constrain");
+  console.log(Printer$MyNewProject.string_of_exp(exp));
+  console.log(Printer$MyNewProject.string_of_excons(exs));
+  console.log("End");
   if (!exs) {
     return /* tuple */[
             /* [] */0,

@@ -1,3 +1,5 @@
+########## Bools ########## 
+
 Not
 T -> F
 F -> T
@@ -12,8 +14,46 @@ T, T -> T
 
 ; ; p(h1, p(h1, p(h1, h1))) p(f c0b u -> f c0b u -> c0b u, p(f c0b u -> f c1b u -> c0b u, p(f c1b u -> f c0b u -> c0b u, f c1b u -> f c1b u -> c1b u))) h1
 
+Or
+F, F -> F
+F, T -> T
+T, F -> T
+T, T -> T
+
+; ; p(h1, p(h1, p(h1, h1))) p(f c0b u -> f c0b u -> c0b u, p(f c0b u -> f c1b u -> c1b u, p(f c1b u -> f c0b u -> c1b u, f c1b u -> f c1b u -> c1b u))) h1
+
+Implication
+F, F -> T
+F, T -> T
+T, F -> F
+T, T -> T
+
+; ; p(h1, p(h1, p(h1, h1))) p(f c0b u -> f c0b u -> c1b u, p(f c0b u -> f c1b u -> c1b u, p(f c1b u -> f c0b u -> c0b u, f c1b u -> f c1b u -> c1b u))) h1
+
+Xor
+F, F -> F
+T, F -> T
+F, T -> T
+T, T -> F
+
+; ; p(h1, p(h1, p(h1, h1))) p(f c0b u -> f c0b u -> c0b u, p(f c1b u -> f c0b u -> c1b u, p(f c0b u -> f c1b u -> c1b u, f c1b u -> f c1b u -> c0b u))) h1
+
+########## Nums ##########
+
+even?
+0 -> T
+1 -> F
+2 -> T
+3 -> F
+
+; ; p(h1, p(h1, p(h1, h1))) p(f c0n u -> c1b u, p(f c1n c0n u -> c0b u, p(f c1n c1n c0n u -> c1b u, f c1n c1n c1n c0n u -> c0b u))) h1
+
+!! Not working, unevaluates when it shouldn't !!
+
 Double
 ; ; p(h1, h1) p(f c1n c1n c0n u -> c1n c1n c1n c1n c0n u, f c1n c0n u -> c1n c1n c0n u) h1
+
+########## Lists ##########
 
 Length
 [] -> 0

@@ -42,7 +42,7 @@ function distribute(delta, exs, adt, scrut, ctors) {
 }
 
 function branch_indiv(delta, gamma, typ, exs, datatype) {
-  var es = Pervasives.$at(Guesser$MyNewProject.guess(delta, gamma, /* D */Block.__(3, [datatype]), 1), Pervasives.$at(Guesser$MyNewProject.guess(delta, gamma, /* D */Block.__(3, [datatype]), 2), Guesser$MyNewProject.guess(delta, gamma, /* D */Block.__(3, [datatype]), 3)));
+  var es = Guesser$MyNewProject.guess(delta, gamma, /* D */Block.__(3, [datatype]), 1);
   return List.map((function (e) {
                 var constructors = Tools$MyNewProject.lookup(datatype, Types$MyNewProject.sigma);
                 var distributedExs = distribute(delta, exs, datatype, e, constructors);
@@ -110,7 +110,7 @@ function branch_indiv(delta, gamma, typ, exs, datatype) {
                                 Caml_builtin_exceptions.match_failure,
                                 /* tuple */[
                                   "Brancher.re",
-                                  78,
+                                  76,
                                   24
                                 ]
                               ];
@@ -121,6 +121,15 @@ function branch_indiv(delta, gamma, typ, exs, datatype) {
                           var match$1 = List.nth(constructors, i);
                           var ti = match$1[1];
                           var xs = List.nth(newExCons, i);
+                          var newGamma;
+                          if (typeof e === "number" || e.tag !== /* Var */7) {
+                            newGamma = gamma;
+                          } else {
+                            var x = e[0];
+                            newGamma = List.filter((function (param) {
+                                      return x !== param[0];
+                                    }))(gamma);
+                          }
                           if (!pat.tag) {
                             return /* tuple */[
                                     /* :: */[
@@ -131,7 +140,7 @@ function branch_indiv(delta, gamma, typ, exs, datatype) {
                                           /* AnnRec */2
                                         ]
                                       ],
-                                      gamma
+                                      newGamma
                                     ],
                                     h$1,
                                     typ,
@@ -151,7 +160,7 @@ function branch_indiv(delta, gamma, typ, exs, datatype) {
                                   Caml_builtin_exceptions.match_failure,
                                   /* tuple */[
                                     "Brancher.re",
-                                    84,
+                                    86,
                                     36
                                   ]
                                 ];
@@ -174,7 +183,7 @@ function branch_indiv(delta, gamma, typ, exs, datatype) {
                                             /* AnnRec */2
                                           ]
                                         ],
-                                        gamma
+                                        newGamma
                                       ]
                                     ],
                                     h$1,
@@ -186,7 +195,7 @@ function branch_indiv(delta, gamma, typ, exs, datatype) {
                                 Caml_builtin_exceptions.match_failure,
                                 /* tuple */[
                                   "Brancher.re",
-                                  84,
+                                  86,
                                   36
                                 ]
                               ];
@@ -195,7 +204,7 @@ function branch_indiv(delta, gamma, typ, exs, datatype) {
                                 Caml_builtin_exceptions.match_failure,
                                 /* tuple */[
                                   "Brancher.re",
-                                  78,
+                                  76,
                                   24
                                 ]
                               ];

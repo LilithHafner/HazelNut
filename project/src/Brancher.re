@@ -34,9 +34,7 @@ let rec branch = (delta:hole_context, gamma:context, typ:type_, exs:excons) => {
 }
 
 and branch_indiv = (delta, gamma, typ, exs, datatype) => {
-    let es = Guesser.guess(delta, gamma, D(datatype), 1)
-        @ Guesser.guess(delta, gamma, D(datatype), 2)
-        @ Guesser.guess(delta, gamma, D(datatype), 3);
+    let es = Guesser.guess(delta, gamma, D(datatype), 1);
     List.map(
         (e) => {
             let constructors = Tools.lookup(datatype, sigma);
@@ -78,11 +76,15 @@ and branch_indiv = (delta, gamma, typ, exs, datatype) => {
                     (i, (id, (pat, Hole(h)))) => {
                         let (_, ti) = List.nth(constructors, i);
                         let xs = List.nth(newExCons, i);
+                        let newGamma = switch (e) {
+                            | Var(x) => List.filter(((id, _)) => x != id, gamma)
+                            | _ => gamma
+                            };
                         switch (pat) {
-                            | V(var) => ([(var, (ti, AnnRec)), ...gamma], h, typ, xs)
+                            | V(var) => ([(var, (ti, AnnRec)), ...newGamma], h, typ, xs)
                             | P(V(x1), V(x2)) => {
                                 let Pair_t(t1, t2) = ti;
-                                ([(x1, (t1, AnnRec)), (x2, (t2, AnnRec)), ...gamma], h, typ, xs)
+                                ([(x1, (t1, AnnRec)), (x2, (t2, AnnRec)), ...newGamma], h, typ, xs)
                             }
                             | _ => failwith("Sam took a shortcut and this isn't implemented yet. Blame him")
                             }
