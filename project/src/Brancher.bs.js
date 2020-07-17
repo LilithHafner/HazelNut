@@ -42,7 +42,7 @@ function distribute(delta, exs, adt, scrut, ctors) {
 }
 
 function branch_indiv(delta, gamma, typ, exs, datatype) {
-  var es = Guesser$MyNewProject.guess(delta, gamma, /* D */Block.__(3, [datatype]), 1);
+  var es = Pervasives.$at(Guesser$MyNewProject.guess(delta, gamma, /* D */Block.__(3, [datatype]), 1), Pervasives.$at(Guesser$MyNewProject.guess(delta, gamma, /* D */Block.__(3, [datatype]), 2), Guesser$MyNewProject.guess(delta, gamma, /* D */Block.__(3, [datatype]), 3)));
   return List.map((function (e) {
                 var constructors = Tools$MyNewProject.lookup(datatype, Types$MyNewProject.sigma);
                 var distributedExs = distribute(delta, exs, datatype, e, constructors);
@@ -110,7 +110,7 @@ function branch_indiv(delta, gamma, typ, exs, datatype) {
                                 Caml_builtin_exceptions.match_failure,
                                 /* tuple */[
                                   "Brancher.re",
-                                  76,
+                                  78,
                                   24
                                 ]
                               ];
@@ -151,7 +151,7 @@ function branch_indiv(delta, gamma, typ, exs, datatype) {
                                   Caml_builtin_exceptions.match_failure,
                                   /* tuple */[
                                     "Brancher.re",
-                                    82,
+                                    84,
                                     36
                                   ]
                                 ];
@@ -186,7 +186,7 @@ function branch_indiv(delta, gamma, typ, exs, datatype) {
                                 Caml_builtin_exceptions.match_failure,
                                 /* tuple */[
                                   "Brancher.re",
-                                  82,
+                                  84,
                                   36
                                 ]
                               ];
@@ -195,7 +195,7 @@ function branch_indiv(delta, gamma, typ, exs, datatype) {
                                 Caml_builtin_exceptions.match_failure,
                                 /* tuple */[
                                   "Brancher.re",
-                                  76,
+                                  78,
                                   24
                                 ]
                               ];

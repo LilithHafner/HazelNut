@@ -34,7 +34,9 @@ let rec branch = (delta:hole_context, gamma:context, typ:type_, exs:excons) => {
 }
 
 and branch_indiv = (delta, gamma, typ, exs, datatype) => {
-    let es = Guesser.guess(delta, gamma, D(datatype), 1);
+    let es = Guesser.guess(delta, gamma, D(datatype), 1)
+        @ Guesser.guess(delta, gamma, D(datatype), 2)
+        @ Guesser.guess(delta, gamma, D(datatype), 3);
     List.map(
         (e) => {
             let constructors = Tools.lookup(datatype, sigma);

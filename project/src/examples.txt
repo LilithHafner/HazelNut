@@ -1,0 +1,32 @@
+Not
+T -> F
+F -> T
+
+; ; p(h1, h1) p(f c0b u -> c1b u, f c1b u -> c0b u) h1
+
+And
+F, F -> F
+F, T -> F
+T, F -> F
+T, T -> T
+
+; ; p(h1, p(h1, p(h1, h1))) p(f c0b u -> f c0b u -> c0b u, p(f c0b u -> f c1b u -> c0b u, p(f c1b u -> f c0b u -> c0b u, f c1b u -> f c1b u -> c1b u))) h1
+
+Double
+; ; p(h1, h1) p(f c1n c1n c0n u -> c1n c1n c1n c1n c0n u, f c1n c0n u -> c1n c1n c0n u) h1
+
+Length
+[] -> 0
+[3] -> 1
+[1, 0] -> 2
+
+; ; p(h1, p(h1, h1)) p(f c0l u -> c0n u, p(f c1l p(c1n c1n c1n c0n u, c0l u) -> c1n c0n u, f c1l p(c1n c0n u, c1l p(c0n u, c0l u)) -> c1n c1n c0n u h1
+
+Stutter:
+[0] -> [0, 0]
+[2, 1] -> [2, 2, 1, 1]
+[] -> []
+
+; ; p(h1 p(h1, h1)) p(f c1l p(c0n u, c0l u) -> c1l p(c0n u, c1l p(c0n u, c0l u)), p(f c1l p(c1n c1n c0n u, c1l p(c1n c0n u, c0l u)) -> c1l p(c1n c1n c0n u, c1l p(c1n c1n c0n u, c1l p(c1n c0n u, c1l p(c1n c0n u, c0l u)))), f c0l u -> c0l u)) h1
+
+stutter = \x.case x of {[] -> [], h::t -> h::h::(stutter t)}

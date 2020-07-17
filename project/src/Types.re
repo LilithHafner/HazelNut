@@ -168,6 +168,13 @@ type goals = list(goal);
 //                     Typecasting Functions
 //----------------------------------------------------------------------
 
+let rec intToNum = (i) => 
+    if (i <= 0) {
+        Ctor(0, Num, Unit)
+    } else {
+        Ctor(1, Num, intToNum(i-1))
+    };
+
 let rec valToExp (v:value) : exp = {
     switch (v) {
         | Vunit => Unit 

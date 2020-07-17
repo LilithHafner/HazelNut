@@ -5,6 +5,22 @@ var Block = require("bs-platform/lib/js/block.js");
 var Tools$MyNewProject = require("./Tools.bs.js");
 var Caml_builtin_exceptions = require("bs-platform/lib/js/caml_builtin_exceptions.js");
 
+function intToNum(i) {
+  if (i <= 0) {
+    return /* Ctor */Block.__(11, [
+              0,
+              /* Num */1,
+              /* Unit */1
+            ]);
+  } else {
+    return /* Ctor */Block.__(11, [
+              1,
+              /* Num */1,
+              intToNum(i - 1 | 0)
+            ]);
+  }
+}
+
 function valToExp(v) {
   if (typeof v === "number") {
     return /* Unit */1;
@@ -240,7 +256,7 @@ function $$eval(__env, _e) {
                 Caml_builtin_exceptions.match_failure,
                 /* tuple */[
                   "Types.re",
-                  240,
+                  247,
                   44
                 ]
               ];
@@ -313,6 +329,7 @@ var sigma = /* :: */[
 ];
 
 exports.sigma = sigma;
+exports.intToNum = intToNum;
 exports.valToExp = valToExp;
 exports.valToRes = valToRes;
 exports.exToExp = exToExp;
