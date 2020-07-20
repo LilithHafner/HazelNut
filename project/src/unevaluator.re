@@ -43,8 +43,6 @@ let rec unevaluate = (delta, f, res:res, ex:example) : option(unevalcons) => {
         // A hole adds its environment and example to the list of 
         // unfilled holes.
         | (_, Rhole(id, env)) => {
-            Js.log("Simply reached hole");
-            Js.log(id);
             Some(([(id, [(env, ex)])], []))
         }
         | (_, Rfst(r)) => unevaluate(delta, f, r, Epair(ex, Top))

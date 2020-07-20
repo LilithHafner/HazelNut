@@ -2,8 +2,8 @@
 'use strict';
 
 var Block = require("bs-platform/lib/js/block.js");
+var Pervasives = require("bs-platform/lib/js/pervasives.js");
 var Tools$MyNewProject = require("./Tools.bs.js");
-var Caml_builtin_exceptions = require("bs-platform/lib/js/caml_builtin_exceptions.js");
 
 function intToNum(i) {
   if (i <= 0) {
@@ -202,38 +202,35 @@ function $$eval(__env, _e) {
                     _env
                   ]);
       case /* Application */5 :
-          var e2 = e[1];
-          var e1 = e[0];
-          if (typeof e1 !== "number" && e1.tag === /* Function */4) {
-            var exp = e1[3];
-            var id = e1[1];
-            var name = e1[0];
-            _e = exp;
-            __env = /* :: */[
-              /* tuple */[
-                name,
-                /* Rfunc */Block.__(4, [
-                    name,
-                    id,
-                    e1[2],
-                    exp,
-                    _env
-                  ])
-              ],
-              /* :: */[
-                /* tuple */[
-                  id,
-                  $$eval(_env, e2)
-                ],
-                _env
-              ]
-            ];
-            continue ;
+          var r1 = $$eval(_env, e[0]);
+          var r2 = $$eval(_env, e[1]);
+          if (typeof r1 === "number") {
+            return /* Rapp */Block.__(5, [
+                      r1,
+                      r2
+                    ]);
           }
-          return /* Rapp */Block.__(5, [
-                    $$eval(_env, e1),
-                    $$eval(_env, e2)
-                  ]);
+          if (r1.tag !== /* Rfunc */4) {
+            return /* Rapp */Block.__(5, [
+                      r1,
+                      r2
+                    ]);
+          }
+          _e = r1[3];
+          __env = /* :: */[
+            /* tuple */[
+              r1[0],
+              r1
+            ],
+            /* :: */[
+              /* tuple */[
+                r1[1],
+                r2
+              ],
+              r1[4]
+            ]
+          ];
+          continue ;
       case /* Hole */6 :
           return /* Rhole */Block.__(6, [
                     e[0],
@@ -251,18 +248,44 @@ function $$eval(__env, _e) {
       case /* Snd */10 :
           return /* Rsnd */Block.__(9, [$$eval(_env, e[0])]);
       case /* Ctor */11 :
+          return /* Rctor */Block.__(10, [
+                    e[0],
+                    e[1],
+                    $$eval(_env, e[2])
+                  ]);
       case /* Case */12 :
-          throw [
-                Caml_builtin_exceptions.match_failure,
-                /* tuple */[
-                  "Types.re",
-                  247,
-                  44
-                ]
-              ];
+          var match = $$eval(_env, e[0]);
+          if (typeof match === "number") {
+            return Pervasives.failwith("Type error: expected a constructor within case");
+          }
+          if (match.tag !== /* Rctor */10) {
+            return Pervasives.failwith("Type error: expected a constructor within case");
+          }
+          var match$1 = Tools$MyNewProject.lookup(match[0], e[1]);
+          _e = match$1[1];
+          __env = Pervasives.$at(getPatEnv(match$1[0], match[2]), _env);
+          continue ;
       
     }
   };
+}
+
+function getPatEnv(pat, r) {
+  if (pat.tag) {
+    if (typeof r === "number" || r.tag !== /* Rpair */7) {
+      return Pervasives.failwith("Result does not match constructor pattern");
+    } else {
+      return Pervasives.$at(getPatEnv(pat[0], r[0]), getPatEnv(pat[1], r[1]));
+    }
+  } else {
+    return /* :: */[
+            /* tuple */[
+              pat[0],
+              r
+            ],
+            /* [] */0
+          ];
+  }
 }
 
 function castable(res) {
@@ -336,4 +359,5 @@ exports.exToExp = exToExp;
 exports.resToVal = resToVal;
 exports.castable = castable;
 exports.$$eval = $$eval;
+exports.getPatEnv = getPatEnv;
 /* No side effect */

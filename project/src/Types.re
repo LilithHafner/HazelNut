@@ -250,9 +250,11 @@ and eval = (_env:environment, e:exp):res => {
         | Var(x) => Tools.lookup(x, _env)
         | Function(name, id, typ, exp) => Rfunc(name, id, typ, exp, _env)
         | Application(e1, e2) => {
-            switch (e1) {
-                | Function(name, id, typ, exp) => eval([(name, Rfunc(name, id, typ, exp, _env)), (id, eval(_env, e2)), ..._env], exp)
-                | _ => Rapp(eval(_env, e1), eval(_env, e2))//This line seems fishy to me.
+            let r1 = eval(_env, e1);
+            let r2 = eval(_env, e2);
+            switch (r1) {
+                | Rfunc(n, id, _, exp, env) => eval([(n, r1), (id, r2), ...env], exp)
+                | _ => Rapp(r1, r2)//This line seems fishy to me.
             }
         }
         | Unit => Runit 
@@ -264,5 +266,23 @@ and eval = (_env:environment, e:exp):res => {
         | Bool(b) => Rbool(b)
         | Cons(e1, e2) => Rcons(eval(_env, e1), eval(_env, e2))
         | Nil => Rnil 
+        | Ctor(id, adt, e1) => Rctor(id, adt, eval(_env, e1))
+        // Need to come back and handle indeterminate case eventually.
+        | Case(e1, branches) =>
+            switch (eval(_env, e1)) {
+                | Rctor(id, _, r) => {
+                    let (pat, e2) = Tools.lookup(id, branches);
+                    eval(getPatEnv(pat, r) @ _env, e2)
+                }
+                | _ => failwith("Type error: expected a constructor within case")
+            }
     }
-};
+}
+
+and getPatEnv = (pat, r) => 
+    switch (pat, r) {
+        | (V(x), _) => [(x, r)]
+        | (P(p1, p2), Rpair(r1, r2)) => getPatEnv(p1, r1) @ getPatEnv(p2, r2)
+        | _ => failwith("Result does not match constructor pattern")
+        };
+

@@ -22,7 +22,7 @@ T, T -> T
 
 ; ; p(h1, p(h1, p(h1, h1))) p(f c0b u -> f c0b u -> c0b u, p(f c0b u -> f c1b u -> c1b u, p(f c1b u -> f c0b u -> c1b u, f c1b u -> f c1b u -> c1b u))) h1
 
-Implication
+; ; p(h1, p(h1, p(h1, h1))) p(f c0n u -> c1b u, p(f c1n c0n u -> c0b u, p(f c1n c1n     c0n u -> c1b u, f c1n c1n c1n c0n u -> c0b u))) h1; ; p(h1, p(h1, p(h1, h1))) p(f c0n u -> c1b u, p(f c1n c0n u -> c0b u, p(f c1n c1n     c0n u -> c1b u, f c1n c1n c1n c0n u -> c0b u))) h1Implication
 F, F -> T
 F, T -> T
 T, F -> F
@@ -48,10 +48,17 @@ even?
 
 ; ; p(h1, p(h1, p(h1, h1))) p(f c0n u -> c1b u, p(f c1n c0n u -> c0b u, p(f c1n c1n c0n u -> c1b u, f c1n c1n c1n c0n u -> c0b u))) h1
 
-!! Not working, unevaluates when it shouldn't !!
-
 Double
 ; ; p(h1, h1) p(f c1n c1n c0n u -> c1n c1n c1n c1n c0n u, f c1n c0n u -> c1n c1n c0n u) h1
+
+Plus
+0 1 -> 1
+2 0 -> 2
+1 2 -> 3
+
+; ; p(h1, p(h1, h1)) p(f c0n u -> f c1n c0n u -> c1n c0n u, p(f c1n c1n c0n u -> f c0n u -> c1n c1n c0n u, f c1n c0n u -> f c1n c1n c0n u -> c1n c1n c1n c0n u)) h1
+
+!!Not working!!
 
 ########## Lists ##########
 

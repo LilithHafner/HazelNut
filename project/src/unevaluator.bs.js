@@ -206,18 +206,15 @@ function unevaluate(delta, f, _res, _ex) {
                   Caml_builtin_exceptions.match_failure,
                   /* tuple */[
                     "unevaluator.re",
-                    56,
+                    54,
                     20
                   ]
                 ];
         case /* Rhole */6 :
-            var id = res$1[0];
-            console.log("Simply reached hole");
-            console.log(id);
             return /* tuple */[
                     /* :: */[
                       /* tuple */[
-                        id,
+                        res$1[0],
                         /* :: */[
                           /* tuple */[
                             res$1[1],
@@ -266,7 +263,7 @@ function unevaluate(delta, f, _res, _ex) {
                               Caml_builtin_exceptions.match_failure,
                               /* tuple */[
                                 "unevaluator.re",
-                                76,
+                                74,
                                 24
                               ]
                             ];
@@ -303,7 +300,7 @@ function unevaluate(delta, f, _res, _ex) {
                             Caml_builtin_exceptions.match_failure,
                             /* tuple */[
                               "unevaluator.re",
-                              76,
+                              74,
                               24
                             ]
                           ];
@@ -334,27 +331,19 @@ function merge_h(_u1, _u2) {
   };
 }
 
-function getPatRes(id, p, r) {
-  var x = getPatRes_h(id, p, r);
-  if (x !== undefined) {
-    return /* tuple */[
-            id,
-            x
-          ];
-  } else {
-    return Pervasives.failwith("Id wasn't found in pattern");
-  }
-}
-
-function merge(k1, k2) {
-  return /* tuple */[
-          merge_h(k1[0], k2[0]),
-          Pervasives.$at(k1[1], k2[1])
-        ];
-}
-
 function optionPred(x) {
   return x !== undefined;
+}
+
+function getPatIds(p) {
+  if (p.tag) {
+    return Pervasives.$at(getPatIds(p[0]), getPatIds(p[1]));
+  } else {
+    return /* :: */[
+            p[0],
+            /* [] */0
+          ];
+  }
 }
 
 function mergeCons(k1, k2) {
@@ -362,6 +351,13 @@ function mergeCons(k1, k2) {
     return merge(k1, k2);
   }
   
+}
+
+function merge(k1, k2) {
+  return /* tuple */[
+          merge_h(k1[0], k2[0]),
+          Pervasives.$at(k1[1], k2[1])
+        ];
 }
 
 function constrainExp(delta, f, exp, exs) {
@@ -380,14 +376,15 @@ function constrainExp(delta, f, exp, exs) {
   
 }
 
-function getPatIds(p) {
-  if (p.tag) {
-    return Pervasives.$at(getPatIds(p[0]), getPatIds(p[1]));
-  } else {
-    return /* :: */[
-            p[0],
-            /* [] */0
+function getPatRes(id, p, r) {
+  var x = getPatRes_h(id, p, r);
+  if (x !== undefined) {
+    return /* tuple */[
+            id,
+            x
           ];
+  } else {
+    return Pervasives.failwith("Id wasn't found in pattern");
   }
 }
 

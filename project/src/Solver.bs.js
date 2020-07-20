@@ -55,9 +55,9 @@ function solve(k, e) {
       return Pervasives.failwith("Could not synthesize expression that met constraints");
     }
     var f = match[0];
-    console.log("Expression:");
+    console.log("Exp:");
     console.log(Printer$MyNewProject.string_of_exp(Evaluator$MyNewProject.fillExp(e, f)));
-    console.log("Hole fillings:");
+    console.log("Hole Fillings:");
     return /* tuple */[
             f,
             match[1]

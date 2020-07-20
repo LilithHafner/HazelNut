@@ -16,7 +16,6 @@ function lookup(key, _plst) {
       _plst = plst[1];
       continue ;
     }
-    console.log(key);
     throw Caml_builtin_exceptions.not_found;
   };
 }

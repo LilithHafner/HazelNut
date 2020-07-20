@@ -3,7 +3,6 @@ type pairlist('k, 'v) = list(('k, 'v));
 let rec lookup = (key, plst) => {
     switch (plst) {
         | [] => {
-            Js.log(key);
             raise(Not_found)
         }
         | [(id, value), ..._] when id == key => value

@@ -74,7 +74,6 @@ function $$eval(__env, _e) {
                     _env
                   ]);
       case /* Var */7 :
-          console.log("Exp var");
           return Tools$MyNewProject.lookup(e[0], _env);
       case /* Pair */8 :
           return /* Rpair */Block.__(7, [
@@ -99,7 +98,6 @@ function $$eval(__env, _e) {
           if (match.tag !== /* Rctor */10) {
             return Pervasives.failwith("Type error: expected a constructor within case");
           }
-          console.log("Exp case");
           var match$1 = Tools$MyNewProject.lookup(match[0], e[1]);
           _e = match$1[1];
           __env = Pervasives.$at(getPatEnv(match$1[0], match[2]), _env);
@@ -109,22 +107,17 @@ function $$eval(__env, _e) {
   };
 }
 
-function getPatEnv(pat, r) {
-  if (pat.tag) {
-    if (typeof r === "number" || r.tag !== /* Rpair */7) {
-      return Pervasives.failwith("Result does not match constructor pattern");
-    } else {
-      return Pervasives.$at(getPatEnv(pat[0], r[0]), getPatEnv(pat[1], r[1]));
-    }
-  } else {
-    return /* :: */[
-            /* tuple */[
-              pat[0],
-              r
-            ],
-            /* [] */0
-          ];
-  }
+function evalAndFill(env, e, f) {
+  return fillRes($$eval(env, e), f);
+}
+
+function fillEnv(env, f) {
+  return List.map((function (param) {
+                return /* tuple */[
+                        param[0],
+                        fillRes(param[1], f)
+                      ];
+              }), env);
 }
 
 function fillRes(r, f) {
@@ -146,10 +139,20 @@ function fillRes(r, f) {
                   fillRes(r[1], f)
                 ]);
     case /* Rhole */6 :
-        return /* Rhole */Block.__(6, [
-                  r[0],
-                  fillEnv(r[1], f)
-                ]);
+        var env = r[1];
+        var x = r[0];
+        try {
+          return evalAndFill(env, fillExp(Tools$MyNewProject.lookup(x, f), f), f);
+        }
+        catch (exn){
+          if (exn === Caml_builtin_exceptions.not_found) {
+            return /* Rhole */Block.__(6, [
+                      x,
+                      fillEnv(env, f)
+                    ]);
+          }
+          throw exn;
+        }
     case /* Rpair */7 :
         return /* Rpair */Block.__(7, [
                   fillRes(r[0], f),
@@ -200,7 +203,7 @@ function fillExp(exp, f) {
           Caml_builtin_exceptions.match_failure,
           /* tuple */[
             "evaluator.re",
-            81,
+            77,
             26
           ]
         ];
@@ -217,7 +220,7 @@ function fillExp(exp, f) {
                 Caml_builtin_exceptions.match_failure,
                 /* tuple */[
                   "evaluator.re",
-                  81,
+                  77,
                   26
                 ]
               ];
@@ -235,7 +238,6 @@ function fillExp(exp, f) {
                   ]);
       case /* Hole */6 :
           var x = exp[0];
-          console.log("Hole, fillExp");
           try {
             return fillExp(Tools$MyNewProject.lookup(x, f), f);
           }
@@ -281,18 +283,22 @@ function fillExp(exp, f) {
   }
 }
 
-function fillEnv(env, f) {
-  console.log("Filling env");
-  return List.map((function (param) {
-                return /* tuple */[
-                        param[0],
-                        fillRes(param[1], f)
-                      ];
-              }), env);
-}
-
-function evalAndFill(env, e, f) {
-  return fillRes($$eval(env, e), f);
+function getPatEnv(pat, r) {
+  if (pat.tag) {
+    if (typeof r === "number" || r.tag !== /* Rpair */7) {
+      return Pervasives.failwith("Result does not match constructor pattern");
+    } else {
+      return Pervasives.$at(getPatEnv(pat[0], r[0]), getPatEnv(pat[1], r[1]));
+    }
+  } else {
+    return /* :: */[
+            /* tuple */[
+              pat[0],
+              r
+            ],
+            /* [] */0
+          ];
+  }
 }
 
 exports.$$eval = $$eval;
