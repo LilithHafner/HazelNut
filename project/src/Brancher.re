@@ -7,7 +7,7 @@ let simplifyConstructor = (res) =>
         | _ => res
         };
 
-let rec branch = (delta:hole_context, gamma:context, typ:type_, exs:excons) => {
+let rec branch = (delta:hole_context, gamma:context, f, typ:type_, exs:excons) => {
     let datatypes = List.map(
         ((id, (t, _))) => t,
         gamma)
@@ -28,19 +28,19 @@ let rec branch = (delta:hole_context, gamma:context, typ:type_, exs:excons) => {
         );
 
     List.map(
-        (d) => branch_indiv(delta, gamma, typ, exs, d),
+        (d) => branch_indiv(delta, gamma, f, typ, exs, d),
         datatypes)
     |> List.concat
 }
 
-and branch_indiv = (delta, gamma, typ, exs, datatype) => {
+and branch_indiv = (delta, gamma, f, typ, exs, datatype) => {
     let es = Guesser.guess(delta, gamma, D(datatype), 1);
     List.map(
         (e) => {
             let constructors = Tools.lookup(datatype, sigma);
-            let distributedExs = distribute(delta, exs, datatype, e, constructors);
+            let distributedExs = distribute(delta, f, exs, datatype, e, constructors);
             let unevalCons: option(unevalcons) = List.map(
-                (exs) => Unevaluator.constrainExp(delta, e, exs),
+                (exs) => Unevaluator.constrainExp(delta, f, e, exs),
                 distributedExs)
                 |> List.fold_left(Unevaluator.mergeCons, Some(([], [])));
             let branches = List.map(
@@ -94,13 +94,13 @@ and branch_indiv = (delta, gamma, typ, exs, datatype) => {
         }, es);
 }
 
-and distribute = (delta, exs, adt, scrut, ctors) => {
+and distribute = (delta, f, exs, adt, scrut, ctors) => {
     List.map(
         ((id, t)) => {
             List.filter(
                 ((env, ex)) => {
                     let r = Evaluator.eval(env, scrut);
-                    Unevaluator.unevaluate(delta, r, Ector(id, adt, Top))
+                    Unevaluator.unevaluate(delta, f, r, Ector(id, adt, Top))
                         |> Unevaluator.optionPred
                 }, exs)
         }, ctors)

@@ -15,7 +15,10 @@ open Types;
 let rec eval = (_env:environment, e:exp):res => {
     switch (e) {
         | Hole(x) => Rhole(x, _env)
-        | Var(x) => Tools.lookup(x, _env)
+        | Var(x) => {
+            Js.log("Exp var");
+            Tools.lookup(x, _env)
+        }
         | Function(name, id, typ, exp) => Rfunc(name, id, typ, exp, _env)
         | Application(e1, e2) => {
             let r1 = eval(_env, e1);
@@ -39,6 +42,7 @@ let rec eval = (_env:environment, e:exp):res => {
         | Case(e1, branches) =>
             switch (eval(_env, e1)) {
                 | Rctor(id, _, r) => {
+                    Js.log("Exp case");
                     let (pat, e2) = Tools.lookup(id, branches);
                     eval(getPatEnv(pat, r) @ _env, e2)
                 }
@@ -47,9 +51,41 @@ let rec eval = (_env:environment, e:exp):res => {
     }
 }
 
+and evalAndFill = (env, e, f) => eval(env, e) -> fillRes(f) 
+
+and fillEnv = (env, f) => {
+    Js.log("Filling env");
+    List.map(
+        ((id, r')) => (id, fillRes(r', f)), env)
+}
+
+and fillRes = (r, f) => {
+    switch (r) {
+        | Rhole(x, env) => Rhole(x, fillEnv(env, f))
+        | Rfunc(n, x, t, e, env) => Rfunc(n, x, t, fillExp(e, f), fillEnv(env, f))
+        | Rapp(r1, r2) => Rapp(fillRes(r1, f), fillRes(r2, f))
+        | Rpair(r1, r2) => Rpair(fillRes(r1, f), fillRes(r2, f))
+        | Rfst(r1) => Rfst(fillRes(r1, f))
+        | Rsnd(r1) => Rsnd(fillRes(r1, f))
+        | Rctor(id, d, r1) => Rctor(id, d, fillRes(r1, f))
+        | Rictor(id, d, r1) => Rictor(id, d, fillRes(r1, f))
+        | Rcase(r1, bs, env) => Rcase(fillRes(r1, f), 
+            List.map(
+                ((id, (pat, e))) => (id, (pat, fillExp(e, f))), bs),
+            fillEnv(env, f))
+        | x => x
+    }
+}
+
+
 and fillExp = (exp, f) => {
     switch (exp) {
-        | Hole(x) => fillExp(Tools.lookup(x, f), f)
+        | Hole(x) => {
+            Js.log("Hole, fillExp");
+            try(fillExp(Tools.lookup(x, f), f)) {
+                | Not_found => Hole(x)
+                }
+        }
         | Var(x) => Var(x)
         | Function(name, id, typ, e) => Function(name, id, typ, fillExp(e, f))
         | Application(e1, e2) => Application(fillExp(e1, f), fillExp(e2, f))

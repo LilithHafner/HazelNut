@@ -50,7 +50,7 @@ function optionPred(x) {
   return x !== undefined;
 }
 
-function guessAndCheck_h(delta, gamma, typ, exs, _i) {
+function guessAndCheck_h(delta, gamma, f, typ, exs, _i) {
   while(true) {
     var i = _i;
     if (i > 8) {
@@ -58,7 +58,7 @@ function guessAndCheck_h(delta, gamma, typ, exs, _i) {
     }
     var es = Guesser$MyNewProject.guess(delta, gamma, typ, i);
     var checked = List.filter((function (e) {
-              return optionPred(Unevaluator$MyNewProject.constrainExp(delta, e, exs));
+              return optionPred(Unevaluator$MyNewProject.constrainExp(delta, f, e, exs));
             }))(es);
     if (checked) {
       return checked[0];
@@ -68,9 +68,9 @@ function guessAndCheck_h(delta, gamma, typ, exs, _i) {
   };
 }
 
-function guessAndCheck(delta, gamma, typ, exs) {
+function guessAndCheck(delta, gamma, f, typ, exs) {
   Guesser$MyNewProject.resetMemo(undefined);
-  return guessAndCheck_h(delta, gamma, typ, exs, 1);
+  return guessAndCheck_h(delta, gamma, f, typ, exs, 1);
 }
 
 function allBranchesFound(_xs) {
@@ -88,11 +88,11 @@ function allBranchesFound(_xs) {
 }
 
 function guessAndOrBranch(delta, holeFillings, gamma, h, typ, exs, depth) {
-  var e = guessAndCheck(delta, gamma, typ, exs);
-  if (e !== undefined) {
+  var g = guessAndCheck(delta, gamma, holeFillings, typ, exs);
+  if (g !== undefined) {
     var f_000 = /* tuple */[
       h,
-      e
+      g
     ];
     var f = /* :: */[
       f_000,
@@ -154,7 +154,7 @@ function guessAndOrBranch(delta, holeFillings, gamma, h, typ, exs, depth) {
                   ],
                   delta$prime$1
                 ];
-        }), Brancher$MyNewProject.branch(delta, gamma, typ, exs));
+        }), Brancher$MyNewProject.branch(delta, gamma, holeFillings, typ, exs));
   return /* tuple */[
           depth + 1 | 0,
           bs

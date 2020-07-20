@@ -76,38 +76,6 @@ function $$process(inp, stack, command) {
                   stack
                 ]
               ];
-    case "constrain" :
-        if (!stack) {
-          return Pervasives.failwith("Empty stack");
-        }
-        var v2 = stack[0];
-        if (v2.tag !== /* Excons */15) {
-          return Pervasives.failwith("Type error");
-        }
-        var stack$1 = stack[1];
-        if (!stack$1) {
-          return Pervasives.failwith("Empty stack");
-        }
-        var v1 = stack$1[0];
-        if (v1.tag) {
-          return Pervasives.failwith("Type error");
-        }
-        var stack$2 = stack$1[1];
-        if (!stack$2) {
-          return Pervasives.failwith("Empty stack");
-        }
-        var v0 = stack$2[0];
-        if (v0.tag === /* Hole_Context */7) {
-          return /* tuple */[
-                  inp,
-                  /* :: */[
-                    /* Constraint_ */Block.__(5, [Unevaluator$MyNewProject.constrainExp(v0[0], v1[0], v2[0])]),
-                    stack$2[1]
-                  ]
-                ];
-        } else {
-          return Pervasives.failwith("Type error");
-        }
     case "env" :
         var match$1 = Parser$MyNewProject.parse_environment(inp);
         return /* tuple */[
@@ -121,21 +89,21 @@ function $$process(inp, stack, command) {
         if (!stack) {
           return Pervasives.failwith("Empty stack");
         }
-        var v1$1 = stack[0];
-        if (v1$1.tag) {
+        var v1 = stack[0];
+        if (v1.tag) {
           return Pervasives.failwith("Type error");
         }
-        var stack$3 = stack[1];
-        if (!stack$3) {
+        var stack$1 = stack[1];
+        if (!stack$1) {
           return Pervasives.failwith("Empty stack");
         }
-        var v0$1 = stack$3[0];
-        if (v0$1.tag === /* Environment */1) {
+        var v0 = stack$1[0];
+        if (v0.tag === /* Environment */1) {
           return /* tuple */[
                   inp,
                   /* :: */[
-                    /* Res */Block.__(2, [Evaluator$MyNewProject.$$eval(v0$1[0], v1$1[0])]),
-                    stack$3[1]
+                    /* Res */Block.__(2, [Evaluator$MyNewProject.$$eval(v0[0], v1[0])]),
+                    stack$1[1]
                   ]
                 ];
         } else {
@@ -166,33 +134,33 @@ function $$process(inp, stack, command) {
         if (v3.tag !== /* DB_Int */8) {
           return Pervasives.failwith("Type error");
         }
-        var stack$4 = stack[1];
+        var stack$2 = stack[1];
+        if (!stack$2) {
+          return Pervasives.failwith("Empty stack");
+        }
+        var v2 = stack$2[0];
+        if (v2.tag !== /* Type_ */3) {
+          return Pervasives.failwith("Type error");
+        }
+        var stack$3 = stack$2[1];
+        if (!stack$3) {
+          return Pervasives.failwith("Empty stack");
+        }
+        var v1$1 = stack$3[0];
+        if (v1$1.tag !== /* Context */6) {
+          return Pervasives.failwith("Type error");
+        }
+        var stack$4 = stack$3[1];
         if (!stack$4) {
           return Pervasives.failwith("Empty stack");
         }
-        var v2$1 = stack$4[0];
-        if (v2$1.tag !== /* Type_ */3) {
-          return Pervasives.failwith("Type error");
-        }
-        var stack$5 = stack$4[1];
-        if (!stack$5) {
-          return Pervasives.failwith("Empty stack");
-        }
-        var v1$2 = stack$5[0];
-        if (v1$2.tag !== /* Context */6) {
-          return Pervasives.failwith("Type error");
-        }
-        var stack$6 = stack$5[1];
-        if (!stack$6) {
-          return Pervasives.failwith("Empty stack");
-        }
-        var v0$2 = stack$6[0];
-        if (v0$2.tag === /* Hole_Context */7) {
+        var v0$1 = stack$4[0];
+        if (v0$1.tag === /* Hole_Context */7) {
           return /* tuple */[
                   inp,
                   /* :: */[
-                    /* Guess_Output */Block.__(9, [Guesser$MyNewProject.guess(v0$2[0], v1$2[0], v2$1[0], v3[0])]),
-                    stack$6[1]
+                    /* Guess_Output */Block.__(9, [Guesser$MyNewProject.guess(v0$1[0], v1$1[0], v2[0], v3[0])]),
+                    stack$4[1]
                   ]
                 ];
         } else {
@@ -233,21 +201,21 @@ function $$process(inp, stack, command) {
         if (!stack) {
           return Pervasives.failwith("Empty stack");
         }
-        var v2$2 = stack[0];
-        if (v2$2.tag) {
+        var v2$1 = stack[0];
+        if (v2$1.tag) {
           return Pervasives.failwith("Type error");
         }
-        var stack$7 = stack[1];
-        if (!stack$7) {
+        var stack$5 = stack[1];
+        if (!stack$5) {
           return Pervasives.failwith("Empty stack");
         }
-        var v1$3 = stack$7[0];
-        if (v1$3.tag === /* Constraint_ */5) {
+        var v1$2 = stack$5[0];
+        if (v1$2.tag === /* Constraint_ */5) {
           return /* tuple */[
                   inp,
                   /* :: */[
-                    /* Solver_Output */Block.__(10, [Solver$MyNewProject.solve(v1$3[0], v2$2[0])]),
-                    stack$7[1]
+                    /* Solver_Output */Block.__(10, [Solver$MyNewProject.solve(v1$2[0], v2$1[0])]),
+                    stack$5[1]
                   ]
                 ];
         } else {
@@ -263,6 +231,38 @@ function $$process(inp, stack, command) {
                 ]
               ];
     case "uneval" :
+        if (!stack) {
+          return Pervasives.failwith("Empty stack");
+        }
+        var v2$2 = stack[0];
+        if (v2$2.tag !== /* Example */4) {
+          return Pervasives.failwith("Type error");
+        }
+        var stack$6 = stack[1];
+        if (!stack$6) {
+          return Pervasives.failwith("Empty stack");
+        }
+        var v1$3 = stack$6[0];
+        if (v1$3.tag !== /* Res */2) {
+          return Pervasives.failwith("Type error");
+        }
+        var stack$7 = stack$6[1];
+        if (!stack$7) {
+          return Pervasives.failwith("Empty stack");
+        }
+        var v0$2 = stack$7[0];
+        if (v0$2.tag === /* Hole_Context */7) {
+          return /* tuple */[
+                  inp,
+                  /* :: */[
+                    /* Constraint_ */Block.__(5, [Unevaluator$MyNewProject.unevalInit(v0$2[0], v1$3[0], v2$2[0])]),
+                    stack$7[1]
+                  ]
+                ];
+        } else {
+          return Pervasives.failwith("Type error");
+        }
+    case "unevaluate" :
         if (!stack) {
           return Pervasives.failwith("Empty stack");
         }
@@ -287,40 +287,8 @@ function $$process(inp, stack, command) {
           return /* tuple */[
                   inp,
                   /* :: */[
-                    /* Constraint_ */Block.__(5, [Unevaluator$MyNewProject.unevaluate(v0$3[0], v1$4[0], v2$3[0])]),
+                    /* Constraint_ */Block.__(5, [Unevaluator$MyNewProject.unevalInit(v0$3[0], v1$4[0], v2$3[0])]),
                     stack$9[1]
-                  ]
-                ];
-        } else {
-          return Pervasives.failwith("Type error");
-        }
-    case "unevaluate" :
-        if (!stack) {
-          return Pervasives.failwith("Empty stack");
-        }
-        var v2$4 = stack[0];
-        if (v2$4.tag !== /* Example */4) {
-          return Pervasives.failwith("Type error");
-        }
-        var stack$10 = stack[1];
-        if (!stack$10) {
-          return Pervasives.failwith("Empty stack");
-        }
-        var v1$5 = stack$10[0];
-        if (v1$5.tag !== /* Res */2) {
-          return Pervasives.failwith("Type error");
-        }
-        var stack$11 = stack$10[1];
-        if (!stack$11) {
-          return Pervasives.failwith("Empty stack");
-        }
-        var v0$4 = stack$11[0];
-        if (v0$4.tag === /* Hole_Context */7) {
-          return /* tuple */[
-                  inp,
-                  /* :: */[
-                    /* Constraint_ */Block.__(5, [Unevaluator$MyNewProject.unevaluate(v0$4[0], v1$5[0], v2$4[0])]),
-                    stack$11[1]
                   ]
                 ];
         } else {

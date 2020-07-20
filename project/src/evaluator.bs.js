@@ -74,6 +74,7 @@ function $$eval(__env, _e) {
                     _env
                   ]);
       case /* Var */7 :
+          console.log("Exp var");
           return Tools$MyNewProject.lookup(e[0], _env);
       case /* Pair */8 :
           return /* Rpair */Block.__(7, [
@@ -98,95 +99,12 @@ function $$eval(__env, _e) {
           if (match.tag !== /* Rctor */10) {
             return Pervasives.failwith("Type error: expected a constructor within case");
           }
+          console.log("Exp case");
           var match$1 = Tools$MyNewProject.lookup(match[0], e[1]);
           _e = match$1[1];
           __env = Pervasives.$at(getPatEnv(match$1[0], match[2]), _env);
           continue ;
       
-    }
-  };
-}
-
-function fillExp(_exp, f) {
-  while(true) {
-    var exp = _exp;
-    if (typeof exp === "number") {
-      if (exp !== /* Nil */0) {
-        return /* Unit */1;
-      }
-      throw [
-            Caml_builtin_exceptions.match_failure,
-            /* tuple */[
-              "evaluator.re",
-              50,
-              26
-            ]
-          ];
-    } else {
-      switch (exp.tag | 0) {
-        case /* Int */0 :
-            return /* Int */Block.__(0, [exp[0]]);
-        case /* Float */1 :
-            return /* Float */Block.__(1, [exp[0]]);
-        case /* Bool */2 :
-            return /* Bool */Block.__(2, [exp[0]]);
-        case /* Cons */3 :
-            throw [
-                  Caml_builtin_exceptions.match_failure,
-                  /* tuple */[
-                    "evaluator.re",
-                    50,
-                    26
-                  ]
-                ];
-        case /* Function */4 :
-            return /* Function */Block.__(4, [
-                      exp[0],
-                      exp[1],
-                      exp[2],
-                      fillExp(exp[3], f)
-                    ]);
-        case /* Application */5 :
-            return /* Application */Block.__(5, [
-                      fillExp(exp[0], f),
-                      fillExp(exp[1], f)
-                    ]);
-        case /* Hole */6 :
-            _exp = Tools$MyNewProject.lookup(exp[0], f);
-            continue ;
-        case /* Var */7 :
-            return /* Var */Block.__(7, [exp[0]]);
-        case /* Pair */8 :
-            return /* Pair */Block.__(8, [
-                      fillExp(exp[0], f),
-                      fillExp(exp[1], f)
-                    ]);
-        case /* Fst */9 :
-            return /* Fst */Block.__(9, [fillExp(exp[0], f)]);
-        case /* Snd */10 :
-            return /* Snd */Block.__(10, [fillExp(exp[0], f)]);
-        case /* Ctor */11 :
-            return /* Ctor */Block.__(11, [
-                      exp[0],
-                      exp[1],
-                      fillExp(exp[2], f)
-                    ]);
-        case /* Case */12 :
-            return /* Case */Block.__(12, [
-                      fillExp(exp[0], f),
-                      List.map((function (param) {
-                              var match = param[1];
-                              return /* tuple */[
-                                      param[0],
-                                      /* tuple */[
-                                        match[0],
-                                        fillExp(match[1], f)
-                                      ]
-                                    ];
-                            }), exp[1])
-                    ]);
-        
-      }
     }
   };
 }
@@ -209,7 +127,178 @@ function getPatEnv(pat, r) {
   }
 }
 
+function fillRes(r, f) {
+  if (typeof r === "number") {
+    return r;
+  }
+  switch (r.tag | 0) {
+    case /* Rfunc */4 :
+        return /* Rfunc */Block.__(4, [
+                  r[0],
+                  r[1],
+                  r[2],
+                  fillExp(r[3], f),
+                  fillEnv(r[4], f)
+                ]);
+    case /* Rapp */5 :
+        return /* Rapp */Block.__(5, [
+                  fillRes(r[0], f),
+                  fillRes(r[1], f)
+                ]);
+    case /* Rhole */6 :
+        return /* Rhole */Block.__(6, [
+                  r[0],
+                  fillEnv(r[1], f)
+                ]);
+    case /* Rpair */7 :
+        return /* Rpair */Block.__(7, [
+                  fillRes(r[0], f),
+                  fillRes(r[1], f)
+                ]);
+    case /* Rfst */8 :
+        return /* Rfst */Block.__(8, [fillRes(r[0], f)]);
+    case /* Rsnd */9 :
+        return /* Rsnd */Block.__(9, [fillRes(r[0], f)]);
+    case /* Rctor */10 :
+        return /* Rctor */Block.__(10, [
+                  r[0],
+                  r[1],
+                  fillRes(r[2], f)
+                ]);
+    case /* Rictor */11 :
+        return /* Rictor */Block.__(11, [
+                  r[0],
+                  r[1],
+                  fillRes(r[2], f)
+                ]);
+    case /* Rcase */12 :
+        return /* Rcase */Block.__(12, [
+                  fillRes(r[0], f),
+                  List.map((function (param) {
+                          var match = param[1];
+                          return /* tuple */[
+                                  param[0],
+                                  /* tuple */[
+                                    match[0],
+                                    fillExp(match[1], f)
+                                  ]
+                                ];
+                        }), r[1]),
+                  fillEnv(r[2], f)
+                ]);
+    default:
+      return r;
+  }
+}
+
+function fillExp(exp, f) {
+  if (typeof exp === "number") {
+    if (exp !== /* Nil */0) {
+      return /* Unit */1;
+    }
+    throw [
+          Caml_builtin_exceptions.match_failure,
+          /* tuple */[
+            "evaluator.re",
+            81,
+            26
+          ]
+        ];
+  } else {
+    switch (exp.tag | 0) {
+      case /* Int */0 :
+          return /* Int */Block.__(0, [exp[0]]);
+      case /* Float */1 :
+          return /* Float */Block.__(1, [exp[0]]);
+      case /* Bool */2 :
+          return /* Bool */Block.__(2, [exp[0]]);
+      case /* Cons */3 :
+          throw [
+                Caml_builtin_exceptions.match_failure,
+                /* tuple */[
+                  "evaluator.re",
+                  81,
+                  26
+                ]
+              ];
+      case /* Function */4 :
+          return /* Function */Block.__(4, [
+                    exp[0],
+                    exp[1],
+                    exp[2],
+                    fillExp(exp[3], f)
+                  ]);
+      case /* Application */5 :
+          return /* Application */Block.__(5, [
+                    fillExp(exp[0], f),
+                    fillExp(exp[1], f)
+                  ]);
+      case /* Hole */6 :
+          var x = exp[0];
+          console.log("Hole, fillExp");
+          try {
+            return fillExp(Tools$MyNewProject.lookup(x, f), f);
+          }
+          catch (exn){
+            if (exn === Caml_builtin_exceptions.not_found) {
+              return /* Hole */Block.__(6, [x]);
+            }
+            throw exn;
+          }
+      case /* Var */7 :
+          return /* Var */Block.__(7, [exp[0]]);
+      case /* Pair */8 :
+          return /* Pair */Block.__(8, [
+                    fillExp(exp[0], f),
+                    fillExp(exp[1], f)
+                  ]);
+      case /* Fst */9 :
+          return /* Fst */Block.__(9, [fillExp(exp[0], f)]);
+      case /* Snd */10 :
+          return /* Snd */Block.__(10, [fillExp(exp[0], f)]);
+      case /* Ctor */11 :
+          return /* Ctor */Block.__(11, [
+                    exp[0],
+                    exp[1],
+                    fillExp(exp[2], f)
+                  ]);
+      case /* Case */12 :
+          return /* Case */Block.__(12, [
+                    fillExp(exp[0], f),
+                    List.map((function (param) {
+                            var match = param[1];
+                            return /* tuple */[
+                                    param[0],
+                                    /* tuple */[
+                                      match[0],
+                                      fillExp(match[1], f)
+                                    ]
+                                  ];
+                          }), exp[1])
+                  ]);
+      
+    }
+  }
+}
+
+function fillEnv(env, f) {
+  console.log("Filling env");
+  return List.map((function (param) {
+                return /* tuple */[
+                        param[0],
+                        fillRes(param[1], f)
+                      ];
+              }), env);
+}
+
+function evalAndFill(env, e, f) {
+  return fillRes($$eval(env, e), f);
+}
+
 exports.$$eval = $$eval;
+exports.evalAndFill = evalAndFill;
+exports.fillEnv = fillEnv;
+exports.fillRes = fillRes;
 exports.fillExp = fillExp;
 exports.getPatEnv = getPatEnv;
 /* No side effect */

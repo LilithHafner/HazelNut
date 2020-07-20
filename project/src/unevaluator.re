@@ -21,7 +21,8 @@ open Types;
 // No constructors in language yet, will probably add later
 // But that means there's a bunch less cases
 // I believe this is all cases without adding in constructors
-let rec unevaluate = (delta, res:res, ex:example) : option(unevalcons) => {
+let rec unevaluate = (delta, f, res:res, ex:example) : option(unevalcons) => {
+    let res = Evaluator.fillRes(res, f);
     switch ((ex, res)) {
         // Top adds no constraints
         | (Top, _) => Some(([], []))
@@ -34,22 +35,26 @@ let rec unevaluate = (delta, res:res, ex:example) : option(unevalcons) => {
         // A pair of examples adds the constraints of both examples
         // on their respective results
         | (Epair(ex1, ex2), Rpair(r1, r2)) => {
-            switch (unevaluate(delta, r1, ex1), unevaluate(delta, r2, ex2)) {
+            switch (unevaluate(delta, f, r1, ex1), unevaluate(delta, f, r2, ex2)) {
                 | (Some(k1), Some(k2)) => Some(merge(k1, k2))
                 | _ => None
                 }
         }
         // A hole adds its environment and example to the list of 
         // unfilled holes.
-        | (_, Rhole(id, env)) => Some(([(id, [(env, ex)])], []))
-        | (_, Rfst(r)) => unevaluate(delta, r, Epair(ex, Top))
-        | (_, Rsnd(r)) => unevaluate(delta, r, Epair(Top, ex))
+        | (_, Rhole(id, env)) => {
+            Js.log("Simply reached hole");
+            Js.log(id);
+            Some(([(id, [(env, ex)])], []))
+        }
+        | (_, Rfst(r)) => unevaluate(delta, f, r, Epair(ex, Top))
+        | (_, Rsnd(r)) => unevaluate(delta, f, r, Epair(Top, ex))
         // Attempts to cast r2 to a value, and then continues
         // unevaluation on r1 with a new example.
         | (_, Rapp(r1, r2)) =>
             if (castable(r2)) {
                 let Some(v) = resToVal(r2);
-                unevaluate(delta, r1, Efunc(v, ex))
+                unevaluate(delta, f, r1, Efunc(v, ex))
             } else {
                 None // fail
             }
@@ -59,21 +64,21 @@ let rec unevaluate = (delta, res:res, ex:example) : option(unevalcons) => {
         | (Efunc(v, ex'), Rfunc(name, id, _, exp, env)) => {
             let env' = [(name, res), (id, valToRes(v)), ...env];
             let exs = [(env', ex')];
-            constrainExp(delta, exp, exs)
+            constrainExp(delta, f, exp, exs)
         }
         | (Ector(id1, _, ex'), Rctor(id2, _, r')) when id1 == id2 => {
-            unevaluate(delta, r', ex')
+            unevaluate(delta, f, r', ex')
         }
-        | (_, Rictor(id, adt, r')) => unevaluate(delta, r', Ector(id, adt, ex))
+        | (_, Rictor(id, adt, r')) => unevaluate(delta, f, r', Ector(id, adt, ex))
         | (_, Rcase(r', branches, env)) => {
             let cons = List.map(
                 ((ctor_id, (p, e1))) => {
                     let D(t) = Typing.getResType(delta, r');
-                    let k1 = unevaluate(delta, r', Ector(ctor_id, t, Top));
+                    let k1 = unevaluate(delta, f, r', Ector(ctor_id, t, Top));
                     let patBinds = List.map(
                         (x) => getPatRes(x, p, Rictor(ctor_id, t, r')),
                         getPatIds(p));
-                    let k2 = constrainExp(delta, e1, [(patBinds @ env, ex)]);
+                    let k2 = constrainExp(delta, f, e1, [(patBinds @ env, ex)]);
                     switch (mergeCons(k1, k2)) {
                         | None => None
                         | x => x
@@ -89,6 +94,8 @@ let rec unevaluate = (delta, res:res, ex:example) : option(unevalcons) => {
         | _ => None // fail
     }
 }
+
+and unevalInit = (delta, r, ex) => unevaluate(delta, [], r, ex)
 
 and getPatIds = (p) => 
     switch (p) {
@@ -118,15 +125,11 @@ and getPatRes_h = (id, p, r) =>
 // e -> r using env
 // unevaluate(r, ex)
 
-and constrainExp = (delta, exp, exs) => {
-    Js.log("Constrain");
-    Js.log(Printer.string_of_exp(exp));
-    Js.log(Printer.string_of_excons(exs));
-    Js.log("End");
+and constrainExp = (delta, f, exp, exs) => {
     switch (exs) {
         | [] => Some(([], []))
         | [(env, ex), ...xs] => {
-            switch (constrainExp(delta, exp, xs), unevaluate(delta, Evaluator.eval(env, exp), ex)) {
+            switch (constrainExp(delta, f, exp, xs), unevaluate(delta, f, Evaluator.evalAndFill(env, exp, f), ex)) {
                 | (None, _) => None
                 | (_, None) => None
                 | (Some(k1), Some(k2)) => Some(merge(k1, k2))

@@ -27,12 +27,12 @@ function simplifyConstructor(res) {
   }
 }
 
-function distribute(delta, exs, adt, scrut, ctors) {
+function distribute(delta, f, exs, adt, scrut, ctors) {
   return List.map((function (param) {
                 var id = param[0];
                 return List.filter((function (param) {
                                 var r = Evaluator$MyNewProject.$$eval(param[0], scrut);
-                                return Unevaluator$MyNewProject.optionPred(Unevaluator$MyNewProject.unevaluate(delta, r, /* Ector */Block.__(4, [
+                                return Unevaluator$MyNewProject.optionPred(Unevaluator$MyNewProject.unevaluate(delta, f, r, /* Ector */Block.__(4, [
                                                   id,
                                                   adt,
                                                   /* Top */0
@@ -41,16 +41,16 @@ function distribute(delta, exs, adt, scrut, ctors) {
               }), ctors);
 }
 
-function branch_indiv(delta, gamma, typ, exs, datatype) {
+function branch_indiv(delta, gamma, f, typ, exs, datatype) {
   var es = Guesser$MyNewProject.guess(delta, gamma, /* D */Block.__(3, [datatype]), 1);
   return List.map((function (e) {
                 var constructors = Tools$MyNewProject.lookup(datatype, Types$MyNewProject.sigma);
-                var distributedExs = distribute(delta, exs, datatype, e, constructors);
+                var distributedExs = distribute(delta, f, exs, datatype, e, constructors);
                 var unevalCons = List.fold_left(Unevaluator$MyNewProject.mergeCons, /* tuple */[
                       /* [] */0,
                       /* [] */0
                     ], List.map((function (exs) {
-                            return Unevaluator$MyNewProject.constrainExp(delta, e, exs);
+                            return Unevaluator$MyNewProject.constrainExp(delta, f, e, exs);
                           }), distributedExs));
                 var branches = List.map((function (param) {
                         var id = param[0];
@@ -218,7 +218,7 @@ function branch_indiv(delta, gamma, typ, exs, datatype) {
               }), es);
 }
 
-function branch(delta, gamma, typ, exs) {
+function branch(delta, gamma, f, typ, exs) {
   var datatypes = List.sort_uniq((function (t1, t2) {
           return 0;
         }), List.map((function (t) {
@@ -237,7 +237,7 @@ function branch(delta, gamma, typ, exs) {
                       return param[1][0];
                     }), gamma))));
   return List.concat(List.map((function (d) {
-                    return branch_indiv(delta, gamma, typ, exs, d);
+                    return branch_indiv(delta, gamma, f, typ, exs, d);
                   }), datatypes));
 }
 

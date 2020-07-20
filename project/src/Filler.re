@@ -37,26 +37,26 @@ let optionPred = (x) =>
         | None => false
         };
 
-let rec guessAndCheck_h = (delta, gamma, typ, exs, i) => {
+let rec guessAndCheck_h = (delta, gamma, f, typ, exs, i) => {
     if (i > 8) {
         None
     } else {
         let es: list(Types.exp) = Guesser.guess(delta, gamma, typ, i);
         let checked = List.filter(
             (e) => {
-                Unevaluator.constrainExp(delta, e, exs) -> optionPred
+                Unevaluator.constrainExp(delta, f, e, exs) -> optionPred
             },
             es);
         switch (checked) {
-            | [] => guessAndCheck_h(delta, gamma, typ, exs, i + 1)
+            | [] => guessAndCheck_h(delta, gamma, f, typ, exs, i + 1)
             | [e, ..._] => Some(e)
             }
     }
 };
 
-let guessAndCheck = (delta, gamma, typ, exs) => {
+let guessAndCheck = (delta, gamma, f, typ, exs) => {
     Guesser.resetMemo();
-    guessAndCheck_h(delta, gamma, typ, exs, 1)
+    guessAndCheck_h(delta, gamma, f, typ, exs, 1)
 };
 
 let rec allBranchesFound = (xs) => {
@@ -110,12 +110,12 @@ and fill_h = (delta, holeFillings, gamma, h, typ, exs, depth) => {
 }
 
 and guessAndOrBranch = (delta, holeFillings, gamma, h, typ, exs, depth) => {
-    let e = guessAndCheck(delta, gamma, typ, exs);
-    switch (e) {
+    let g = guessAndCheck(delta, gamma, holeFillings, typ, exs);
+    switch (g) {
         | None when depth <= 3 => {
             // Branch
 
-            let bs = Brancher.branch(delta, gamma, typ, exs)
+            let bs = Brancher.branch(delta, gamma, holeFillings, typ, exs)
                 |> List.map(
                     ((exp, goals, unevalCons)) => {
                         let f = [(h, exp), ...holeFillings];
