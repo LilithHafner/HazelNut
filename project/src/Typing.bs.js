@@ -8,6 +8,7 @@ var Pervasives = require("bs-platform/lib/js/pervasives.js");
 var Tools$MyNewProject = require("./Tools.bs.js");
 var Types$MyNewProject = require("./Types.bs.js");
 var Caml_builtin_exceptions = require("bs-platform/lib/js/caml_builtin_exceptions.js");
+var Typecasting$MyNewProject = require("./Typecasting.bs.js");
 
 function getType(delta, gamma, _e) {
   while(true) {
@@ -133,20 +134,20 @@ function getResType(delta, _r) {
       case /* Rfst */8 :
           var r$prime = r[0];
           if (typeof r$prime === "number") {
-            return Pervasives.failwith("Type error: Exppected pair");
+            return Pervasives.failwith("Type error: Expected pair");
           }
           if (r$prime.tag !== /* Rpair */7) {
-            return Pervasives.failwith("Type error: Exppected pair");
+            return Pervasives.failwith("Type error: Expected pair");
           }
           _r = r$prime[0];
           continue ;
       case /* Rsnd */9 :
           var r$prime$1 = r[0];
           if (typeof r$prime$1 === "number") {
-            return Pervasives.failwith("Type error: Exppected pair");
+            return Pervasives.failwith("Type error: Expected pair");
           }
           if (r$prime$1.tag !== /* Rpair */7) {
-            return Pervasives.failwith("Type error: Exppected pair");
+            return Pervasives.failwith("Type error: Expected pair");
           }
           _r = r$prime$1[1];
           continue ;
@@ -240,7 +241,7 @@ function getExType(delta, ex) {
                 ]);
     case /* Efunc */3 :
         return /* Function_t */Block.__(1, [
-                  getResType(delta, Types$MyNewProject.valToRes(ex[0])),
+                  getResType(delta, Typecasting$MyNewProject.valToRes(ex[0])),
                   getExType(delta, ex[1])
                 ]);
     case /* Ector */4 :

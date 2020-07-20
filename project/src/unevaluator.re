@@ -50,8 +50,8 @@ let rec unevaluate = (delta, f, res:res, ex:example) : option(unevalcons) => {
         // Attempts to cast r2 to a value, and then continues
         // unevaluation on r1 with a new example.
         | (_, Rapp(r1, r2)) =>
-            if (castable(r2)) {
-                let Some(v) = resToVal(r2);
+            if (Typecasting.castable(r2)) {
+                let Some(v) = Typecasting.resToVal(r2);
                 unevaluate(delta, f, r1, Efunc(v, ex))
             } else {
                 None // fail
@@ -60,7 +60,7 @@ let rec unevaluate = (delta, f, res:res, ex:example) : option(unevalcons) => {
         // and binds the variable of the lambda to the value,
         // and then performs bidirectional evaluation.
         | (Efunc(v, ex'), Rfunc(name, id, _, exp, env)) => {
-            let env' = [(name, res), (id, valToRes(v)), ...env];
+            let env' = [(name, res), (id, Typecasting.valToRes(v)), ...env];
             let exs = [(env', ex')];
             constrainExp(delta, f, exp, exs)
         }

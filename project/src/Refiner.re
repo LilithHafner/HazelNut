@@ -80,7 +80,7 @@ let sndExs = (exs) => List.map(
 let prepFuncExs = (exs, e) => {
     let Function(n, x, t, e') = e;
     List.map(
-    ((env, Efunc(v, ex))) => ([(n, Rfunc(n, x, t, e', env)), (x, Types.valToRes(v)), ...env], ex),
+    ((env, Efunc(v, ex))) => ([(n, Rfunc(n, x, t, e', env)), (x, Typecasting.valToRes(v)), ...env], ex),
      exs)
 };
 

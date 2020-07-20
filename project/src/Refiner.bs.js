@@ -8,6 +8,7 @@ var Tools$MyNewProject = require("./Tools.bs.js");
 var Types$MyNewProject = require("./Types.bs.js");
 var Caml_builtin_exceptions = require("bs-platform/lib/js/caml_builtin_exceptions.js");
 var IdGenerator$MyNewProject = require("./IdGenerator.bs.js");
+var Typecasting$MyNewProject = require("./Typecasting.bs.js");
 
 var outFunc = {
   contents: true
@@ -251,7 +252,7 @@ function prepFuncExs(exs, e) {
                               /* :: */[
                                 /* tuple */[
                                   x,
-                                  Types$MyNewProject.valToRes(match[0])
+                                  Typecasting$MyNewProject.valToRes(match[0])
                                 ],
                                 env
                               ]

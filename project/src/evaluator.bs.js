@@ -5,6 +5,7 @@ var List = require("bs-platform/lib/js/list.js");
 var Block = require("bs-platform/lib/js/block.js");
 var Pervasives = require("bs-platform/lib/js/pervasives.js");
 var Tools$MyNewProject = require("./Tools.bs.js");
+var Printer$MyNewProject = require("./Printer.bs.js");
 var Caml_builtin_exceptions = require("bs-platform/lib/js/caml_builtin_exceptions.js");
 
 function $$eval(__env, _e) {
@@ -91,7 +92,10 @@ function $$eval(__env, _e) {
                     $$eval(_env, e[2])
                   ]);
       case /* Case */12 :
-          var match = $$eval(_env, e[0]);
+          var e1 = e[0];
+          console.log("evaluator case");
+          console.log(Printer$MyNewProject.string_of_exp(e1));
+          var match = $$eval(_env, e1);
           if (typeof match === "number") {
             return Pervasives.failwith("Type error: expected a constructor within case");
           }
@@ -203,7 +207,7 @@ function fillExp(exp, f) {
           Caml_builtin_exceptions.match_failure,
           /* tuple */[
             "evaluator.re",
-            77,
+            80,
             26
           ]
         ];
@@ -220,7 +224,7 @@ function fillExp(exp, f) {
                 Caml_builtin_exceptions.match_failure,
                 /* tuple */[
                   "evaluator.re",
-                  77,
+                  80,
                   26
                 ]
               ];

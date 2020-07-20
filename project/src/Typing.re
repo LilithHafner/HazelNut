@@ -75,11 +75,11 @@ let rec getResType = (delta, r: res) =>
         | Rpair(r1, r2) => Pair_t(getResType(delta, r1), getResType(delta, r2))
         | Rfst(r') => switch (r') {
             | Rpair(r1, _) => getResType(delta, r1)
-            | _ => failwith("Type error: Exppected pair")
+            | _ => failwith("Type error: Expected pair")
             }
         | Rsnd(r') => switch(r') { 
             | Rpair(_, r2) => getResType(delta, r2)
-            | _ => failwith("Type error: Exppected pair")
+            | _ => failwith("Type error: Expected pair")
             }
         | Rctor(id, adt, r') => {
             if (Tools.lookup(adt, sigma) |> Tools.lookup(id) == getResType(delta, r')) {
@@ -123,7 +123,7 @@ let rec getExType = (delta, ex) => {
        | Eint(_) => Int_t 
        | Ebool(_) => Bool_t 
        | Epair(ex1, ex2) => Pair_t(getExType(delta, ex1), getExType(delta, ex2))
-       | Efunc(v, ex1) => Function_t(valToRes(v) |> getResType(delta), getExType(delta, ex1))
+       | Efunc(v, ex1) => Function_t(Typecasting.valToRes(v) |> getResType(delta), getExType(delta, ex1))
        | Ector(id, adt, ex1) => {
            let t: type_ = Tools.lookup(adt, sigma) |> Tools.lookup(id);
            if (t == getExType(delta, ex1)) {

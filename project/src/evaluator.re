@@ -36,7 +36,9 @@ let rec eval = (_env:environment, e:exp):res => {
         | Nil => Rnil 
         | Ctor(id, adt, e1) => Rctor(id, adt, eval(_env, e1))
         // Need to come back and handle indeterminate case eventually.
-        | Case(e1, branches) =>
+        | Case(e1, branches) => {
+            Js.log("evaluator case");
+            Js.log(Printer.string_of_exp(e1));
             switch (eval(_env, e1)) {
                 | Rctor(id, _, r) => {
                     let (pat, e2) = Tools.lookup(id, branches);
@@ -44,6 +46,7 @@ let rec eval = (_env:environment, e:exp):res => {
                 }
                 | _ => failwith("Type error: expected a constructor within case")
             }
+        }
     }
 }
 

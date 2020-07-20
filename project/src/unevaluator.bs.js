@@ -5,10 +5,10 @@ var List = require("bs-platform/lib/js/list.js");
 var Block = require("bs-platform/lib/js/block.js");
 var Pervasives = require("bs-platform/lib/js/pervasives.js");
 var Tools$MyNewProject = require("./Tools.bs.js");
-var Types$MyNewProject = require("./Types.bs.js");
 var Typing$MyNewProject = require("./Typing.bs.js");
 var Evaluator$MyNewProject = require("./evaluator.bs.js");
 var Caml_builtin_exceptions = require("bs-platform/lib/js/caml_builtin_exceptions.js");
+var Typecasting$MyNewProject = require("./Typecasting.bs.js");
 
 function unevaluate(delta, f, _res, _ex) {
   while(true) {
@@ -132,7 +132,7 @@ function unevaluate(delta, f, _res, _ex) {
                   var env$prime_001 = /* :: */[
                     /* tuple */[
                       res$1[1],
-                      Types$MyNewProject.valToRes(ex[0])
+                      Typecasting$MyNewProject.valToRes(ex[0])
                     ],
                     res$1[4]
                   ];
@@ -190,10 +190,10 @@ function unevaluate(delta, f, _res, _ex) {
       switch (res$1.tag | 0) {
         case /* Rapp */5 :
             var r2 = res$1[1];
-            if (!Types$MyNewProject.castable(r2)) {
+            if (!Typecasting$MyNewProject.castable(r2)) {
               return ;
             }
-            var v = Types$MyNewProject.resToVal(r2);
+            var v = Typecasting$MyNewProject.resToVal(r2);
             if (v !== undefined) {
               _ex = /* Efunc */Block.__(3, [
                   v,
@@ -318,76 +318,6 @@ function unevaluate(delta, f, _res, _ex) {
   };
 }
 
-function merge_h(_u1, _u2) {
-  while(true) {
-    var u2 = _u2;
-    var u1 = _u1;
-    if (!u1) {
-      return u2;
-    }
-    _u2 = Tools$MyNewProject.add(u1[0], u2);
-    _u1 = u1[1];
-    continue ;
-  };
-}
-
-function optionPred(x) {
-  return x !== undefined;
-}
-
-function getPatIds(p) {
-  if (p.tag) {
-    return Pervasives.$at(getPatIds(p[0]), getPatIds(p[1]));
-  } else {
-    return /* :: */[
-            p[0],
-            /* [] */0
-          ];
-  }
-}
-
-function mergeCons(k1, k2) {
-  if (k1 !== undefined && k2 !== undefined) {
-    return merge(k1, k2);
-  }
-  
-}
-
-function merge(k1, k2) {
-  return /* tuple */[
-          merge_h(k1[0], k2[0]),
-          Pervasives.$at(k1[1], k2[1])
-        ];
-}
-
-function constrainExp(delta, f, exp, exs) {
-  if (!exs) {
-    return /* tuple */[
-            /* [] */0,
-            /* [] */0
-          ];
-  }
-  var match = exs[0];
-  var match$1 = constrainExp(delta, f, exp, exs[1]);
-  var match$2 = unevaluate(delta, f, Evaluator$MyNewProject.evalAndFill(match[0], exp, f), match[1]);
-  if (match$1 !== undefined && match$2 !== undefined) {
-    return merge(match$1, match$2);
-  }
-  
-}
-
-function getPatRes(id, p, r) {
-  var x = getPatRes_h(id, p, r);
-  if (x !== undefined) {
-    return /* tuple */[
-            id,
-            x
-          ];
-  } else {
-    return Pervasives.failwith("Id wasn't found in pattern");
-  }
-}
-
 function getPatRes_h(id, p, r) {
   if (!p.tag) {
     if (p[0] === id) {
@@ -409,6 +339,76 @@ function getPatRes_h(id, p, r) {
   } else {
     return Pervasives.failwith("Id not found in pattern");
   }
+}
+
+function merge_h(_u1, _u2) {
+  while(true) {
+    var u2 = _u2;
+    var u1 = _u1;
+    if (!u1) {
+      return u2;
+    }
+    _u2 = Tools$MyNewProject.add(u1[0], u2);
+    _u1 = u1[1];
+    continue ;
+  };
+}
+
+function merge(k1, k2) {
+  return /* tuple */[
+          merge_h(k1[0], k2[0]),
+          Pervasives.$at(k1[1], k2[1])
+        ];
+}
+
+function getPatRes(id, p, r) {
+  var x = getPatRes_h(id, p, r);
+  if (x !== undefined) {
+    return /* tuple */[
+            id,
+            x
+          ];
+  } else {
+    return Pervasives.failwith("Id wasn't found in pattern");
+  }
+}
+
+function getPatIds(p) {
+  if (p.tag) {
+    return Pervasives.$at(getPatIds(p[0]), getPatIds(p[1]));
+  } else {
+    return /* :: */[
+            p[0],
+            /* [] */0
+          ];
+  }
+}
+
+function mergeCons(k1, k2) {
+  if (k1 !== undefined && k2 !== undefined) {
+    return merge(k1, k2);
+  }
+  
+}
+
+function optionPred(x) {
+  return x !== undefined;
+}
+
+function constrainExp(delta, f, exp, exs) {
+  if (!exs) {
+    return /* tuple */[
+            /* [] */0,
+            /* [] */0
+          ];
+  }
+  var match = exs[0];
+  var match$1 = constrainExp(delta, f, exp, exs[1]);
+  var match$2 = unevaluate(delta, f, Evaluator$MyNewProject.evalAndFill(match[0], exp, f), match[1]);
+  if (match$1 !== undefined && match$2 !== undefined) {
+    return merge(match$1, match$2);
+  }
+  
 }
 
 function unevalInit(delta, r, ex) {
