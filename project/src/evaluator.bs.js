@@ -95,6 +95,7 @@ function $$eval(__env, _e) {
           var e1 = e[0];
           console.log("evaluator case");
           console.log(Printer$MyNewProject.string_of_exp(e1));
+          console.log(Printer$MyNewProject.string_of_res($$eval(_env, e1)));
           var match = $$eval(_env, e1);
           if (typeof match === "number") {
             return Pervasives.failwith("Type error: expected a constructor within case");
@@ -207,7 +208,7 @@ function fillExp(exp, f) {
           Caml_builtin_exceptions.match_failure,
           /* tuple */[
             "evaluator.re",
-            80,
+            81,
             26
           ]
         ];
@@ -224,7 +225,7 @@ function fillExp(exp, f) {
                 Caml_builtin_exceptions.match_failure,
                 /* tuple */[
                   "evaluator.re",
-                  80,
+                  81,
                   26
                 ]
               ];

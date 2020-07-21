@@ -39,6 +39,7 @@ let rec eval = (_env:environment, e:exp):res => {
         | Case(e1, branches) => {
             Js.log("evaluator case");
             Js.log(Printer.string_of_exp(e1));
+            Js.log(Printer.string_of_res(eval(_env, e1)));
             switch (eval(_env, e1)) {
                 | Rctor(id, _, r) => {
                     let (pat, e2) = Tools.lookup(id, branches);
