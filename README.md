@@ -1,5 +1,3 @@
-# ___nut
-
 Implementation of the Smyth program synthesis system in ReasonML. The goal is to integrate the synthesis engine into the Hazel live editing environment,
 utilizing the live evaluation to make for a smoother synthesis experience. 
 
